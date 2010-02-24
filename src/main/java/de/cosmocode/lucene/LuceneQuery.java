@@ -53,10 +53,7 @@ public interface LuceneQuery {
      * the implementation should alter the default QueryModifier
      * (i.e. set a new default QueryModifier with wildcarded set to the given value).
      * @param wildCarded true to turn wildcarded behaviour on, false to turn it off.
-     * 
-     * @deprecated use {@link #setDefaultQueryModifier(QueryModifier)} instead with wildcarded set to true
      */
-    @Deprecated
     void setWildCarded(final boolean wildCarded);
     
     

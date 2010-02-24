@@ -2,7 +2,7 @@ package de.cosmocode.lucene;
 
 import de.cosmocode.patterns.Builder;
 
-public class LuceneQueryBuilder extends ForwardingLuceneQuery 
+public final class LuceneQueryBuilder extends ForwardingLuceneQuery 
     implements LuceneQuery, Builder<LuceneQuery> {
     
     private final LuceneQuery delegate;

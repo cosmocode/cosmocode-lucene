@@ -2,6 +2,8 @@ package de.cosmocode.lucene;
 
 import java.util.regex.Pattern;
 
+import de.cosmocode.patterns.Factory;
+
 /**
  * This class provides some static helper methods to format or escape input for Lucene queries.
  * 
@@ -9,20 +11,20 @@ import java.util.regex.Pattern;
  */
 public final class LuceneHelper {
     
+    
+    public static final Factory<LuceneQuery> DEFAULT_FACTORY = new DefaultLuceneQueryFactory();
+    
+    
     //---------------------------
     //   public helper methods
     //---------------------------
     
     // escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: and blanks  with "\"
-    public static final Pattern ESCAPE_PATTERN           = Pattern.compile("[\\Q+\\&|!(){}[]^~?*:; \\E]");
+    public static final Pattern ESCAPE_PATTERN           = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:; \\E]");
     // escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: with "\"
-    public static final Pattern ESCAPE_NO_BLANKS_PATTERN = Pattern.compile("[\\Q+\\&|!(){}[]^~?*:;\\E]");
-    // remove -
-    public static final Pattern REMOVE_PATTERN           = Pattern.compile("[\\-]");
-    // remove - and blanks
-    public static final Pattern REMOVE_BLANKS_PATTERN    = Pattern.compile("[\\- ]");
+    public static final Pattern ESCAPE_NO_BLANKS_PATTERN = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:;\\E]");
     
-    public static final Pattern QUOTES_PATTERN           = Pattern.compile("[\"]");
+    public static final Pattern QUOTES_PATTERN           = Pattern.compile("\"");
     
     
     private LuceneHelper() {
@@ -62,6 +64,13 @@ public final class LuceneHelper {
     }
     
     
+    public static String removeSpecialCharacters(final String input) {
+        if (input == null) return "";
+        final Pattern pattern = ESCAPE_PATTERN;
+        return escapeQuotes(pattern.matcher(input).replaceAll(""));
+    }
+    
+    
     /**
      * Escapes special chars for solr.<br>
      * Special chars are: +,\,&,|,!,(,),{,},[,],^,~,?,*,:,;<br>
@@ -76,12 +85,8 @@ public final class LuceneHelper {
      */
     public static String escapeInput(final String input, final boolean escapeBlanks) {
         if (input == null) return "";
-        return 
-        (escapeBlanks ? ESCAPE_PATTERN : ESCAPE_NO_BLANKS_PATTERN).matcher(
-            (escapeBlanks ? REMOVE_PATTERN : REMOVE_BLANKS_PATTERN).matcher(
-                input
-            ).replaceAll("")
-        ).replaceAll("\\\\$0");
+        final Pattern pattern = escapeBlanks ? ESCAPE_PATTERN : ESCAPE_NO_BLANKS_PATTERN;
+        return pattern.matcher(input).replaceAll("\\\\$0");
     }
     
     
@@ -93,6 +98,16 @@ public final class LuceneHelper {
      */
     public static String escapeAll(final String input) {
         return escapeQuotes(escapeInput(input, true));
+    }
+    
+    
+    /**
+     * Creates a new default LuceneQuery.
+     * The returned LuceneQuery is not threadsafe.
+     * @return a new default LuceneQuery
+     */
+    public static LuceneQuery newQuery() {
+        return DEFAULT_FACTORY.create();
     }
 
 }

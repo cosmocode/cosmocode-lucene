@@ -5,10 +5,15 @@ import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 
-final class DefaultLuceneQuery extends AbstractLuceneQuery implements LuceneQuery {
-    
-    public static final String ERR_FUZZY_OUT_OF_BOUNDS = 
-        "fuzzyness must be greater than equals 0 and less than 1 (i.e. 0 <= fuzzyness < 1)";
+/**
+ * <p>
+ * A default implementation of a LuceneQuery.
+ * This implementation is not threadsafe.
+ * </p>
+ * 
+ * @author Oliver Lorenz
+ */
+public final class DefaultLuceneQuery extends AbstractLuceneQuery implements LuceneQuery {
     
     public static final String ERR_BOOST_OUT_OF_BOUNDS = 
         "boostFactor must be greater than 0 and less than 10.000.000 (10 millions)";
@@ -16,11 +21,9 @@ final class DefaultLuceneQuery extends AbstractLuceneQuery implements LuceneQuer
     
     private final StringBuilder queryArguments;
     
-    
     public DefaultLuceneQuery() {
         this.queryArguments = new StringBuilder();
     }
-    
     
     @Override
     public String getQuery() {
@@ -35,9 +38,6 @@ final class DefaultLuceneQuery extends AbstractLuceneQuery implements LuceneQuer
     @Override
     public DefaultLuceneQuery addFuzzyArgument(final String value, 
             final QueryModifier modifier, final double fuzzyness) {
-        if (fuzzyness < 0.0 || fuzzyness >= 1.0)
-            throw new IllegalArgumentException(ERR_FUZZY_OUT_OF_BOUNDS);
-        
         return this.addArgument(value, modifier.copy().setFuzzyness(fuzzyness).end());
     }
     

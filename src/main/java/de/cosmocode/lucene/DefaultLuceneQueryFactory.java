@@ -10,7 +10,7 @@ import de.cosmocode.patterns.Factory;
  * 
  * @author Oliver Lorenz
  */
-public class DefaultLuceneQueryFactory implements Factory<LuceneQuery> {
+public final class DefaultLuceneQueryFactory implements Factory<LuceneQuery> {
     
     private final QueryModifier defaultQueryModifier;
     
