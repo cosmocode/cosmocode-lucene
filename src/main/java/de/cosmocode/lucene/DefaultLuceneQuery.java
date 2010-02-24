@@ -24,7 +24,8 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     public DefaultLuceneQuery() {
         this.queryArguments = new StringBuilder();
     }
-    
+
+    // TODO is an empty String on getQuery() ok? should it throw an IllegalStateException instead?
     @Override
     public String getQuery() {
         return this.queryArguments.toString();
