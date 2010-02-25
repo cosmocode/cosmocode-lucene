@@ -115,11 +115,59 @@ public final class QueryModifier {
     }
     
     
+    
+    
+    
     /* 
      * Builder Pattern
      * The Builder is a static class, and QueryModifier has some helper methods
      */
     
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (disjunct ? 1231 : 1237);
+        result = prime * result
+                + ((fuzzyness == null) ? 0 : fuzzyness.hashCode());
+        result = prime * result + (split ? 1231 : 1237);
+        result = prime * result
+                + ((termModifier == null) ? 0 : termModifier.hashCode());
+        result = prime * result + (wildcarded ? 1231 : 1237);
+        return result;
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (obj == null) {
+            return false;
+        } else if (obj instanceof QueryModifier) {
+            final QueryModifier other = (QueryModifier) obj;
+            return
+                disjunct == other.disjunct
+                && split == other.split
+                && wildcarded == other.wildcarded
+                && termModifier.equals(other.termModifier)
+                && (isFuzzyEnabled() 
+                    ? fuzzyness.equals(other.fuzzyness) 
+                    : !other.isFuzzyEnabled());
+        } else {
+            return false;
+        }
+    }
+    
+
+    @Override
+    public String toString() {
+        return "QueryModifier [disjunct=" + disjunct + ", fuzzyness="
+                + fuzzyness + ", split=" + split + ", termModifier="
+                + termModifier + ", wildcarded=" + wildcarded + "]";
+    }
+
+
     /**
      * Returns a {@link Builder} which is initialized as a copy of this QueryModifier.
      * @return a copy of this QueryModifier, as a {@link Builder}
@@ -244,6 +292,39 @@ public final class QueryModifier {
             return this;
         }
         
+        
+        /**
+         * <p> This is a shortcut for {@code setTermModifier(TermModifier.REQUIRED)}.
+         * </p> 
+         * @return this
+         * @see TermModifier#REQUIRED
+         */
+        public Builder required() {
+            this.setTermModifier(TermModifier.REQUIRED);
+            return this;
+        }
+        
+        /**
+         * <p> This is a shortcut for {@code setTermModifier(TermModifier.PROHIBITED)}.
+         * </p> 
+         * @return this
+         * @see TermModifier#PROHIBITED
+         */
+        public Builder excluded() {
+            this.setTermModifier(TermModifier.PROHIBITED);
+            return this;
+        }
+
+        /**
+         * <p> This is a shortcut for {@code setTermModifier(TermModifier.PROHIBITED)}.
+         * </p> 
+         * @return this
+         * @see TermModifier#PROHIBITED
+         */
+        public Builder prohibited() {
+            this.setTermModifier(TermModifier.PROHIBITED);
+            return this;
+        }
         
         /**
          * Set wildCarded to true.

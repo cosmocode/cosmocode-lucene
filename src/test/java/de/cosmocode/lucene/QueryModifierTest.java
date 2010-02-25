@@ -109,9 +109,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void setDisjunctTrue() {
-        final QueryModifier newModifier = QueryModifier.start().setDisjunct(true).end();
-        final boolean expected = true;
-        final boolean actual = newModifier.isDisjunct();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, true, false, null);
+        final QueryModifier actual = QueryModifier.start().setDisjunct(true).end();
         Assert.assertEquals(expected, actual);
     }
 
@@ -120,9 +119,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void setDisjunctFalse() {
-        final QueryModifier newModifier = QueryModifier.start().setDisjunct(false).end();
-        final boolean expected = false;
-        final boolean actual = newModifier.isDisjunct();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().setDisjunct(false).end();
         Assert.assertEquals(expected, actual);
     }
 
@@ -131,9 +129,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void disjunct() {
-        final QueryModifier newModifier = QueryModifier.start().disjunct().end();
-        final boolean expected = true;
-        final boolean actual = newModifier.isDisjunct();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, true, false, null);
+        final QueryModifier actual = QueryModifier.start().disjunct().end();
         Assert.assertEquals(expected, actual);
     }
 
@@ -142,9 +139,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void conjunct() {
-        final QueryModifier newModifier = QueryModifier.start().conjunct().end();
-        final boolean expected = false;
-        final boolean actual = newModifier.isDisjunct();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().conjunct().end();
         Assert.assertEquals(expected, actual);
     }
     
@@ -153,9 +149,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void setSplitTrue() {
-        final QueryModifier newModifier = QueryModifier.start().setSplit(true).end();
-        final boolean expected = true;
-        final boolean actual = newModifier.isSplit();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, true, false, false, null);
+        final QueryModifier actual = QueryModifier.start().setSplit(true).end();
         Assert.assertEquals(expected, actual);
     }
     
@@ -164,9 +159,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void setSplitFalse() {
-        final QueryModifier newModifier = QueryModifier.start().setSplit(false).end();
-        final boolean expected = false;
-        final boolean actual = newModifier.isSplit();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().setSplit(false).end();
         Assert.assertEquals(expected, actual);
     }
     
@@ -175,9 +169,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void doSplit() {
-        final QueryModifier newModifier = QueryModifier.start().doSplit().end();
-        final boolean expected = true;
-        final boolean actual = newModifier.isSplit();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, true, false, false, null);
+        final QueryModifier actual = QueryModifier.start().doSplit().end();
         Assert.assertEquals(expected, actual);
     }
 
@@ -186,9 +179,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void dontSplit() {
-        final QueryModifier newModifier = QueryModifier.start().dontSplit().end();
-        final boolean expected = false;
-        final boolean actual = newModifier.isSplit();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().dontSplit().end();
         Assert.assertEquals(expected, actual);
     }
     
@@ -197,9 +189,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void setWildcardedTrue() {
-        final QueryModifier newModifier = QueryModifier.start().setWildcarded(true).end();
-        final boolean expected = true;
-        final boolean actual = newModifier.isWildcarded();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, true, null);
+        final QueryModifier actual = QueryModifier.start().setWildcarded(true).end();
         Assert.assertEquals(expected, actual);
     }
     
@@ -208,9 +199,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void setWildcardedFalse() {
-        final QueryModifier newModifier = QueryModifier.start().setWildcarded(false).end();
-        final boolean expected = false;
-        final boolean actual = newModifier.isWildcarded();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().setWildcarded(false).end();
         Assert.assertEquals(expected, actual);
     }
     
@@ -219,9 +209,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void wildcarded() {
-        final QueryModifier newModifier = QueryModifier.start().wildcarded().end();
-        final boolean expected = true;
-        final boolean actual = newModifier.isWildcarded();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, true, null);
+        final QueryModifier actual = QueryModifier.start().wildcarded().end();
         Assert.assertEquals(expected, actual);
     }
     
@@ -230,10 +219,18 @@ public final class QueryModifierTest {
      */
     @Test
     public void notWildcarded() {
-        final QueryModifier newModifier = QueryModifier.start().notWildcarded().end();
-        final boolean expected = false;
-        final boolean actual = newModifier.isWildcarded();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().notWildcarded().end();
         Assert.assertEquals(expected, actual);
+    }
+    
+    /**
+     * Tests {@link QueryModifier.Builder#setTermModifier(TermModifier)} with null.
+     * Expects a NullPointerException.
+     */
+    @Test(expected = NullPointerException.class)
+    public void setTermModifierNull() {
+        QueryModifier.start().setTermModifier(null);
     }
     
     /**
@@ -241,9 +238,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void setTermModifierNONE() {
-        final QueryModifier newModifier = QueryModifier.start().setTermModifier(TermModifier.NONE).end();
-        final TermModifier expected = TermModifier.NONE;
-        final TermModifier actual = newModifier.getTermModifier();
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().setTermModifier(TermModifier.NONE).end();
         Assert.assertEquals(expected, actual);
     }
     
@@ -252,9 +248,8 @@ public final class QueryModifierTest {
      */
     @Test
     public void setTermModifierPROHIBITED() {
-        final QueryModifier newModifier = QueryModifier.start().setTermModifier(TermModifier.PROHIBITED).end();
-        final TermModifier expected = TermModifier.PROHIBITED;
-        final TermModifier actual = newModifier.getTermModifier();
+        final QueryModifier expected = new QueryModifier(TermModifier.PROHIBITED, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().setTermModifier(TermModifier.PROHIBITED).end();
         Assert.assertEquals(expected, actual);
     }
     
@@ -263,9 +258,38 @@ public final class QueryModifierTest {
      */
     @Test
     public void setTermModifierREQUIRED() {
-        final QueryModifier newModifier = QueryModifier.start().setTermModifier(TermModifier.REQUIRED).end();
-        final TermModifier expected = TermModifier.REQUIRED;
-        final TermModifier actual = newModifier.getTermModifier();
+        final QueryModifier expected = new QueryModifier(TermModifier.REQUIRED, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().setTermModifier(TermModifier.REQUIRED).end();
+        Assert.assertEquals(expected, actual);
+    }
+    
+    /**
+     * Tests {@link QueryModifier.Builder#required()}.
+     */
+    @Test
+    public void required() {
+        final QueryModifier expected = new QueryModifier(TermModifier.REQUIRED, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().required().end();
+        Assert.assertEquals(expected, actual);
+    }
+    
+    /**
+     * Tests {@link QueryModifier.Builder#prohibited()}.
+     */
+    @Test
+    public void prohibited() {
+        final QueryModifier expected = new QueryModifier(TermModifier.PROHIBITED, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().prohibited().end();
+        Assert.assertEquals(expected, actual);
+    }
+    
+    /**
+     * Tests {@link QueryModifier.Builder#excluded()}.
+     */
+    @Test
+    public void excluded() {
+        final QueryModifier expected = new QueryModifier(TermModifier.PROHIBITED, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().excluded().end();
         Assert.assertEquals(expected, actual);
     }
 

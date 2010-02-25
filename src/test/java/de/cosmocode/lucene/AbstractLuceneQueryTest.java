@@ -7,11 +7,13 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import de.cosmocode.junit.UnitProvider;
 import de.cosmocode.lucene.fragments.AddCollectionFragment;
+import de.cosmocode.lucene.fragments.AddStringFragment;
 
 @RunWith(Suite.class)
-@SuiteClasses(
-    AddCollectionFragment.class
-)
+@SuiteClasses({
+    AddCollectionFragment.class,
+    AddStringFragment.class
+})
 public abstract class AbstractLuceneQueryTest implements UnitProvider<LuceneQuery> {
     
     private static Class<? extends UnitProvider<LuceneQuery>> instance;

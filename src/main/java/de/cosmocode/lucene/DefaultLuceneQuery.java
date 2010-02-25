@@ -86,7 +86,8 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
      *     addArgumentAs...-methods
      */
     
-    private void beforeIteration() {
+    private void beforeIteration(final QueryModifier modifier) {
+        queryArguments.append(modifier.getTermPrefix());
         queryArguments.append("(");
     }
     
@@ -103,7 +104,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     public DefaultLuceneQuery addArgumentAsCollection(final Collection<?> values, final QueryModifier modifier) {
         if (values == null || values.size() == 0) return this;
         
-        beforeIteration();
+        beforeIteration(modifier);
 
         // add items
         final QueryModifier valueModifier = modifier.getFieldValueModifier();
@@ -122,7 +123,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         // quick return
         if (values == null || values.length == 0) return this;
 
-        beforeIteration();
+        beforeIteration(modifier);
         
         // add items
         final QueryModifier valueModifier = modifier.getFieldValueModifier();
@@ -142,7 +143,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         if (values.getClass().isArray() && Array.getLength(values) > 0) {
             final int arrayLength = Array.getLength(values);
             
-            beforeIteration();
+            beforeIteration(modifier);
             
             // add all items
             final QueryModifier valueModifier = modifier.getFieldValueModifier();
