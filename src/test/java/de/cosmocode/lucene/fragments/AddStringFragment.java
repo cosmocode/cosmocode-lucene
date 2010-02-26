@@ -1,13 +1,12 @@
 package de.cosmocode.lucene.fragments;
 
-import java.util.Collection;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.cosmocode.lucene.LuceneQuery;
 
 /**
- * Tests 
+ * Tests {@link LuceneQuery#addArgument(String)}.
  * 
  * @author Oliver Lorenz
  */
@@ -44,6 +43,12 @@ public class AddStringFragment extends LuceneQueryTestFragment {
         query.addArgument(ARG1);
         final String expected = ARG1;
         assertEquals(expected, query);
+    }
+    
+    @Test
+    public void addArgumentModifier() {
+        // TODO implement all tests
+        Assert.fail("not yet implemented");
     }
 
 }

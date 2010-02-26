@@ -156,8 +156,11 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     @Override
     public LuceneQuery addArgument(final Collection<?> value, final boolean mandatory) {
+        // if mandatory is true, then all arguments must be found (conjunction, required).
+        // otherwise if mandatory is false, then no argument must be found (disjunction, not required).
         final TermModifier tm = mandatory ? TermModifier.REQUIRED : TermModifier.NONE;
-        final QueryModifier mod = defaultModifier.copy().setTermModifier(tm).end();
+        final boolean disjunct = !mandatory;
+        final QueryModifier mod = defaultModifier.copy().setTermModifier(tm).setDisjunct(disjunct).end();
         return this.addArgument(value, mod);
     }
     
