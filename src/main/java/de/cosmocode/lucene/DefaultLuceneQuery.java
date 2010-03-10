@@ -36,6 +36,40 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
      *     addArgument-methods
      */
     
+    /**
+     * search for input wildcarded (wildcard is appended at the end). 
+     * the original input is added, too, because e.g. adidas* doesn't match "adidas" on text-fields
+     * @param value the String value to add wildcarded
+     */
+    private void addWildcarded(final String value) {
+        queryArguments.
+            append("\"").append(LuceneHelper.escapeQuotes(value)).append("\"^2").
+            append(" ").append(LuceneHelper.escapeAll(value)).append("*");
+    }
+    
+    private void addFuzzy(final String value, final double fuzzyness) {
+        queryArguments.
+            append(LuceneHelper.escapeAll(value)).
+            append("~").append(fuzzyness);
+    }
+    
+    private void addWildcardedFuzzy(final String value, final double fuzzyness) {
+        queryArguments.
+            append("\"").append(LuceneHelper.escapeQuotes(value)).append("\"^2").
+            append(" ").append(LuceneHelper.escapeAll(value)).append("*").
+            append(" ").append(LuceneHelper.escapeAll(value)).
+            append("~").append(fuzzyness);
+    }
+    
+    private void addSplitted(final String value, final QueryModifier modifier) {
+        queryArguments.append(" (");
+        for (final String token : value.split(" ")) {
+            this.addArgument(token, modifier.copy().dontSplit().end());
+        }
+        queryArguments.append(")^0.5 ");
+    }
+    
+    
     @Override
     public DefaultLuceneQuery addFuzzyArgument(final String value, 
             final QueryModifier modifier, final double fuzzyness) {
@@ -50,31 +84,19 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
             
             queryArguments.append("(");
             if (modifier.isWildcarded() && modifier.isFuzzyEnabled()) {
-                queryArguments.
-                    append("\"").append(LuceneHelper.escapeQuotes(value)).append("\"^2").
-                    append(" ").append(LuceneHelper.escapeAll(value)).append("*").
-                    append(" ").append(LuceneHelper.escapeAll(value)).
-                    append("~").append(modifier.getFuzzyness());
+                addWildcardedFuzzy(value, modifier.getFuzzyness());
             } else if (modifier.isWildcarded()) {
-                // search for input wildcarded (wildcard is appended at the end). 
-                // the original input is added, too, because e.g. adidas* doesn't match "adidas" on text-fields
-                queryArguments.
-                    append("\"").append(LuceneHelper.escapeQuotes(value)).append("\"^2").
-                    append(" ").append(LuceneHelper.escapeAll(value)).append("*");
+                addWildcarded(value);
             } else if (modifier.isFuzzyEnabled()) {
-                queryArguments.
-                    append(LuceneHelper.escapeAll(value)).
-                    append("~").append(modifier.getFuzzyness());
+                addFuzzy(value, modifier.getFuzzyness());
             } else {
                 queryArguments.append(LuceneHelper.escapeAll(value));
             }
+            
             if (modifier.isSplit() && (value.contains(" "))) {
-                queryArguments.append(" (");
-                for (String token : value.split(" ")) {
-                    this.addArgument(token, modifier.copy().dontSplit().end());
-                }
-                queryArguments.append(")^0.5 ");
+                addSplitted(value, modifier);
             }
+            
             queryArguments.append(") ");
         }
         
@@ -158,29 +180,14 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     }
     
     
-    
     @Override
-    public DefaultLuceneQuery addSubquery(final LuceneQuery value, final boolean mandatory) {
+    public DefaultLuceneQuery addSubquery(final LuceneQuery value, final QueryModifier modifier) {
         if (value == null) return this;
 
         final CharSequence subQuery = value.getQuery();
         if (subQuery.length() == 0) return this;
         
-        if (mandatory) queryArguments.append("+");
-        queryArguments.append("(").append(subQuery).append(") ");
-        
-        return this;
-    }
-    
-    
-    @Override
-    public DefaultLuceneQuery addSubquery(final LuceneQuery value, final QueryModifier modifiers) {
-        if (value == null) return this;
-
-        final CharSequence subQuery = value.getQuery();
-        if (subQuery.length() == 0) return this;
-        
-        queryArguments.append(modifiers.getTermPrefix());
+        queryArguments.append(modifier.getTermPrefix());
         queryArguments.append("(").append(subQuery).append(") ");
         
         return this;

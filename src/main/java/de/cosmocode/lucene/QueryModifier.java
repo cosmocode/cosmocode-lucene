@@ -196,6 +196,7 @@ public final class QueryModifier {
      * Returns an empty {@link Builder}. 
      * It can be used to create a new {@link QueryModifier}.
      * <br> The TermModifier ({@link #getTermModifier()}) is set to {@link TermModifier#NONE}
+     * split is false, disjunct is false and wildcarded is false.
      * @return an empty {@link Builder}
      */
     public static QueryModifier.Builder start() {

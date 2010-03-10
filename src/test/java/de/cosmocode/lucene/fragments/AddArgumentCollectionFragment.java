@@ -3,7 +3,6 @@ package de.cosmocode.lucene.fragments;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -20,7 +19,6 @@ import de.cosmocode.lucene.QueryModifier;
  * <ul>
  *   <li> {@link LuceneQuery#addArgument(Collection)} </li>
  *   <li> {@link LuceneQuery#addArgument(Collection, boolean)} </li>
- *   <li> {@link LuceneQuery#addArgument(Collection, QueryModifier)} </li>
  * </ul>
  * @author Oliver Lorenz
  */
@@ -206,27 +204,5 @@ public final class AddArgumentCollectionFragment extends LuceneQueryTestFragment
         final String expected = ARG1 + " " + ARG3;
         assertEquals(expected, query);
     }
-    
-    /**
-     * Tests {@link LuceneQuery#addArgument(Collection, QueryModifier)}
-     * with null and a dummy QueryModifier.
-     */
-    @Test
-    public void addArgumentNullQueryModifier() {
-        final LuceneQuery query = unit();
-        query.addArgument((Collection<?>) null, QueryModifier.start().doSplit().end());
-        final String expected = "";
-        assertEquals(expected, query);
-    }
-    
-    /**
-     * Place-holder test for {@link LuceneQuery#addArgument(Collection, QueryModifier)}.
-     */
-    @Test
-    public void addArgumentModifier() {
-        Assert.fail("not yet implemented");
-    }
-    
-    // TODO tests for addArgument(Collection, QueryModifier)
     
 }

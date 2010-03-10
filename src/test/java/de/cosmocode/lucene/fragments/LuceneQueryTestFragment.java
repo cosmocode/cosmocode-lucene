@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.SimpleAnalyzer;
+import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
@@ -29,18 +29,24 @@ import de.cosmocode.junit.UnitProvider;
 import de.cosmocode.lucene.AbstractLuceneQueryTest;
 import de.cosmocode.lucene.LuceneQuery;
 import de.cosmocode.lucene.QueryModifier;
-import de.cosmocode.lucene.TermModifier;
 
 public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuery> {
     
     public static final Directory DIRECTORY = new RAMDirectory();
-    public static final Analyzer ANALYZER = new SimpleAnalyzer();
+    public static final Analyzer ANALYZER = new KeywordAnalyzer();
     
     protected static final Version USED_VERSION = Version.LUCENE_CURRENT;
+   
+    /** A helper for wildcard queries, different then WILDCARD2. */
+    protected static final String WILDCARD1 = "arg";
+    /** A helper for wildcard queries, different then WILDCARD1. */
+    protected static final String WILDCARD2 = "hex";
     
     protected static final String ARG1 = "arg1";
     protected static final boolean ARG2 = true;
     protected static final String ARG3 = "arg3";
+    protected static final String ARG4 = "hexff00aa";
+    protected static final String ARG5 = "hex559911";
     
     protected static final String DEFAULT_FIELD = "default_field";
     protected static final String FIELD1 = "field1";
@@ -49,7 +55,7 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
     @Override
     public LuceneQuery unit() {
         final LuceneQuery unit = AbstractLuceneQueryTest.getInstance().unit();
-        unit.addField("empty", "empty", QueryModifier.start().setTermModifier(TermModifier.REQUIRED).end());
+        unit.addField("empty", "empty", QueryModifier.start().required().end());
         return unit;
     }
     
@@ -84,14 +90,17 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
         final List<?> docExpected;
         final List<?> docActual;
         try {
-            docExpected = search(queryExpected, 15);
-            docActual = search(queryActual, 15);
+            docExpected = search(queryExpected, 100);
+            docActual = search(queryActual, 100);
         } catch (IOException e) {
             throw new IllegalStateException("low level IOException", e);
         }
         
-        System.out.println("Expected: " + docExpected + ", actual: " + docActual);
-        Assert.assertEquals(docExpected, docActual);
+        if (!docExpected.equals(docActual)) {
+            System.out.println("Expected result: " + docExpected + ", actual result: " + docActual);
+        }
+        final String errorMsg = "Expected query: " + expectedString + ", but is: " + actualString;
+        Assert.assertTrue(errorMsg, docExpected.equals(docActual));
     }
     
     /**
@@ -151,24 +160,30 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
     public void createLuceneIndex() throws IOException {
         final IndexWriter writer = new IndexWriter(DIRECTORY, ANALYZER, MaxFieldLength.UNLIMITED);
         
-        // 0-4
+        // 0-6
         writer.addDocument(createDocument(FIELD1, ARG1));
         writer.addDocument(createDocument(FIELD1, Boolean.toString(ARG2)));
         writer.addDocument(createDocument(FIELD1, ARG3));
+        writer.addDocument(createDocument(FIELD1, ARG4));
+        writer.addDocument(createDocument(FIELD1, ARG5));
         writer.addDocument(createDocument(FIELD1, ARG1, FIELD1, Boolean.toString(ARG2)));
         writer.addDocument(createDocument(FIELD1, ARG1, FIELD1, Boolean.toString(ARG2), FIELD1, ARG3));
         
-        // 5-9
+        // 7-13
         writer.addDocument(createDocument(FIELD2, ARG1));
         writer.addDocument(createDocument(FIELD2, Boolean.toString(ARG2)));
         writer.addDocument(createDocument(FIELD2, ARG3));
+        writer.addDocument(createDocument(FIELD2, ARG4));
+        writer.addDocument(createDocument(FIELD2, ARG5));
         writer.addDocument(createDocument(FIELD2, ARG1, FIELD2, Boolean.toString(ARG2)));
         writer.addDocument(createDocument(FIELD2, ARG1, FIELD2, Boolean.toString(ARG2), FIELD2, ARG3));
         
-        // 10-14
+        // 14-20
         writer.addDocument(createDocument(DEFAULT_FIELD, ARG1));
         writer.addDocument(createDocument(DEFAULT_FIELD, Boolean.toString(ARG2)));
         writer.addDocument(createDocument(DEFAULT_FIELD, ARG3));
+        writer.addDocument(createDocument(DEFAULT_FIELD, ARG4));
+        writer.addDocument(createDocument(DEFAULT_FIELD, ARG5));
         writer.addDocument(createDocument(DEFAULT_FIELD, ARG1, DEFAULT_FIELD, Boolean.toString(ARG2)));
         writer.addDocument(createDocument(
             DEFAULT_FIELD, ARG1, DEFAULT_FIELD, Boolean.toString(ARG2), DEFAULT_FIELD, ARG3));

@@ -5,8 +5,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import com.google.common.base.Preconditions;
+
 import de.cosmocode.junit.UnitProvider;
 import de.cosmocode.lucene.fragments.AddArgumentCollectionFragment;
+import de.cosmocode.lucene.fragments.AddArgumentCollectionQueryModifierFragment;
 import de.cosmocode.lucene.fragments.AddFieldCollectionFragment;
 import de.cosmocode.lucene.fragments.AddStringFragment;
 
@@ -35,6 +38,7 @@ import de.cosmocode.lucene.fragments.AddStringFragment;
 @RunWith(Suite.class)
 @SuiteClasses({
     AddArgumentCollectionFragment.class,
+    AddArgumentCollectionQueryModifierFragment.class,
     AddFieldCollectionFragment.class,
     AddStringFragment.class
 })
@@ -51,10 +55,8 @@ public abstract class AbstractLuceneQueryTest implements UnitProvider<LuceneQuer
      * @return a new {@code UnitProvider<LuceneQuery>}
      */
     public static UnitProvider<LuceneQuery> getInstance() {
-        if (unitProvider == null) {
-            throw new IllegalStateException(
-                "UnitProvider class not yet set, set it with AbstractLuceneQueryTest.setUnitProvider(...)");
-        }
+        Preconditions.checkNotNull(unitProvider, 
+            "UnitProvider class not yet set, set it with AbstractLuceneQueryTest.setUnitProvider(...)");
         try {
             return unitProvider.newInstance();
         } catch (InstantiationException e) {
