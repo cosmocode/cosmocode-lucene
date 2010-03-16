@@ -12,9 +12,8 @@ import de.cosmocode.lucene.LuceneQuery;
 import de.cosmocode.lucene.QueryModifier;
 
 /**
- * <p> Tests all addArgument-methods that are Collection related for {@link LuceneQuery}. 
- * </p>
- * <p> The test methods are:
+ * <p> Tests all addArgument-methods that are Collection related for {@link LuceneQuery}. <br />
+ * Tested methods are:
  * </p>
  * <ul>
  *   <li> {@link LuceneQuery#addArgument(Collection)} </li>

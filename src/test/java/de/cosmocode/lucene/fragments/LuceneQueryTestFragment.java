@@ -41,12 +41,23 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
     protected static final String WILDCARD1 = "arg";
     /** A helper for wildcard queries, different then WILDCARD1. */
     protected static final String WILDCARD2 = "hex";
+    /** A helper for wildcard queries. yields different results then WILDCARD1 and WILDCARD2. */
+    protected static final String WILDCARD3 = "foo";
+    
+    /** A helper for fuzzy queries. */
+    protected static final String FUZZY1 = "truf";
+    /** A helper for fuzzy queries. yields different results then FUZZY1 and FUZZY3. */
+    protected static final String FUZZY2 = "arf1";
+    /** A helper for fuzzy queries. yields different results then FUZZY1 AND FUZZY2. */
+    protected static final String FUZZY3 = "fooba";
     
     protected static final String ARG1 = "arg1";
     protected static final boolean ARG2 = true;
     protected static final String ARG3 = "arg3";
     protected static final String ARG4 = "hexff00aa";
     protected static final String ARG5 = "hex559911";
+    protected static final String ARG6 = "foobar";
+    protected static final int ARG7 = 20;
     
     protected static final String DEFAULT_FIELD = "default_field";
     protected static final String FIELD1 = "field1";
@@ -110,13 +121,13 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
      * @return a list with the found Documents
      * @throws IOException if lucene throws an exception 
      */
-    protected List<Integer> search(final Query query, final int max) throws IOException {
-        final List<Integer> docList = new LinkedList<Integer>();
+    protected List<String> search(final Query query, final int max) throws IOException {
+        final List<String> docList = new LinkedList<String>();
         final IndexSearcher searcher = new IndexSearcher(DIRECTORY);
         final TopDocs docs = searcher.search(query, max);
         if (docs.totalHits > 0) {
             for (final ScoreDoc doc : docs.scoreDocs) {
-                docList.add(doc.doc);
+                docList.add(searcher.doc(doc.doc).get("name"));
             }
         }
         return docList;
@@ -160,33 +171,28 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
     public void createLuceneIndex() throws IOException {
         final IndexWriter writer = new IndexWriter(DIRECTORY, ANALYZER, MaxFieldLength.UNLIMITED);
         
-        // 0-6
-        writer.addDocument(createDocument(FIELD1, ARG1));
-        writer.addDocument(createDocument(FIELD1, Boolean.toString(ARG2)));
-        writer.addDocument(createDocument(FIELD1, ARG3));
-        writer.addDocument(createDocument(FIELD1, ARG4));
-        writer.addDocument(createDocument(FIELD1, ARG5));
-        writer.addDocument(createDocument(FIELD1, ARG1, FIELD1, Boolean.toString(ARG2)));
-        writer.addDocument(createDocument(FIELD1, ARG1, FIELD1, Boolean.toString(ARG2), FIELD1, ARG3));
+        final String[] fields = new String[] {FIELD1, FIELD2, DEFAULT_FIELD};
         
-        // 7-13
-        writer.addDocument(createDocument(FIELD2, ARG1));
-        writer.addDocument(createDocument(FIELD2, Boolean.toString(ARG2)));
-        writer.addDocument(createDocument(FIELD2, ARG3));
-        writer.addDocument(createDocument(FIELD2, ARG4));
-        writer.addDocument(createDocument(FIELD2, ARG5));
-        writer.addDocument(createDocument(FIELD2, ARG1, FIELD2, Boolean.toString(ARG2)));
-        writer.addDocument(createDocument(FIELD2, ARG1, FIELD2, Boolean.toString(ARG2), FIELD2, ARG3));
-        
-        // 14-20
-        writer.addDocument(createDocument(DEFAULT_FIELD, ARG1));
-        writer.addDocument(createDocument(DEFAULT_FIELD, Boolean.toString(ARG2)));
-        writer.addDocument(createDocument(DEFAULT_FIELD, ARG3));
-        writer.addDocument(createDocument(DEFAULT_FIELD, ARG4));
-        writer.addDocument(createDocument(DEFAULT_FIELD, ARG5));
-        writer.addDocument(createDocument(DEFAULT_FIELD, ARG1, DEFAULT_FIELD, Boolean.toString(ARG2)));
-        writer.addDocument(createDocument(
-            DEFAULT_FIELD, ARG1, DEFAULT_FIELD, Boolean.toString(ARG2), DEFAULT_FIELD, ARG3));
+        for (final String field : fields) {
+            final String fieldName = field == DEFAULT_FIELD ? "" : field + "_";
+            writer.addDocument(createDocument("name", fieldName + "arg1", field, ARG1));
+            writer.addDocument(createDocument("name", fieldName + "arg2", field, Boolean.toString(ARG2)));
+            writer.addDocument(createDocument("name", fieldName + "arg3", field, ARG3));
+            writer.addDocument(createDocument("name", fieldName + "arg4", field, ARG4));
+            writer.addDocument(createDocument("name", fieldName + "arg5", field, ARG5));
+            writer.addDocument(createDocument("name", fieldName + "arg6", field, ARG6));
+            writer.addDocument(createDocument("name", fieldName + "arg7", field, Integer.toString(ARG7)));
+            writer.addDocument(createDocument(
+                "name", fieldName + "arg1_arg2", field, ARG1, field, Boolean.toString(ARG2)));
+            writer.addDocument(createDocument(
+                "name", fieldName + "arg1_arg2_arg3", field, ARG1, field, Boolean.toString(ARG2), field, ARG3));
+            writer.addDocument(createDocument(
+                "name", fieldName + "arg4_arg5_arg6", field, ARG4, field, ARG5, field, ARG6));
+            writer.addDocument(createDocument(
+                    "name", fieldName + "all_args",
+                    field, ARG1, field, Boolean.toString(ARG2), field, ARG3,
+                    field, ARG4, field, ARG5, field, ARG6, field, Integer.toString(ARG7)));
+        }
         
         writer.close();
     }

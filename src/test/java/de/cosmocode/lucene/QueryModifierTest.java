@@ -51,12 +51,9 @@ public final class QueryModifierTest {
      */
     @Test
     public void setFuzzynessZero() {
-        final QueryModifier newModifier = QueryModifier.start().setFuzzyness(0.0).end();
-        final double expected = 0.0;
-        final double actual = newModifier.getFuzzyness();
-        final double delta = 0.0;
-        Assert.assertEquals("getFuzzyness", expected, actual, delta);
-        Assert.assertEquals("isFuzzyEnabled()", true, newModifier.isFuzzyEnabled());
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, false, 0.0);
+        final QueryModifier actual = QueryModifier.start().setFuzzyness(0.0).end();
+        Assert.assertEquals(expected, actual);
     }
 
     /**
@@ -74,6 +71,14 @@ public final class QueryModifierTest {
     public void setFuzzynessGreaterOne() {
         QueryModifier.start().setFuzzyness(1.1);
     }
+
+    /**
+     * Tests {@link QueryModifier.Builder#setFuzzyness(Double)} with an invalid fuzzyness of one.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setFuzzynessOne() {
+        QueryModifier.start().setFuzzyness(1.0);
+    }
     
     /**
      * Tests {@link QueryModifier.Builder#setFuzzyness(Double)} with a valid fuzzyness of null.
@@ -81,8 +86,9 @@ public final class QueryModifierTest {
      */
     @Test
     public void setFuzzynessNull() {
-        final QueryModifier newModifier = QueryModifier.start().setFuzzyness(null).end();
-        Assert.assertEquals("isFuzzyEnabled()", false, newModifier.isFuzzyEnabled());
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().setFuzzyness(null).end();
+        Assert.assertEquals(expected, actual);
     }
     
     /**
@@ -90,8 +96,9 @@ public final class QueryModifierTest {
      */
     @Test
     public void noFuzzyness() {
-        final QueryModifier newModifier = QueryModifier.start().noFuzzyness().end();
-        Assert.assertEquals("isFuzzyEnabled()", false, newModifier.isFuzzyEnabled());
+        final QueryModifier expected = new QueryModifier(TermModifier.NONE, false, false, false, null);
+        final QueryModifier actual = QueryModifier.start().noFuzzyness().end();
+        Assert.assertEquals(expected, actual);
     }
 
     /**

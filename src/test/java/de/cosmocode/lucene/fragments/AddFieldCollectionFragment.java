@@ -125,7 +125,7 @@ public class AddFieldCollectionFragment extends LuceneQueryTestFragment {
     public void addFieldContainsInvalid() {
         final LuceneQuery query = unit();
         query.addField(FIELD1, Lists.newArrayList(ARG1, "", null, ARG3, null, ""));
-        final String expected = "+" + FIELD1 + ":" + "(+" + ARG1 + " +" + ARG3 + ")";
+        final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " AND " + ARG3 + ")";
         assertEquals(expected, query);
     }
     

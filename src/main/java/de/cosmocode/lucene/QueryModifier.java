@@ -116,8 +116,6 @@ public final class QueryModifier {
     
     
     
-    
-    
     /* 
      * Builder Pattern
      * The Builder is a static class, and QueryModifier has some helper methods
