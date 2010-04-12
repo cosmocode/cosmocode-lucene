@@ -17,18 +17,6 @@ public abstract class ForwardingLuceneQuery extends ForwardingObject implements 
     @Override
     protected abstract LuceneQuery delegate();
     
-    
-    @Override
-    public LuceneQuery addArgument(char[] values, QueryModifier modifier) {
-        delegate().addArgument(values, modifier);
-        return this;
-    }
-
-    @Override
-    public LuceneQuery addArgument(char[] values) {
-        delegate().addArgument(values);
-        return this;
-    }
 
     @Override
     public LuceneQuery addArgument(Collection<?> values, boolean mandatory) {

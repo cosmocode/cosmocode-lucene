@@ -24,6 +24,8 @@ import org.apache.lucene.util.Version;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.cosmocode.junit.UnitProvider;
 import de.cosmocode.lucene.AbstractLuceneQueryTest;
@@ -35,38 +37,45 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
     public static final Directory DIRECTORY = new RAMDirectory();
     public static final Analyzer ANALYZER = new KeywordAnalyzer();
     
-    protected static final Version USED_VERSION = Version.LUCENE_CURRENT;
+    public static final Version USED_VERSION = Version.LUCENE_CURRENT;
    
     /** A helper for wildcard queries, different then WILDCARD2. */
-    protected static final String WILDCARD1 = "arg";
+    public static final String WILDCARD1 = "arg";
     /** A helper for wildcard queries, different then WILDCARD1. */
-    protected static final String WILDCARD2 = "hex";
+    public static final String WILDCARD2 = "hex";
     /** A helper for wildcard queries. yields different results then WILDCARD1 and WILDCARD2. */
-    protected static final String WILDCARD3 = "foo";
+    public static final String WILDCARD3 = "foo";
     
-    /** A helper for fuzzy queries. */
-    protected static final String FUZZY1 = "truf";
+    /** A helper for fuzzy queries.
+     * Also yields a result for wildcard queries, so it can be used for wildcard + fuzzy. */
+    public static final String FUZZY1 = "truf";
     /** A helper for fuzzy queries. yields different results then FUZZY1 and FUZZY3. */
-    protected static final String FUZZY2 = "arf1";
+    public static final String FUZZY2 = "arf1";
     /** A helper for fuzzy queries. yields different results then FUZZY1 AND FUZZY2. */
-    protected static final String FUZZY3 = "fooba";
+    public static final String FUZZY3 = "fooba";
     
-    protected static final String ARG1 = "arg1";
-    protected static final boolean ARG2 = true;
-    protected static final String ARG3 = "arg3";
-    protected static final String ARG4 = "hexff00aa";
-    protected static final String ARG5 = "hex559911";
-    protected static final String ARG6 = "foobar";
-    protected static final int ARG7 = 20;
+    public static final String ARG1 = "arg1";
+    public static final boolean ARG2 = true;
+    public static final String ARG3 = "arg3";
+    public static final int ARG4 = 20;
     
-    protected static final String DEFAULT_FIELD = "default_field";
-    protected static final String FIELD1 = "field1";
-    protected static final String FIELD2 = "field2";
+    public static final String DEFAULT_FIELD = "default_field";
+    public static final String FIELD1 = "field1";
+    public static final String FIELD2 = "field2";
+    
+    
+    private static final Logger LOG = LoggerFactory.getLogger(LuceneQueryTestFragment.class);
+    
+    private static final Object[] ARGS = {
+        ARG1, ARG2, ARG3, ARG4, "hexff00aa", "hex559911", "foobar", "truffel",
+        WILDCARD1, WILDCARD2, WILDCARD3, FUZZY1, FUZZY2, FUZZY3
+    };
+    
     
     @Override
     public LuceneQuery unit() {
         final LuceneQuery unit = AbstractLuceneQueryTest.getInstance().unit();
-        unit.addField("empty", "empty", QueryModifier.start().required().end());
+        unit.addField("empty", "empty", QueryModifier.start().required().end()).addBoost(0.01);
         return unit;
     }
     
@@ -108,7 +117,15 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
         }
         
         if (!docExpected.equals(docActual)) {
-            System.out.println("Expected result: " + docExpected + ", actual result: " + docActual);
+            LOG.debug("Original queries:");
+            LOG.debug("\texpected={}", expectedString);
+            LOG.debug("\t  actual={}", actualString);
+            LOG.debug("Parsed queries:");
+            LOG.debug("\texpected={}", queryExpected);
+            LOG.debug("\t  actual={}", queryActual);
+            LOG.debug("Expected result: {}", docExpected);
+            LOG.debug("  Actual result: {}", docActual);
+            LOG.debug("End");
         }
         final String errorMsg = "Expected query: " + expectedString + ", but is: " + actualString;
         Assert.assertTrue(errorMsg, docExpected.equals(docActual));
@@ -174,24 +191,25 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
         final String[] fields = new String[] {FIELD1, FIELD2, DEFAULT_FIELD};
         
         for (final String field : fields) {
-            final String fieldName = field == DEFAULT_FIELD ? "" : field + "_";
-            writer.addDocument(createDocument("name", fieldName + "arg1", field, ARG1));
-            writer.addDocument(createDocument("name", fieldName + "arg2", field, Boolean.toString(ARG2)));
-            writer.addDocument(createDocument("name", fieldName + "arg3", field, ARG3));
-            writer.addDocument(createDocument("name", fieldName + "arg4", field, ARG4));
-            writer.addDocument(createDocument("name", fieldName + "arg5", field, ARG5));
-            writer.addDocument(createDocument("name", fieldName + "arg6", field, ARG6));
-            writer.addDocument(createDocument("name", fieldName + "arg7", field, Integer.toString(ARG7)));
-            writer.addDocument(createDocument(
-                "name", fieldName + "arg1_arg2", field, ARG1, field, Boolean.toString(ARG2)));
-            writer.addDocument(createDocument(
-                "name", fieldName + "arg1_arg2_arg3", field, ARG1, field, Boolean.toString(ARG2), field, ARG3));
-            writer.addDocument(createDocument(
-                "name", fieldName + "arg4_arg5_arg6", field, ARG4, field, ARG5, field, ARG6));
-            writer.addDocument(createDocument(
-                    "name", fieldName + "all_args",
-                    field, ARG1, field, Boolean.toString(ARG2), field, ARG3,
-                    field, ARG4, field, ARG5, field, ARG6, field, Integer.toString(ARG7)));
+            final String fieldName = field == DEFAULT_FIELD ? "arg" : field + "_arg";
+            
+            for (int i = 0; i < ARGS.length; ++i) {
+                writer.addDocument(createDocument("name", fieldName + (i + 1), field, ARGS[i].toString()));
+                
+                if (i == 0) continue;
+                
+                final String[] subArgs = new String[2 * (i + 1)];
+                final StringBuilder name = new StringBuilder();
+                name.append(fieldName);
+                for (int j = 0; j <= i; ++j) {
+                    subArgs[2 * j] = field;
+                    subArgs[2 * j + 1] = ARGS[j].toString();
+                    name.append(j + 1);
+                }
+                subArgs[2 * i] = "name";
+                subArgs[2 * i + 1] = name.toString();
+                writer.addDocument(createDocument(subArgs));
+            }
         }
         
         writer.close();

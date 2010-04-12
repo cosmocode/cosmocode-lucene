@@ -138,13 +138,4 @@ public class AddFieldCollectionFragment extends LuceneQueryTestFragment {
         Assert.fail("not yet implemented");
     }
 
-    /**
-     * Place-holder test for {@link LuceneQuery#addField(String, Collection, QueryModifier)}.
-     */
-    @Test
-    public void addFieldModifier() {
-        // TODO implement all tests
-        Assert.fail("not yet implemented");
-    }
-
 }

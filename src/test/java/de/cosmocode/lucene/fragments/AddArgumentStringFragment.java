@@ -1,10 +1,8 @@
 package de.cosmocode.lucene.fragments;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import de.cosmocode.lucene.LuceneQuery;
-import de.cosmocode.lucene.QueryModifier;
 
 /**
  * <p> Tests all addArgument-methods that are String related for {@link LuceneQuery}. <br />
@@ -17,7 +15,7 @@ import de.cosmocode.lucene.QueryModifier;
  * 
  * @author Oliver Lorenz
  */
-public class AddStringFragment extends LuceneQueryTestFragment {
+public class AddArgumentStringFragment extends LuceneQueryTestFragment {
     
     /**
      * Tests {@link LuceneQuery#addArgument(String)} with null.
@@ -116,15 +114,6 @@ public class AddStringFragment extends LuceneQueryTestFragment {
         query.addArgument(ARG1, false);
         final String expected = ARG1;
         assertEquals(expected, query);
-    }
-    
-    /**
-     * Placeholder test for {@link LuceneQuery#addArgument(String, QueryModifier)}.
-     */
-    @Test
-    public void addArgumentModifier() {
-        // TODO implement all tests
-        Assert.fail("not yet implemented");
     }
 
 }

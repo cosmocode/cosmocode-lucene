@@ -17,7 +17,7 @@ import de.cosmocode.lucene.QueryModifier;
  * 
  * @author Oliver Lorenz
  */
-public final class AddArgumentCollectionQueryModifierFragment extends AbstractQueryModifierFragment {
+public final class AddArgumentCollectionModFragment extends AbstractQueryModifierFragment {
     
     /**
      * Tests {@link LuceneQuery#addArgument(Collection, QueryModifier)}
@@ -26,6 +26,27 @@ public final class AddArgumentCollectionQueryModifierFragment extends AbstractQu
     @Test
     public void collectionNull() {
         final LuceneQuery unit = unit().addArgument((Collection<?>) null, QueryModifier.DEFAULT);
+        assertEquals("", unit);
+    }
+    
+    /**
+     * Tests {@link LuceneQuery#addArgument(Collection, QueryModifier)}
+     * with an empty Collection and a dummy QueryModifier.
+     */
+    @Test
+    public void collectionEmpty() {
+        final LuceneQuery unit = unit().addArgument(Lists.newArrayList(), QueryModifier.DEFAULT);
+        assertEquals("", unit);
+    }
+    
+    /**
+     * Tests {@link LuceneQuery#addArgument(Collection, QueryModifier)}
+     * with a blank Collection (with blank and empty Strings and nulls) and a dummy QueryModifier.
+     */
+    @Test
+    public void collectionEmptyValues() {
+        final Collection<?> toAdd = Lists.newArrayList("   ", null, "", null, "     ");
+        final LuceneQuery unit = unit().addArgument(toAdd, QueryModifier.DEFAULT);
         assertEquals("", unit);
     }
     
@@ -67,12 +88,12 @@ public final class AddArgumentCollectionQueryModifierFragment extends AbstractQu
     
     @Override
     protected String expectedWildcardedConjunct() {
-        return "(" + WILDCARD1 + "*  AND " + WILDCARD2 + "*)";
+        return "(" + WILDCARD1 + "* " + WILDCARD1 + ") AND (" + WILDCARD2 + "* " + WILDCARD2 + ")";
     }
     
     @Override
     protected String expectedWildcardedDisjunct() {
-        return "(" + WILDCARD1 + "*  OR " + WILDCARD2 + "*)";
+        return "(" + WILDCARD1 + "* " + WILDCARD1 + ") OR (" + WILDCARD2 + "* " + WILDCARD2 + ")";
     }
     
     
@@ -85,12 +106,12 @@ public final class AddArgumentCollectionQueryModifierFragment extends AbstractQu
     
     @Override
     protected String expectedSplitConjunct() {
-        return "((" + ARG1 + "\\ " + ARG3 + " OR (" + ARG1 + " AND " + ARG3 + ")) AND " + ARG2 + ")";
+        return "((" + ARG1 + "\\ " + ARG3 + " OR (" + ARG1 + " AND " + ARG3 + "))^0.5 AND " + ARG2 + ")";
     }
     
     @Override
     protected String expectedSplitDisjunct() {
-        return "((" + ARG1 + "\\ " + ARG3 + " OR (" + ARG1 + " OR " + ARG3 + ")) OR " + ARG2 + ")";
+        return "((" + ARG1 + "\\ " + ARG3 + " OR (" + ARG1 + " OR " + ARG3 + "))^0.5 OR " + ARG2 + ")";
     }
     
     
@@ -115,29 +136,33 @@ public final class AddArgumentCollectionQueryModifierFragment extends AbstractQu
     
     @Override
     protected void applyWildcardedFuzzy(LuceneQuery query, QueryModifier mod) {
-        final Collection<?> toAdd = Lists.<Object>newArrayList(FUZZY1, WILDCARD1, null, " ", FUZZY2, WILDCARD2);
+        final Collection<?> toAdd = Lists.<Object>newArrayList(FUZZY1, WILDCARD1, null, "  ", FUZZY2, WILDCARD2);
         query.addArgument(toAdd, mod);
     }
     
     @Override
     protected String expectedWildcardedFuzzyConjunct() {
         return
-            "(" + FUZZY1 + "~0.7 " + FUZZY1 + "*) AND (" + WILDCARD1 + "~0.7 " + WILDCARD1 + "*) " +
-            "AND (" + FUZZY2 + "~0.7 " + FUZZY2 + "*) AND (" + WILDCARD2 + "~0.7 " + WILDCARD2 + "*)";
+            "(" + FUZZY1 + " " + FUZZY1 + "* " + FUZZY1 + "~0.7) " +
+            "AND (" + WILDCARD1 + " " + WILDCARD1 + "* " + WILDCARD1 + "~0.7) " +
+            "AND (" + FUZZY2 + " " + FUZZY2 + "* " + FUZZY2 + "~0.7) " +
+            "AND (" + WILDCARD2 + " " + WILDCARD2 + "* " + WILDCARD2 + "~0.7)";
     }
     
     @Override
     protected String expectedWildcardedFuzzyDisjunct() {
         return
-            "(" + FUZZY1 + "~0.7 " + FUZZY1 + "*) OR (" + WILDCARD1 + "~0.7 " + WILDCARD1 + "*) " +
-            "OR (" + FUZZY2 + "~0.7 " + FUZZY2 + "*) OR (" + WILDCARD2 + "~0.7 " + WILDCARD2 + "*)";
+            "(" + FUZZY1 + " " + FUZZY1 + "* " + FUZZY1 + "~0.7) " +
+            "OR (" + WILDCARD1 + " " + WILDCARD1 + "* " + WILDCARD1 + "~0.7) " +
+            "OR (" + FUZZY2 + " " + FUZZY2 + "* " + FUZZY2 + "~0.7) " +
+            "OR (" + WILDCARD2 + " " + WILDCARD2 + "* " + WILDCARD2 + "~0.7)";
     }
     
     
     
     @Override
     protected void applyFuzzySplit(LuceneQuery query, QueryModifier mod) {
-        final Collection<?> toAdd = Lists.<Object>newArrayList(FUZZY1 + "  " + FUZZY2, "", null, FUZZY3, null, " ");
+        final Collection<?> toAdd = Lists.newArrayList(FUZZY1 + "  " + FUZZY2, "", null, FUZZY3, null, "   ");
         query.addArgument(toAdd, mod);
     }
     
@@ -168,17 +193,29 @@ public final class AddArgumentCollectionQueryModifierFragment extends AbstractQu
     @Override
     protected String expectedWildcardedSplitConjunct() {
         return
-            "(" + WILDCARD1 + "\\ " + WILDCARD2 + "* OR " +
-            "(" + WILDCARD1 + "* AND " + WILDCARD2 + "*))^0.5 " +
-            "AND " + WILDCARD3 + "*";
+            "(" +
+                "(" +
+                    "\"" + WILDCARD1 + "  " + WILDCARD2 + "\" " +
+                    WILDCARD1 + "\\ \\ " + WILDCARD2 + "* " +
+                ") OR (" +
+                    "(" + WILDCARD1 + " " + WILDCARD1 + "*)" +
+                    " AND (" + WILDCARD2 + " " + WILDCARD2 + "*)" +
+                ")^0.5" +
+            ") AND (" + WILDCARD3 + " " + WILDCARD3 + "*)";
     }
     
     @Override
     protected String expectedWildcardedSplitDisjunct() {
         return
-            "(" + WILDCARD1 + "\\ " + WILDCARD2 + "* OR " +
-            "(" + WILDCARD1 + "* OR " + WILDCARD2 + "*))^0.5 " +
-            "OR " + WILDCARD3 + "*";
+            "(" +
+                "(" +
+                    "\"" + WILDCARD1 + "  " + WILDCARD2 + "\" " +
+                    WILDCARD1 + "\\ \\ " + WILDCARD2 + "* " +
+                ") OR (" +
+                    "(" + WILDCARD1 + " " + WILDCARD1 + "*)" +
+                    " OR (" + WILDCARD2 + " " + WILDCARD2 + "*)" +
+                ")^0.5" +
+            ") OR (" + WILDCARD3 + " " + WILDCARD3 + "*)";
     }
     
     
@@ -193,19 +230,31 @@ public final class AddArgumentCollectionQueryModifierFragment extends AbstractQu
     @Override
     protected String expectedWildcardedFuzzySplitConjunct() {
         return
-            "((" + WILDCARD1 + "\\ " + FUZZY2 + "* " + WILDCARD1 + "\\ " + FUZZY2 + "~0.7) OR " +
-            "((" + WILDCARD1 + "* " + WILDCARD1 + "~0.7) AND (" + FUZZY2 + "* " + FUZZY2 + "~0.7)))^0.5 " +
-            "AND (" + WILDCARD2 + "~0.7 " + WILDCARD2 + "*) " +
-            "AND (" + FUZZY3 + "~0.7 " + FUZZY3 + "*)";
+            "(" +
+                "(\"" + WILDCARD1 + "  " + FUZZY2 + "\" " +
+                    WILDCARD1 + "\\ \\ " + FUZZY2 + "* " + 
+                    WILDCARD1 + "\\ \\ " + FUZZY2 + "~0.7" +
+                ") OR (" +
+                    "(" + WILDCARD1 + " " + WILDCARD1 + "* " + WILDCARD1 + "~0.7) " +
+                    "AND (" + FUZZY2 + " " + FUZZY2 + "* " + FUZZY2 + "~0.7)" +
+                ")^0.5" +
+            ") AND (" + WILDCARD2 + " " + WILDCARD2 + "* " + WILDCARD2 + "~0.7) " +
+            "AND (" + FUZZY3 + " " + FUZZY3 + "* " + FUZZY3 + "~0.7)";
     }
     
     @Override
     protected String expectedWildcardedFuzzySplitDisjunct() {
         return
-            "((" + WILDCARD1 + "\\ " + FUZZY2 + "* " + WILDCARD1 + "\\ " + FUZZY2 + "~0.7) OR " +
-            "((" + WILDCARD1 + "* " + WILDCARD1 + "~0.7) OR (" + FUZZY2 + "* " + FUZZY2 + "~0.7)))^0.5 " +
-            "OR (" + WILDCARD2 + "~0.7 " + WILDCARD2 + "*) " +
-            "OR (" + FUZZY3 + "~0.7 " + FUZZY3 + "*)";
+            "(" +
+                "(\"" + WILDCARD1 + "  " + FUZZY2 + "\" " +
+                    WILDCARD1 + "\\ \\ " + FUZZY2 + "* " + 
+                    WILDCARD1 + "\\ \\ " + FUZZY2 + "~0.7" +
+                ") OR (" +
+                    "(" + WILDCARD1 + " " + WILDCARD1 + "* " + WILDCARD1 + "~0.7) " +
+                    "OR (" + FUZZY2 + " " + FUZZY2 + "* " + FUZZY2 + "~0.7)" +
+                ")^0.5" +
+            ") OR (" + WILDCARD2 + " " + WILDCARD2 + "* " + WILDCARD2 + "~0.7) " +
+            "OR (" + FUZZY3 + " " + FUZZY3 + "* " + FUZZY3 + "~0.7)";
     }
 
 }

@@ -43,8 +43,10 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
      */
     private void addWildcarded(final String value) {
         queryArguments.
-            append("\"").append(LuceneHelper.escapeQuotes(value)).append("\"^2").
-            append(" ").append(LuceneHelper.escapeAll(value)).append("*");
+            append("(").
+            append("\"").append(LuceneHelper.escapeQuotes(value)).append("\"").
+            append(" ").append(LuceneHelper.escapeAll(value)).append("*").
+            append(")");
     }
     
     private void addFuzzy(final String value, final double fuzzyness) {
@@ -55,31 +57,27 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     private void addWildcardedFuzzy(final String value, final double fuzzyness) {
         queryArguments.
-            append("\"").append(LuceneHelper.escapeQuotes(value)).append("\"^2").
+            append("(").
+            append("\"").append(LuceneHelper.escapeQuotes(value)).append("\"").
             append(" ").append(LuceneHelper.escapeAll(value)).append("*").
             append(" ").append(LuceneHelper.escapeAll(value)).
-            append("~").append(fuzzyness);
+            append("~").append(fuzzyness).
+            append(")");
     }
     
     private void addSplitted(final String value, final QueryModifier modifier) {
+        final QueryModifier subModifier = modifier.getMultiValueModifier().copy().dontSplit().end();
         queryArguments.append(" (");
         for (final String token : value.split(" ")) {
-            this.addArgument(token, modifier.copy().dontSplit().end());
+            this.addArgument(token, subModifier);
         }
         queryArguments.append(")^0.5 ");
     }
     
     
     @Override
-    public DefaultLuceneQuery addFuzzyArgument(final String value, 
-            final QueryModifier modifier, final double fuzzyness) {
-        return this.addArgument(value, modifier.copy().setFuzzyness(fuzzyness).end());
-    }
-    
-    
-    @Override
     public DefaultLuceneQuery addArgument(final String value, final QueryModifier modifier) {
-        if (StringUtils.isNotBlank(value) && modifier != null) {
+        if (StringUtils.isNotBlank(value)) {
             queryArguments.append(modifier.getTermPrefix());
             
             queryArguments.append("(");
@@ -129,7 +127,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         beforeIteration(modifier);
 
         // add items
-        final QueryModifier valueModifier = modifier.getFieldValueModifier();
+        final QueryModifier valueModifier = modifier.getMultiValueModifier();
         for (Object val : values) {
             addArgument(val, valueModifier);
         }
@@ -148,7 +146,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         beforeIteration(modifier);
         
         // add items
-        final QueryModifier valueModifier = modifier.getFieldValueModifier();
+        final QueryModifier valueModifier = modifier.getMultiValueModifier();
         for (K val : values) {
             addArgument(val, valueModifier);
         }
@@ -168,7 +166,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
             beforeIteration(modifier);
             
             // add all items
-            final QueryModifier valueModifier = modifier.getFieldValueModifier();
+            final QueryModifier valueModifier = modifier.getMultiValueModifier();
             for (int i = 0; i < arrayLength; i++) {
                 addArgument(Array.get(values, i), valueModifier);
             }

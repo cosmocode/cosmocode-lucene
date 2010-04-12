@@ -53,14 +53,22 @@ public interface LuceneQuery {
      * the implementation should alter the default QueryModifier
      * (i.e. set a new default QueryModifier with wildcarded set to the given value).
      * @param wildCarded true to turn wildcarded behaviour on, false to turn it off.
+     * 
+     * @see QueryModifier.Builder#setWildcarded(boolean)
      */
     void setWildCarded(final boolean wildCarded);
     
     
     /**
-     * Sets a default QueryModifier that is used
+     * <p> Sets a default QueryModifier that is used
      * whenever a method is invoked without a QueryModifier parameter.
+     * </p>
+     * <p> Please note that null as a parameter is not permitted and results in a NullPointerException.
+     * If you want to set a default value, consider {@link QueryModifier#DEFAULT} instead.
+     * </p>
+     * 
      * @param mod the default modifier to set
+     * @throws NullPointerException if the parameter `mod` is null
      */
     void setDefaultQueryModifier(final QueryModifier mod);
     
@@ -173,10 +181,17 @@ public interface LuceneQuery {
     
     
     /**
+     * <p> Adds a String term to this LuceneQuery.
+     * The given modifier is applied to the value.
+     * </p>
+     * <p> The value can have any value, including null, but the modifier must not be null.
+     * </p>
+     * @param value the String value to add
+     * @param modifier the QueryModifier for the value
+     * @return this (for chaining)
+     * @throws NullPointerException if modifier is null
      * 
-     * @param value
-     * @param modifier
-     * @return this
+     * @see QueryModifier
      */
     LuceneQuery addArgument(String value, QueryModifier modifier);
     
@@ -190,7 +205,7 @@ public interface LuceneQuery {
     
     
     /**
-     * @param value
+     * @param values
      * @param mandatory
      * @return this
      */
@@ -273,26 +288,6 @@ public interface LuceneQuery {
      */
     LuceneQuery addArgument(int[] values, QueryModifier modifier);
     
-    /**
-     * <p> Add a char array to this LuceneQuery.
-     * This method uses the {@link #getDefaultQueryModifier()}.
-     * </p>
-     * 
-     * @param values the array of terms to search for
-     * @return this
-     */
-    LuceneQuery addArgument(char[] values);
-    
-    /**
-     * <p> Add a char array to this LuceneQuery.
-     * </p>
-     * 
-     * @param values the array of terms to search for
-     * @param modifier the modifier for the search of this term.
-     * @return this
-     */
-    LuceneQuery addArgument(char[] values, QueryModifier modifier);
-    
     
     
     //---------------------------
@@ -321,7 +316,7 @@ public interface LuceneQuery {
      * <br><br>
      * This method uses the {@link #getDefaultQueryModifier()}.
      * 
-     * @param <K>
+     * @param <K> generic element type
      * @param values an array of search terms
      * @return this
      */
@@ -334,7 +329,7 @@ public interface LuceneQuery {
      * The given QueryModifier specifies the way the terms are added.
      * </p>
      * 
-     * @param <K>
+     * @param <K> generic element type
      * @param values an array of search terms
      * @param modifier a QueryModifier that determines the way the terms are added
      * @return this
@@ -453,12 +448,26 @@ public interface LuceneQuery {
     
     
     /**
+     * <p> Append a field with a string value with the specified QueryModifier.
+     * </p>
+     * <p> The first parameter, key, must be a valid field name
+     * (i.e. it must no contain any special characters of Lucene).
+     * </p>
+     * <p> The second parameter, value, can be any valid String.
+     * Blank or empty String or null value are permitted,
+     * but the field is not added then to the query.
+     * </p>
+     * <p> The third parameter, the QueryModifier `modifier`, must not be null.
+     * A NullPointerException is thrown otherwise.
+     * </p> 
      * 
-     * @param key
-     * @param value
-     * @param mandatoryKey
-     * @param boostFactor
+     * @param key the name of the field
+     * @param value the value for the field
+     * @param modifier the {@link QueryModifier} to apply to the field
      * @return this
+     * @throws NullPointerException if the third parameter, modifier, is null
+     * 
+     * @see QueryModifier
      */
     LuceneQuery addField(String key, String value, QueryModifier modifier);
     
@@ -648,14 +657,18 @@ public interface LuceneQuery {
      * Adds a field named `key`, with the values of `value`.
      * <br>Example:
      * <pre>
-     *   LuceneQueryBuilder builder = SolrQueryFactory.getDefaultSolrQuery();  // or any other implementation
+     *   LuceneQuery builder = LuceneHelper.newQuery();  // or any other implementation
      *   builder.setDefaultQueryModifier(QueryModifier.start().required().end());
      *   List&lt;String&gt; values = new ArrayList&lt;String&gt;();
      *   values.add("test1");
      *   values.add("test2");
      *   builder.addFieldAsCollection("test", values);
-     *   builder.getQuery();  // +
+     *   System.out.println(builder.getQuery());
+     *   // prints out: +test:(test1 test2)
      * </pre>
+     * 
+     * <p> This method uses {@link #getDefaultQueryModifier()}.
+     * </p>
      * 
      * @param key the name of the field
      * @param value the collection of values for the field

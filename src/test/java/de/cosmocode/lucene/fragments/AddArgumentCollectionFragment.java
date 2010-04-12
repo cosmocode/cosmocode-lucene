@@ -188,7 +188,7 @@ public final class AddArgumentCollectionFragment extends LuceneQueryTestFragment
     public void addArgumentTwoElementsFalse() {
         final LuceneQuery query = unit();
         query.addArgument(ImmutableList.of(ARG1, ARG2), false);
-        final String expected = ARG1 + " " + ARG2;
+        final String expected = "(" + ARG1 + " " + ARG2 + ")";
         assertEquals(expected, query);
     }
     
@@ -199,8 +199,8 @@ public final class AddArgumentCollectionFragment extends LuceneQueryTestFragment
     @Test
     public void addArgumentContainsInvalidFalse() {
         final LuceneQuery query = unit();
-        query.addArgument(Lists.newArrayList(ARG1, "", null, ARG3, ""), false);
-        final String expected = ARG1 + " " + ARG3;
+        query.addArgument(Lists.newArrayList(ARG1, "", null, ARG3, "   "), false);
+        final String expected = "(" + ARG1 + " " + ARG3 + ")";
         assertEquals(expected, query);
     }
     

@@ -8,10 +8,14 @@ import org.junit.runners.Suite.SuiteClasses;
 import com.google.common.base.Preconditions;
 
 import de.cosmocode.junit.UnitProvider;
+import de.cosmocode.lucene.fragments.AddArgumentArrayModFragment;
 import de.cosmocode.lucene.fragments.AddArgumentCollectionFragment;
-import de.cosmocode.lucene.fragments.AddArgumentCollectionQueryModifierFragment;
+import de.cosmocode.lucene.fragments.AddArgumentCollectionModFragment;
+import de.cosmocode.lucene.fragments.AddArgumentStringModFragment;
 import de.cosmocode.lucene.fragments.AddFieldCollectionFragment;
-import de.cosmocode.lucene.fragments.AddStringFragment;
+import de.cosmocode.lucene.fragments.AddArgumentStringFragment;
+import de.cosmocode.lucene.fragments.AddFieldCollectionModFragment;
+import de.cosmocode.lucene.fragments.AddFieldStringModFragment;
 
 /**
  * <p> Generic Test for {@link LuceneQuery}.
@@ -38,9 +42,13 @@ import de.cosmocode.lucene.fragments.AddStringFragment;
 @RunWith(Suite.class)
 @SuiteClasses({
     AddArgumentCollectionFragment.class,
-    AddArgumentCollectionQueryModifierFragment.class,
+    AddArgumentCollectionModFragment.class,
     AddFieldCollectionFragment.class,
-    AddStringFragment.class
+    AddFieldCollectionModFragment.class,
+    AddArgumentArrayModFragment.class,
+    AddArgumentStringFragment.class,
+    AddArgumentStringModFragment.class,
+    AddFieldStringModFragment.class
 })
 public abstract class AbstractLuceneQueryTest implements UnitProvider<LuceneQuery> {
     
@@ -71,7 +79,7 @@ public abstract class AbstractLuceneQueryTest implements UnitProvider<LuceneQuer
     }
     
     /**
-     * Unsets the unit provider class to null.
+     * Unsets the unit provider class, so that is null afterwards.
      * This method is called after class, this means after the test suite was run.
      */
     @AfterClass

@@ -3,9 +3,9 @@ package de.cosmocode.lucene;
 import de.cosmocode.patterns.Immutable;
 
 /**
- * This is an immutable class that affects the addTerm and addField methods of SolrQuery.
- * It is for that reason just a storage class, to keep the signature of the SolrQuery methods short.
- * Detailed documentation for the input types can be found in the constructors of this class.
+ * This is an immutable class that affects the addArgument and addField methods of SolrQuery.
+ * It is for that reason just a storage class, to keep the signature of the LuceneQuery methods short.
+ * Detailed documentation for the input types can be found in the methods of the {@link Builder} of this class.
  * 
  * @author Oliver Lorenz
  *
@@ -74,15 +74,24 @@ public final class QueryModifier {
     }
     
     /**
-     * Returns the QueryModifier for the values of a field.
-     * @return the QueryModifier for the values of a field
+     * Returns the QueryModifier for the values of a collection or an array.
+     * @return the QueryModifier for the values of a collection or an array
      */
-    public QueryModifier getFieldValueModifier() {
+    public QueryModifier getMultiValueModifier() {
         if (disjunct) {
             return new QueryModifier(TermModifier.NONE, split, disjunct, wildcarded, fuzzyness);
         } else {
             return new QueryModifier(TermModifier.REQUIRED, split, disjunct, wildcarded, fuzzyness);
         }
+    }
+    
+    /**
+     * Returns the QueryModifier for the arguments of a field.
+     * The TermModifier is set to NONE.
+     * @return the QueryModifier for the arguments of a field
+     */
+    public QueryModifier getArgumentModifier() {
+        return new QueryModifier(TermModifier.NONE, split, disjunct, wildcarded, fuzzyness);
     }
     
     public boolean isDisjunct() {
@@ -208,9 +217,9 @@ public final class QueryModifier {
      * An object of this class is mutable, but the resulting {@link QueryModifier} 
      * of the {@link #end()} method is immutable.
      * 
-     * @author olorenz
+     * @author Oliver Lorenz
      */
-    public static class Builder {
+    public static final class Builder {
         
         private TermModifier tm;
         private boolean s;
