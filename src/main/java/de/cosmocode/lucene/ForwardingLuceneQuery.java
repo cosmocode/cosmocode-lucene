@@ -351,8 +351,8 @@ public abstract class ForwardingLuceneQuery extends ForwardingObject implements 
     
 
     @Override
-    public QueryModifier getDefaultQueryModifier() {
-        return delegate().getDefaultQueryModifier();
+    public QueryModifier getModifier() {
+        return delegate().getModifier();
     }
 
     @Override
@@ -366,14 +366,14 @@ public abstract class ForwardingLuceneQuery extends ForwardingObject implements 
     }
 
     @Override
-    public void setDefaultQueryModifier(QueryModifier mod) {
-        delegate().setDefaultQueryModifier(mod);
+    public void setModifier(QueryModifier mod) {
+        delegate().setModifier(mod);
     }
 
     @Override
     public void setWildCarded(boolean wildCarded) {
-        final QueryModifier newDefaultMod = getDefaultQueryModifier().copy().setWildcarded(wildCarded).end();
-        delegate().setDefaultQueryModifier(newDefaultMod);
+        final QueryModifier newDefaultMod = getModifier().copy().setWildcarded(wildCarded).end();
+        delegate().setModifier(newDefaultMod);
     }
 
 }

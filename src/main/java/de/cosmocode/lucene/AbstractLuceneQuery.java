@@ -19,6 +19,9 @@ import org.apache.commons.lang.StringUtils;
  *   <li>{@link #addArgumentAsArray(Object[], QueryModifier)}</li>
  *   <li>{@link #addArgumentAsArray(Object, QueryModifier)}</li>
  *   <li>{@link #addFuzzyArgument(String, QueryModifier, double)}</li>
+ *   <li>{@link #addSubquery(LuceneQuery, QueryModifier)}</li>
+ *   <li>{@link #addUnescaped(CharSequence, boolean)}</li>
+ *   <li>{@link #addUnescapedField(String, CharSequence, boolean)}</li>
  *   <li>{@link #startField(String, QueryModifier)}</li>
  *   <li>{@link #endField()}</li>
  *   <li>{@link #addBoost(double)}</li>
@@ -46,7 +49,7 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     /**
      * Initializes this {@link AbstractLuceneQuery} with the given default QueryModifier.
-     * @param defaultModifier the default QueryModifier for the default calls and {@link #getDefaultQueryModifier()}.
+     * @param defaultModifier the default QueryModifier for the default calls and {@link #getModifier()}.
      */
     public AbstractLuceneQuery(final QueryModifier defaultModifier) {
         this.defaultModifier = defaultModifier;
@@ -71,12 +74,12 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     
     @Override
-    public final QueryModifier getDefaultQueryModifier() {
+    public final QueryModifier getModifier() {
         return defaultModifier;
     }
     
     @Override
-    public final void setDefaultQueryModifier(QueryModifier mod) {
+    public final void setModifier(QueryModifier mod) {
         if (mod == null) {
             throw new NullPointerException("the default QueryModifier must not be null");
         } else {
@@ -182,8 +185,11 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     @Override
     public <K> LuceneQuery addArgument(K[] values, boolean mandatory) {
+        // if mandatory is true, then all arguments must be found (conjunction, required).
+        // otherwise if mandatory is false, then no argument must be found (disjunction, not required).
         final TermModifier tm = mandatory ? TermModifier.REQUIRED : TermModifier.NONE;
-        final QueryModifier mod = defaultModifier.copy().setTermModifier(tm).end();
+        final boolean disjunct = !mandatory;
+        final QueryModifier mod = defaultModifier.copy().setTermModifier(tm).setDisjunct(disjunct).end();
         return addArgument(values, mod);
     }
     

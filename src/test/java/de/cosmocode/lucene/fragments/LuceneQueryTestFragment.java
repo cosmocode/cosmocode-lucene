@@ -32,6 +32,15 @@ import de.cosmocode.lucene.AbstractLuceneQueryTest;
 import de.cosmocode.lucene.LuceneQuery;
 import de.cosmocode.lucene.QueryModifier;
 
+/**
+ * <p> This is an abstract Test class that implements no test itself.
+ * It can only be executed by an {@link AbstractLuceneQueryTest}.
+ * It sets up a dummy Lucene search directory in which the resulting queries
+ * can be tested with the method {@link #assertEquals(String, LuceneQuery)}.
+ * </p>
+ * 
+ * @author Oliver Lorenz
+ */
 public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuery> {
     
     public static final Directory DIRECTORY = new RAMDirectory();

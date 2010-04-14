@@ -8,6 +8,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import com.google.common.base.Preconditions;
 
 import de.cosmocode.junit.UnitProvider;
+import de.cosmocode.lucene.fragments.AddArgumentArrayFragment;
 import de.cosmocode.lucene.fragments.AddArgumentArrayModFragment;
 import de.cosmocode.lucene.fragments.AddArgumentCollectionFragment;
 import de.cosmocode.lucene.fragments.AddArgumentCollectionModFragment;
@@ -45,6 +46,7 @@ import de.cosmocode.lucene.fragments.AddFieldStringModFragment;
     AddArgumentCollectionModFragment.class,
     AddFieldCollectionFragment.class,
     AddFieldCollectionModFragment.class,
+    AddArgumentArrayFragment.class,
     AddArgumentArrayModFragment.class,
     AddArgumentStringFragment.class,
     AddArgumentStringModFragment.class,

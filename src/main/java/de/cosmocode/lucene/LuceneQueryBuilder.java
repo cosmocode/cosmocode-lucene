@@ -23,7 +23,7 @@ public final class LuceneQueryBuilder extends ForwardingLuceneQuery
     @Override
     public LuceneQuery build() {
         final LuceneQuery newQuery = new DefaultLuceneQuery();
-        newQuery.setDefaultQueryModifier(getDefaultQueryModifier());
+        newQuery.setModifier(getModifier());
         newQuery.addUnescaped(delegate.getQuery(), false);
         return newQuery;
     }

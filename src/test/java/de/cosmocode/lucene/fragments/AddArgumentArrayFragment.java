@@ -1,27 +1,22 @@
 package de.cosmocode.lucene.fragments;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import de.cosmocode.lucene.LuceneQuery;
 import de.cosmocode.lucene.QueryModifier;
 
 /**
- * <p> Tests all addArgument-methods that are Collection related for {@link LuceneQuery}. <br />
- * Tested methods are:
+ * <p> Tests all addArgument-methods that take 
+ * a generic Array as first argument for {@link LuceneQuery}.
  * </p>
+ * Tested methods are:
  * <ul>
- *   <li> {@link LuceneQuery#addArgument(Collection)} </li>
- *   <li> {@link LuceneQuery#addArgument(Collection, boolean)} </li>
+ *   <li> {@link LuceneQuery#addArgument(Object[])} </li>
+ *   <li> {@link LuceneQuery#addArgument(Object[], boolean)} </li>
  * </ul>
  * @author Oliver Lorenz
  */
-public final class AddArgumentCollectionFragment extends LuceneQueryTestFragment {
+public final class AddArgumentArrayFragment extends LuceneQueryTestFragment {
     
     @Override
     public LuceneQuery unit() {
@@ -31,175 +26,175 @@ public final class AddArgumentCollectionFragment extends LuceneQueryTestFragment
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection)} with null.
+     * Tests {@link LuceneQuery#addArgument(Object[])} with null.
      */
     @Test
     public void addArgumentNull() {
         final LuceneQuery query = unit();
-        query.addArgument((Collection<?>) null);
+        query.addArgument((Object[]) null);
         final String expected = "";
         assertEquals(expected, query);
     }
 
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection)} with an empty collection.
+     * Tests {@link LuceneQuery#addArgument(Object[])} with an empty array.
      */
     @Test
     public void addArgumentEmpty() {
         final LuceneQuery query = unit();
-        query.addArgument(Collections.emptySet());
+        query.addArgument(new String[] {});
         final String expected = "";
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection)} with a list with one element.
+     * Tests {@link LuceneQuery#addArgument(Object[])} with an array with one element.
      */
     @Test
     public void addArgumentOneElement() {
         final LuceneQuery query = unit();
-        query.addArgument(ImmutableList.of(ARG1));
+        query.addArgument(new String[] {ARG1});
         final String expected = "+" + ARG1;
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection)} with a list with 2 elements.
+     * Tests {@link LuceneQuery#addArgument(Object[])} with an array with 2 elements.
      */
     @Test
     public void addArgumentTwoElements() {
         final LuceneQuery query = unit();
-        query.addArgument(ImmutableList.of(ARG1, ARG2));
+        query.addArgument(new Object[] {ARG1, ARG2});
         final String expected = "+" + ARG1 + " +" + ARG2;
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection)} with a list that contains null and empty String.
+     * Tests {@link LuceneQuery#addArgument(Object[])} with an array that contains null and blank String.
      */
     @Test
     public void addArgumentContainsInvalid() {
         final LuceneQuery query = unit();
-        query.addArgument(Lists.newArrayList(ARG1, "", null, ARG3, ""));
+        query.addArgument(new String[] {ARG1, "", null, ARG3, "   "});
         final String expected = "+" + ARG1 + " +" + ARG3;
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection, boolean)} with null and true.
+     * Tests {@link LuceneQuery#addArgument(Object[], boolean)} with null and true.
      */
     @Test
     public void addArgumentNullTrue() {
         final LuceneQuery query = unit();
-        query.addArgument((Collection<?>) null, true);
+        query.addArgument((Object[]) null, true);
         final String expected = "";
         assertEquals(expected, query);
     }
 
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
-     * with an empty collection and true.
+     * Tests {@link LuceneQuery#addArgument(Object[], boolean)}
+     * with an empty array and true.
      */
     @Test
     public void addArgumentEmptyTrue() {
         final LuceneQuery query = unit();
-        query.addArgument(Collections.emptySet(), true);
+        query.addArgument(new Object[] {}, true);
         final String expected = "";
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
+     * Tests {@link LuceneQuery#addArgument(Object[], boolean)}
      * with a list with one element and true.
      */
     @Test
     public void addArgumentOneElementTrue() {
         final LuceneQuery query = unit();
-        query.addArgument(ImmutableList.of(ARG1), true);
+        query.addArgument(new String[] {ARG1}, true);
         final String expected = "+" + ARG1;
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
+     * Tests {@link LuceneQuery#addArgument(Object[], boolean)}
      * with a list with 2 elements and true.
      */
     @Test
     public void addArgumentTwoElementsTrue() {
         final LuceneQuery query = unit();
-        query.addArgument(ImmutableList.of(ARG1, ARG2), true);
+        query.addArgument(new Object[] {ARG1, ARG2}, true);
         final String expected = "+" + ARG1 + " +" + ARG2;
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
+     * Tests {@link LuceneQuery#addArgument(Object[], boolean)}
      * with a list that contains nulls and empty Strings and with the parameter true.
      */
     @Test
     public void addArgumentContainsInvalidTrue() {
         final LuceneQuery query = unit();
-        query.addArgument(Lists.newArrayList(ARG1, "", null, ARG3, ""), true);
+        query.addArgument(new String[] {ARG1, "", null, ARG3, "   "}, true);
         final String expected = "+" + ARG1 + " +" + ARG3;
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
+     * Tests {@link LuceneQuery#addArgument(Object[], boolean)}
      * with null and false.
      */
     @Test
     public void addArgumentNullFalse() {
         final LuceneQuery query = unit();
-        query.addArgument((Collection<?>) null, false);
+        query.addArgument((Object[]) null, false);
         final String expected = "";
         assertEquals(expected, query);
     }
 
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
+     * Tests {@link LuceneQuery#addArgument(Object[], boolean)}
      * with an empty collection and with false.
      */
     @Test
     public void addArgumentEmptyFalse() {
         final LuceneQuery query = unit();
-        query.addArgument(Collections.emptySet(), false);
+        query.addArgument(new String[] {}, false);
         final String expected = "";
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
+     * Tests {@link LuceneQuery#addArgument(Object[], boolean)}
      * with a list with one element and with false.
      */
     @Test
     public void addArgumentOneElementFalse() {
         final LuceneQuery query = unit();
-        query.addArgument(ImmutableList.of(ARG1), false);
+        query.addArgument(new String[] {ARG1}, false);
         final String expected = ARG1;
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
+     * Tests {@link LuceneQuery#addArgument(Object[], boolean)}
      * with a list with 2 elements and with false.
      */
     @Test
     public void addArgumentTwoElementsFalse() {
         final LuceneQuery query = unit();
-        query.addArgument(ImmutableList.of(ARG1, ARG2), false);
+        query.addArgument(new Object[] {ARG1, ARG2}, false);
         final String expected = "(" + ARG1 + " " + ARG2 + ")";
         assertEquals(expected, query);
     }
     
     /**
-     * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
+     * Tests {@link LuceneQuery#addArgument(Object[], boolean)}
      * with a list that contains null and empty String with the parameter false.
      */
     @Test
     public void addArgumentContainsInvalidFalse() {
         final LuceneQuery query = unit();
-        query.addArgument(Lists.newArrayList(ARG1, "", null, ARG3, "   "), false);
+        query.addArgument(new String[] {ARG1, "", null, ARG3, "   "}, false);
         final String expected = "(" + ARG1 + " " + ARG3 + ")";
         assertEquals(expected, query);
     }

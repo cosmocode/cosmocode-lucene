@@ -25,7 +25,7 @@ public final class DefaultLuceneQueryFactory implements Factory<LuceneQuery> {
     @Override
     public LuceneQuery create() {
         final LuceneQuery newQuery = new DefaultLuceneQuery();
-        newQuery.setDefaultQueryModifier(defaultQueryModifier);
+        newQuery.setModifier(defaultQueryModifier);
         return newQuery;
     }
 

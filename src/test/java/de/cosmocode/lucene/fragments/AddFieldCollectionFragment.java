@@ -29,7 +29,7 @@ public class AddFieldCollectionFragment extends LuceneQueryTestFragment {
     @Override
     public LuceneQuery unit() {
         final LuceneQuery unit = super.unit();
-        unit.setDefaultQueryModifier(QueryModifier.start().required().end());
+        unit.setModifier(QueryModifier.start().required().end());
         return unit;
     }
 
