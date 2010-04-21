@@ -2,6 +2,16 @@ package de.cosmocode.lucene;
 
 import de.cosmocode.patterns.Builder;
 
+/**
+ * <p> This is a {@link Builder} that behaves like a {@link LuceneQuery}.
+ * You can build templates this way, without repeating the same method calls over and over.
+ * </p>
+ * <p> It can be {@link #lock()}ed to prevent further modification.
+ * </p>
+ *
+ * @since 1.0
+ * @author Oliver Lorenz
+ */
 public final class LuceneQueryBuilder extends ForwardingLuceneQuery 
     implements LuceneQuery, Builder<LuceneQuery> {
     

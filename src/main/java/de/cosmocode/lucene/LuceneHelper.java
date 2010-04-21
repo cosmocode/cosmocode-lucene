@@ -7,7 +7,8 @@ import de.cosmocode.patterns.Factory;
 /**
  * This class provides some static helper methods to format or escape input for Lucene queries.
  * 
- * @author olorenz
+ * @since 1.0
+ * @author Oliver Lorenz
  */
 public final class LuceneHelper {
     
@@ -62,14 +63,9 @@ public final class LuceneHelper {
     public static final QueryModifier MOD_AUTOCOMPLETE = 
         QueryModifier.start().required().disjunct().wildcarded().setFuzzyness(0.7).doSplit().end();
     
-    
-    //---------------------------
-    //   public helper methods
-    //---------------------------
-    
-    // escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: and blanks  with "\"
+    /** escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: and blanks  with "\". */
     public static final Pattern ESCAPE_PATTERN           = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:; \\E]");
-    // escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: with "\"
+    /** escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: with "\". */
     public static final Pattern ESCAPE_NO_BLANKS_PATTERN = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:;\\E]");
     
     public static final Pattern QUOTES_PATTERN           = Pattern.compile("\"");
@@ -79,6 +75,9 @@ public final class LuceneHelper {
     }
     
     
+    //---------------------------
+    //   public helper methods
+    //---------------------------
     
     /**
      * Escapes quotes (") in a given input (" => \").
@@ -112,6 +111,13 @@ public final class LuceneHelper {
     }
     
     
+    /**
+     * <p> Removes the special characters for the Lucene API from a given input String.
+     * </p>
+     * 
+     * @param input the input String to filter
+     * @return input without special characters 
+     */
     public static String removeSpecialCharacters(final String input) {
         if (input == null) return "";
         final Pattern pattern = ESCAPE_PATTERN;

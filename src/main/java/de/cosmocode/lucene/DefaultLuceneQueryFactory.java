@@ -8,6 +8,7 @@ import de.cosmocode.patterns.Factory;
  * The created LuceneQuerys are not threadsafe.
  * </p>
  * 
+ * @since 1.0
  * @author Oliver Lorenz
  */
 public final class DefaultLuceneQueryFactory implements Factory<LuceneQuery> {

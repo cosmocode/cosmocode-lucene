@@ -26,11 +26,11 @@ import com.google.common.base.Preconditions;
  *   <li>{@link #getQuery()}</li>
  * </ul>
  * 
+ * @since 1.0
+ * @author Oliver Lorenz
  * 
  * @see LuceneQuery
- * 
- * @author Oliver Lorenz
- *
+ * @see ForwardingLuceneQuery
  */
 public abstract class AbstractLuceneQuery implements LuceneQuery {
     
@@ -41,7 +41,7 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     
     /**
-     * Initializes this {@link AbstractLuceneQuery} with the QueryModifier {@link QueryModifier#NONE}.
+     * Initializes this {@link AbstractLuceneQuery} with the QueryModifier {@link QueryModifier#DEFAULT}.
      */
     public AbstractLuceneQuery() {
         this.defaultModifier = QueryModifier.DEFAULT;

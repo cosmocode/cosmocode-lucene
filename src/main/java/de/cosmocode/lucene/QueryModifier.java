@@ -1,15 +1,17 @@
 package de.cosmocode.lucene;
 
 import de.cosmocode.patterns.Immutable;
+import de.cosmocode.patterns.ThreadSafe;
 
 /**
  * This is an immutable class that affects the addArgument and addField methods of SolrQuery.
  * It is for that reason just a storage class, to keep the signature of the LuceneQuery methods short.
  * Detailed documentation for the input types can be found in the methods of the {@link Builder} of this class.
  * 
+ * @since 1.0
  * @author Oliver Lorenz
- *
  */
+@ThreadSafe
 @Immutable
 public final class QueryModifier {
     
@@ -72,8 +74,6 @@ public final class QueryModifier {
     public TermModifier getTermModifier() {
         return termModifier;
     }
-    
-    // TODO cache multi value modifier and argument modifier?
     
     /**
      * Returns the QueryModifier for the values of a collection or an array.

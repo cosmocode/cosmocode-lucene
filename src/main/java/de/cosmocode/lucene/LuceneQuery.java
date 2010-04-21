@@ -29,11 +29,11 @@ import java.util.Collection;
  *   // prints out: +test:(test1 test2) +blubb +(sub:test\^3 array:(1 2))
  * </pre>
  * 
+ * @since 1.0
+ * @author Oliver Lorenz
+ * 
  * @see AbstractLuceneQuery
  * @see ForwardingLuceneQuery
- * 
- * @author Oliver Lorenz
- *
  */
 public interface LuceneQuery {
     
@@ -42,7 +42,6 @@ public interface LuceneQuery {
      * <ul>
      *  <li> {@link LuceneQuery#addFuzzyArgument(String)}</li>
      *  <li> {@link LuceneQuery#addFuzzyArgument(String, boolean)}</li>
-     *  <li> {@link LuceneQuery#addFuzzyArgument(String, QueryModifier)}</li>
      *  <li> {@link LuceneQuery#addFuzzyField(String, String)}</li>
      *  <li> {@link LuceneQuery#addFuzzyField(String, String, boolean)}</li>
      * </ul>
@@ -63,17 +62,18 @@ public interface LuceneQuery {
     String ERR_BOOST_OUT_OF_BOUNDS = 
         "boostFactor must be greater than 0 and less than 10.000.000 (10 millions)";
     
+    /**
+     * Error to indicate that the given QueryModifier is null.
+     */
     String ERR_MODIFIER_NULL = 
-        "the default QueryModifier must not be null, choose QueryModifier.DEFAULT instead";
-    
-    // TODO: JavaDoc
+        "the QueryModifier must not be null, choose QueryModifier.DEFAULT instead";
     
 
     /**
      * Returns true if this LuceneQuery appends a wildcard ("*") after each added argument, false otherwise.
      * <br>
      * <br><i>Implementation note</i>: This method should use isWildcarded() of {@link #getModifier()}
-     * @return true if this LuceneQuery appends a wildcard ("*") after each added argument, false otherwise 
+     * @return true if this LuceneQuery appends a wildcard ("*") after each added argument, false otherwise
      */
     boolean isWildCarded();
     
@@ -207,6 +207,11 @@ public interface LuceneQuery {
      * This method uses {@link #getModifier()} and
      * redirects to {@link #addArgument(String, QueryModifier)}.
      * </p>
+     * <p> The parameter `value` can have any value, including null or an empty or blank String,
+     * but then this method call has no effect on the final query.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
      * 
      * @param value the String value to add
      * @return this
@@ -217,9 +222,22 @@ public interface LuceneQuery {
     
     
     /**
+     * <p> Adds a String term to this LuceneQuery.
+     * </p>
+     * <p> The parameter `value` can have any value, including null or an empty or blank String,
+     * but then this method call has no effect on the final query.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * <p> If the second parameter `mandatory` is true, then the value is added as required
+     * (i.e. the result contains only documents that match the value).
+     * Otherwise the String value is added as a "boost" so that all documents
+     * matching it are ordered to the top.
+     * </p>
      * 
-     * @param value
-     * @param mandatory
+     * @param value the String value to add
+     * @param mandatory if true then the value must be found,
+     *                  otherwise it is just prioritized in the search results
      * @return this
      */
     LuceneQuery addArgument(String value, boolean mandatory);
@@ -229,14 +247,17 @@ public interface LuceneQuery {
      * <p> Adds a String term to this LuceneQuery.
      * The given modifier is applied to the value.
      * </p>
-     * <p> The first parameter `value` can have any value, including null,
-     * but the modifier must not be null.
+     * <p> The first parameter `value` can have any value,
+     * including null or an empty or blank String,
+     * but then this method call has no effect on the final query.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
      * </p>
      * 
      * @param value the String value to add
-     * @param modifier the QueryModifier for the value
+     * @param modifier the {@link QueryModifier} for the value
      * @return this (for chaining)
-     * @throws NullPointerException if modifier is null
+     * @throws NullPointerException if the second parameter `modifier` is null
      * 
      * @see QueryModifier
      */
@@ -244,9 +265,23 @@ public interface LuceneQuery {
     
     
     /**
+     * <p> Add a collection of Terms to this LuceneQuery.
+     * </p>
+     * <p> The first parameter contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * <p> This method uses {@link #getModifier()} and
+     * redirects to {@link #addArgument(Collection, QueryModifier)}.
+     * </p>
      * 
-     * @param values
+     * @param values a collection of search terms
      * @return this
+     * 
+     * @see #addArgumentAsCollection(Collection)
      */
     LuceneQuery addArgument(Collection<?> values);
     
@@ -276,24 +311,39 @@ public interface LuceneQuery {
     
     
     /**
+     * <p> Add a collection of Terms to this LuceneQuery.
+     * </p>
+     * <p> The first parameter contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
      * 
-     * @param values
-     * @param modifier
+     * @param values a collection of search terms
+     * @param modifier the {@link QueryModifier} that is applied to the values
      * @return this
+     * @throws NullPointerException if the second parameter `modifier` is null
+     * 
+     * @see #addArgumentAsCollection(Collection, QueryModifier)
      */
     LuceneQuery addArgument(Collection<?> values, QueryModifier modifier);
     
     
     /**
-     * Add an array of Terms to this LuceneQuery.
-     * <br><br>
-     * This method uses the {@link #getModifier()}.
+     * <p> Add an array of Terms to this LuceneQuery.
+     * This method is equivalent to {@link #addArgumentAsArray(Object[])}.
+     * </p>
+     * <p> This method uses {@link #getModifier()} and
+     * redirects to {@link #addArgumentAsArray(Object[], QueryModifier)}.
+     * </p>
      * 
      * @param <K> generic element type
      * @param values an array of search terms
      * @return this
      * 
-     * @see #addArgumentAsArray(Object[])
+     * @see #addArgumentAsArray(Object[]) 
      */
     <K> LuceneQuery addArgument(K[] values);
     
@@ -311,17 +361,28 @@ public interface LuceneQuery {
      * @param values an array of search terms
      * @param mandatory if true then the value must be found, otherwise it is just prioritized in the search results
      * @return this
-     * 
-     * @see #addArgumentAsArray(Object[])
      */
     <K> LuceneQuery addArgument(K[] values, boolean mandatory);
     
     
     /**
-     * @param <K>
-     * @param values
-     * @param mandatory
+     * <p> Add an array of Terms to this LuceneQuery.
+     * </p>
+     * <p> The first parameter contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * 
+     * @param <K> generic element type
+     * @param values an array of search terms
+     * @param modifier the {@link QueryModifier} that is applied to the values
      * @return this
+     * @throws NullPointerException if the second parameter `modifier` is null
+     * 
+     * @see #addArgumentAsArray(Object[], QueryModifier)
      */
     <K> LuceneQuery addArgument(K[] values, QueryModifier modifier);
     
@@ -341,7 +402,7 @@ public interface LuceneQuery {
      * </p>
      * 
      * @param values the array of terms to search for
-     * @param modifier the modifier for the search of this term.
+     * @param modifier the {@link QueryModifier} that is applied to the values
      * @return this
      */
     LuceneQuery addArgument(double[] values, QueryModifier modifier);
@@ -361,7 +422,7 @@ public interface LuceneQuery {
      * </p>
      * 
      * @param values the array of terms to search for
-     * @param modifier the modifier for the search of this term.
+     * @param modifier the {@link QueryModifier} that is applied to the values
      * @return this
      */
     LuceneQuery addArgument(int[] values, QueryModifier modifier);
@@ -374,29 +435,63 @@ public interface LuceneQuery {
     
     
     /**
-     * @param values
+     * <p> Add a collection of Terms to this LuceneQuery.
+     * </p>
+     * <p> The first parameter contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * <p> This method uses {@link #getModifier()} and
+     * redirects to {@link #addArgumentAsCollection(Collection, QueryModifier)}.
+     * </p>
+     * 
+     * @param values a collection of search terms
      * @return this
      */
     LuceneQuery addArgumentAsCollection(Collection<?> values);
     
     
     /**
+     * <p> Add a collection of Terms to this LuceneQuery.
+     * </p>
+     * <p> The first parameter contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
      * 
-     * @param values
-     * @param modifier
+     * @param values a collection of search terms
+     * @param modifier the {@link QueryModifier} that is applied to the values
      * @return this
+     * @throws NullPointerException if the second parameter `modifier` is null
      */
     LuceneQuery addArgumentAsCollection(Collection<?> values, QueryModifier modifier);
     
     
     /**
-     * Add an array of Terms to this LuceneQuery.
-     * <br><br>
-     * This method uses the {@link #getModifier()}.
+     * <p> Add an array of Terms to this LuceneQuery.
+     * </p>
+     * <p> The first parameter contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * <p> This method uses {@link #getModifier()} and
+     * redirects to {@link #addArgumentAsArray(Object[], QueryModifier)}.
+     * </p>
      * 
      * @param <K> generic element type
      * @param values an array of search terms
      * @return this
+     * 
+     * @see #addArgumentAsArray(Object[]) 
      */
     <K> LuceneQuery addArgumentAsArray(K[] values);
     
@@ -409,7 +504,7 @@ public interface LuceneQuery {
      * 
      * @param <K> generic element type
      * @param values an array of search terms
-     * @param modifier a QueryModifier that determines the way the terms are added
+     * @param modifier the {@link QueryModifier} that is applied to the values
      * @return this
      */
     <K> LuceneQuery addArgumentAsArray(K[] values, QueryModifier modifier);
@@ -430,7 +525,7 @@ public interface LuceneQuery {
      * then {@link #getQuery()} will throw an IllegalStateException.
      * </p>
      * <p> This method uses the {@link #getModifier()}
-     * and invokes {@link #addSubquery(LuceneQuery, QueryModifier)} with it.
+     * and redirects to {@link #addSubquery(LuceneQuery, QueryModifier)} with it.
      * </p>
      * 
      * @param value the SubQuery to add
@@ -497,6 +592,7 @@ public interface LuceneQuery {
     
     /**
      * Add a field with an argument unescaped.
+     * If the second parameter `value` is null then nothing happens.
      * <b>Attention</b>: Use with care, otherwise you get Exceptions on execution.
      * 
      * @param key the field name
@@ -526,10 +622,12 @@ public interface LuceneQuery {
     
     
     /**
-     * Add a field with the name `key` to the query.
+     * <p> Add a field with the name `key` to the query.
      * The searched value is given as a String.
-     * <br><br>
-     * This method uses the {@link #getModifier()}.
+     * </p>
+     * <p> This method uses {@link #getModifier()} and
+     * redirects to {@link #addField(String, String, QueryModifier)}.
+     * </p>
      * 
      * @param key the name of the field
      * @param value the (string)-value of the field
@@ -539,25 +637,46 @@ public interface LuceneQuery {
     
     
     /**
+     * <p> Add a field with the name `key` to the query.
+     * The searched value is given as a String.
+     * </p>
+     * <p> The first parameter, key, must be a valid field name
+     * (i.e. it must not contain any special characters of Lucene).
+     * </p>
+     * <p> The second parameter, value, can be any valid String.
+     * Blank or empty String or null value is permitted,
+     * but then this method call has no effect on the final query.
+     * </p>
+     * <p> If the third parameter, `mandatoryKey`, is true,
+     * then the field with the given String value is search for as required
+     * (i.e. the result contains only documents that have the specified field).
+     * Otherwise the field is added as a "boost" so that all documents
+     * that have this field are ordered to the top.
+     * </p>
      * 
      * @param key the name of the field
      * @param value the (string)-value of the field
-     * @param mandatoryKey
+     * @param mandatoryKey if true then the field is required, otherwise the field is only boosted
      * @return this
      */
     LuceneQuery addField(String key, String value, boolean mandatoryKey);
     
     
     /**
-     * Append a field with a string value, and apply a boost afterwards .
-     * 
-     * @see LuceneQuery#addField(String, String, boolean)
+     * <p> Append a field with a string value, and apply a boost afterwards.
+     * </p>
+     * <p> The method calls {@link #addField(String, String, boolean)}
+     * and then {@link #addBoost(double)}.
+     * </p>
      * 
      * @param key the name of the field
-     * @param value
-     * @param mandatoryKey
-     * @param boostFactor
+     * @param value the (string)-value of the field
+     * @param mandatoryKey if true then the field is required, otherwise the field is only boosted
+     * @param boostFactor the boost factor to apply to the field
      * @return this
+     * 
+     * @see #addField(String, String, boolean)
+     * @see #addBoost(double)
      */
     LuceneQuery addField(String key, String value, boolean mandatoryKey, double boostFactor);
     
@@ -604,8 +723,9 @@ public interface LuceneQuery {
      * (i.e. the result contains only documents that have the specified field).
      * Otherwise the field is added as a "boost" so that all documents
      * that have this field are ordered to the top.
-     * <p> The third parameter, value, can be any valid String.
-     * Blank or empty String or null value is permitted,
+     * </p>
+     * <p> The third parameter `values` contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
      * but then this method call has no effect on the final query.
      * No Exception will be thrown on this invocation.
      * If all other method calls don't change this LuceneQuery,
@@ -664,13 +784,30 @@ public interface LuceneQuery {
     
 
     /**
-     * Add a field with the name `key` to the query.
+     * <p> Add a field with the name `key` to the query.
      * The values to search for are given in a collection.
+     * </p>
+     * <p> The first parameter `key` must be a valid field name
+     * (i.e. it must not contain any special characters of Lucene).
+     * </p>
+     * <p> The second parameter `values` contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * <p> The third parameter, the {@link QueryModifier} `modifier`, must not be null.
+     * A NullPointerException is thrown otherwise.
+     * </p> 
      * 
      * @param key the name of the field
      * @param values the values (as a collection) for the field
-     * @param modifier
+     * @param modifier the {@link QueryModifier} to apply to the field
      * @return this
+     * @throws NullPointerException if the third parameter, modifier, is null
+     * 
+     * @see #addFieldAsCollection(String, Collection, QueryModifier)
      */
     LuceneQuery addField(String key, Collection<?> values, QueryModifier modifier);
 
@@ -683,28 +820,49 @@ public interface LuceneQuery {
 
     
     /**
-     * Add a field with the name `key` to the query.
+     * <p> Add a field with the name `key` to the query.
      * The values to search for are given in an array.
-     * <br><br>
-     * This method uses the {@link #getModifier()}.
+     * </p>
+     * <p> This method calls {@link #addField(String, Object[], QueryModifier)}
+     * with {@link #getModifier()}.
+     * </p>
      * 
      * @param <K> generic element type
      * @param key the name of the field
      * @param value the values to be searched in the field
      * @return this
+     * 
+     * @see #addFieldAsArray(String, Object[])
      */
     <K> LuceneQuery addField(String key, K[] value);
     
     
     /**
-     * Add a field with the name `key` to the query.
+     * <p> Add a field with the name `key` to the query.
      * The values to search for are given in an array.
+     * </p>
+     * <p> The first parameter `key` must be a valid field name
+     * (i.e. it must not contain any special characters of Lucene).
+     * </p>
+     * <p> The second parameter `values` contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * <p> The third parameter, the {@link QueryModifier} `modifier`, must not be null.
+     * A NullPointerException is thrown otherwise.
+     * </p> 
      * 
      * @param <K> generic element type
      * @param key the name of the field
      * @param value the values to be searched in the field
-     * @param modifier the query modifier
+     * @param modifier the {@link QueryModifier} to apply to the field
      * @return this
+     * @throws NullPointerException if the third parameter, modifier, is null
+     * 
+     * @see #addFieldAsArray(String, Object[], QueryModifier)
      */
     <K> LuceneQuery addField(String key, K[] value, QueryModifier modifier);
     
@@ -784,55 +942,88 @@ public interface LuceneQuery {
     
     
     /**
-     * Add a field with the name `key` to the query.
+     * <p> Add a field with the name `key` to the query.
      * The values to search for are given in a collection.
+     * </p>
+     * <p> The second parameter `values` contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * <p> The third parameter, the {@link QueryModifier} `modifier`, must not be null.
+     * A NullPointerException is thrown otherwise.
+     * </p> 
      * 
-     * @param key
-     * @param value
-     * @param modifier
+     * @param key the name of the field
+     * @param values the values (as a collection) for the field
+     * @param modifier the {@link QueryModifier} to apply to the field
      * @return this
+     * @throws NullPointerException if the third parameter, modifier, is null
      */
-    LuceneQuery addFieldAsCollection(String key, Collection<?> value, QueryModifier modifier);
+    LuceneQuery addFieldAsCollection(String key, Collection<?> values, QueryModifier modifier);
     
     
     /**
-     * Append a field with a collection of values, and apply a boost afterwards .
+     * <p> Append a field with a collection of values, and apply a boost afterwards.
+     * </p>
+     * <p> This method calls {@link #addField(String, Collection, QueryModifier)} first
+     * and then {@link #addBoost(double)}.
+     * </p>
      * 
-     * @see LuceneQuery#addFieldAsCollection(String, Collection, QueryModifier)
-     * 
-     * @param key
-     * @param value
-     * @param modifier
-     * @param boost
+     * @param key the name of the field
+     * @param values the values (as a collection) for the field
+     * @param modifier the {@link QueryModifier} to apply to the field
+     * @param boost the boost to apply on the field afterwards.
      * @return this
+     * 
+     * @see #addFieldAsCollection(String, Collection, QueryModifier)
+     * @see #addBoost(double)
      */
-    LuceneQuery addFieldAsCollection(String key, Collection<?> value, QueryModifier modifier, double boost);
+    LuceneQuery addFieldAsCollection(String key, Collection<?> values, QueryModifier modifier, double boost);
     
     
     /**
      * <p> Add a field with the name `key` to the query.
      * The values to search for are given in an array.
      * </p>
-     * <p> This method uses {@link #getModifier()}.
+     * <p> This method calls {@link #addFieldAsArray(String, Object[], QueryModifier)}
+     * with {@link #getModifier()}.
      * </p>
      * 
-     * @param <K>
-     * @param key
-     * @param value
+     * @param <K> generic element type
+     * @param key the name of the field
+     * @param values the values to be searched in the field
      * @return this
      */
-    <K> LuceneQuery addFieldAsArray(String key, K[] value);
+    <K> LuceneQuery addFieldAsArray(String key, K[] values);
     
     
     /**
-     * Add a field with the name `key` to the query.
+     * <p> Add a field with the name `key` to the query.
      * The values to search for are given in an array.
+     * </p>
+     * <p> The first parameter `key` must be a valid field name
+     * (i.e. it must not contain any special characters of Lucene).
+     * </p>
+     * <p> The second parameter `values` contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * <p> The third parameter, the {@link QueryModifier} `modifier`, must not be null.
+     * A NullPointerException is thrown otherwise.
+     * </p> 
      * 
-     * @param <K>
-     * @param key
-     * @param value
-     * @param modifier
+     * @param <K> generic element type
+     * @param key the name of the field
+     * @param value the values to be searched in the field
+     * @param modifier the {@link QueryModifier} to apply to the field
      * @return this
+     * @throws NullPointerException if the third parameter, modifier, is null
      */
     <K> LuceneQuery addFieldAsArray(String key, K[] value, QueryModifier modifier);
     

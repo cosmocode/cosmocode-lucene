@@ -10,7 +10,11 @@ import com.google.common.collect.ForwardingObject;
  * every method to an abstract {@link #delegate()} method.
  * </p>
  * 
+ * @since 1.0
  * @author Oliver Lorenz
+ * 
+ * @see LuceneQuery
+ * @see AbstractLuceneQuery
  */
 public abstract class ForwardingLuceneQuery extends ForwardingObject implements LuceneQuery {
 

@@ -5,6 +5,7 @@ package de.cosmocode.lucene;
  *   before a term.  
  * <br>The TermModifier can only be used in conjunction with {@link QueryModifier}.
  * 
+ * @since 1.0
  * @author Oliver Lorenz
  */
 public enum TermModifier {

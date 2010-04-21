@@ -15,6 +15,7 @@ import com.google.common.base.Preconditions;
  * This implementation is not threadsafe.
  * </p>
  * 
+ * @since 1.0
  * @author Oliver Lorenz
  */
 public final class DefaultLuceneQuery extends AbstractLuceneQuery implements LuceneQuery {
