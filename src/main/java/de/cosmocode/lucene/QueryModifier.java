@@ -126,12 +126,6 @@ public final class QueryModifier {
     }
     
     
-    
-    /* 
-     * Builder Pattern
-     * The Builder is a static class, and QueryModifier has some helper methods
-     */
-    
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -175,6 +169,13 @@ public final class QueryModifier {
                 + fuzzyness + ", split=" + split + ", termModifier="
                 + termModifier + ", wildcarded=" + wildcarded + "]";
     }
+    
+    
+    
+    /* 
+     * Builder Pattern
+     * The Builder is a static class, and QueryModifier has some helper methods
+     */
 
 
     /**
