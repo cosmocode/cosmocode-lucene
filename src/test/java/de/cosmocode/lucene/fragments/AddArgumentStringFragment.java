@@ -20,23 +20,21 @@ public class AddArgumentStringFragment extends LuceneQueryTestFragment {
     /**
      * Tests {@link LuceneQuery#addArgument(String)} with null.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentNull() {
         final LuceneQuery query = unit();
         query.addArgument((String) null);
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
     
     /**
      * Tests {@link LuceneQuery#addArgument(String)} with a blank String value.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentBlank() {
         final LuceneQuery query = unit();
         query.addArgument("  ");
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
     
     /**
@@ -53,23 +51,21 @@ public class AddArgumentStringFragment extends LuceneQueryTestFragment {
     /**
      * Tests {@link LuceneQuery#addArgument(String, boolean)} with a null value and true.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentNullTrue() {
         final LuceneQuery query = unit();
         query.addArgument((String) null, true);
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
     
     /**
      * Tests {@link LuceneQuery#addArgument(String, boolean)} with a blank String value and true.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentBlankTrue() {
         final LuceneQuery query = unit();
         query.addArgument("  ", true);
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
     
     /**
@@ -86,23 +82,21 @@ public class AddArgumentStringFragment extends LuceneQueryTestFragment {
     /**
      * Tests {@link LuceneQuery#addArgument(String, boolean)} with a null value and false.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentNullFalse() {
         final LuceneQuery query = unit();
         query.addArgument((String) null, false);
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
     
     /**
      * Tests {@link LuceneQuery#addArgument(String, boolean)} with a blank String value and false.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentBlankFalse() {
         final LuceneQuery query = unit();
         query.addArgument("  ", false);
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
     
     /**

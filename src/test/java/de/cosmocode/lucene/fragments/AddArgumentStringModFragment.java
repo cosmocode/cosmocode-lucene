@@ -17,30 +17,30 @@ public class AddArgumentStringModFragment extends AbstractQueryModifierFragment 
      * Tests {@link LuceneQuery#addArgument(String, QueryModifier)}
      * with a null String and a dummy QueryModifier.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void stringNull() {
         final LuceneQuery unit = unit().addArgument((String) null, QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        unit.getQuery();
     }
     
     /**
      * Tests {@link LuceneQuery#addArgument(String, QueryModifier)}
      * with an empty String ("") and a dummy QueryModifier.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void stringEmpty() {
         final LuceneQuery unit = unit().addArgument("", QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        unit.getQuery();
     }
     
     /**
      * Tests {@link LuceneQuery#addArgument(String, QueryModifier)}
      * with a blank String ("   ") and a dummy QueryModifier.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void stringBlank() {
         final LuceneQuery unit = unit().addArgument("   ", QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        unit.getQuery();
     }
     
     /**

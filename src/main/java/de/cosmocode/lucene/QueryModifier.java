@@ -73,6 +73,8 @@ public final class QueryModifier {
         return termModifier;
     }
     
+    // TODO cache multi value modifier and argument modifier?
+    
     /**
      * Returns the QueryModifier for the values of a collection or an array.
      * @return the QueryModifier for the values of a collection or an array
@@ -306,6 +308,7 @@ public final class QueryModifier {
          * </p> 
          * @return this
          * @see TermModifier#REQUIRED
+         * @see #setTermModifier(TermModifier)
          */
         public Builder required() {
             this.setTermModifier(TermModifier.REQUIRED);

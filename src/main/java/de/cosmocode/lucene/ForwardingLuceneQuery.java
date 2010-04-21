@@ -204,19 +204,6 @@ public abstract class ForwardingLuceneQuery extends ForwardingObject implements 
     }
 
     @Override
-    public LuceneQuery addFieldAsArray(String key, Object value,
-            QueryModifier modifier) {
-        delegate().addFieldAsArray(key, value, modifier);
-        return this;
-    }
-
-    @Override
-    public LuceneQuery addFieldAsArray(String key, Object value) {
-        delegate().addFieldAsArray(key, value);
-        return this;
-    }
-
-    @Override
     public LuceneQuery addFieldAsCollection(String key, Collection<?> value,
             QueryModifier modifier, double boost) {
         delegate().addFieldAsCollection(key, value, modifier, boost);
@@ -249,48 +236,20 @@ public abstract class ForwardingLuceneQuery extends ForwardingObject implements 
     }
 
     @Override
-    public LuceneQuery addFuzzyArgument(String value, QueryModifier modifier,
-            double fuzzyness) {
-        delegate().addFuzzyArgument(value, modifier, fuzzyness);
-        return this;
-    }
-
-    @Override
-    public LuceneQuery addFuzzyArgument(String value, QueryModifier modifier) {
-        delegate().addFuzzyArgument(value, modifier);
-        return this;
-    }
-
-    @Override
     public LuceneQuery addFuzzyArgument(String value) {
         delegate().addFuzzyArgument(value);
         return this;
     }
 
     @Override
-    public LuceneQuery addFuzzyField(String key, String value,
-            boolean mandatoryKey, double fuzzyness) {
+    public LuceneQuery addFuzzyField(String key, String value, boolean mandatoryKey, double fuzzyness) {
         delegate().addFuzzyField(key, value, mandatoryKey, fuzzyness);
         return this;
     }
 
     @Override
-    public LuceneQuery addFuzzyField(String key, String value,
-            boolean mandatoryKey) {
+    public LuceneQuery addFuzzyField(String key, String value, boolean mandatoryKey) {
         delegate().addFuzzyField(key, value, mandatoryKey);
-        return this;
-    }
-
-    @Override
-    public LuceneQuery addFuzzyField(String key, String value,
-            QueryModifier mod, double fuzzyness) {
-        delegate().addFuzzyField(key, value, mod, fuzzyness);
-        return this;
-    }
-
-    @Override
-    public LuceneQuery addFuzzyField(String key, String value, QueryModifier mod) {
-        delegate().addFuzzyField(key, value, mod);
         return this;
     }
 
@@ -374,6 +333,11 @@ public abstract class ForwardingLuceneQuery extends ForwardingObject implements 
     public void setWildCarded(boolean wildCarded) {
         final QueryModifier newDefaultMod = getModifier().copy().setWildcarded(wildCarded).end();
         delegate().setModifier(newDefaultMod);
+    }
+    
+    @Override
+    public boolean lastSuccessful() {
+        return delegate().lastSuccessful();
     }
 
 }

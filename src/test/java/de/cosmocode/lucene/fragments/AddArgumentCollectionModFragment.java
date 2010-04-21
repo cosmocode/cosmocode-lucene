@@ -23,31 +23,31 @@ public final class AddArgumentCollectionModFragment extends AbstractQueryModifie
      * Tests {@link LuceneQuery#addArgument(Collection, QueryModifier)}
      * with null and a dummy QueryModifier.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void collectionNull() {
         final LuceneQuery unit = unit().addArgument((Collection<?>) null, QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        unit.getQuery();
     }
     
     /**
      * Tests {@link LuceneQuery#addArgument(Collection, QueryModifier)}
      * with an empty Collection and a dummy QueryModifier.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void collectionEmpty() {
         final LuceneQuery unit = unit().addArgument(Lists.newArrayList(), QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        unit.getQuery();
     }
     
     /**
      * Tests {@link LuceneQuery#addArgument(Collection, QueryModifier)}
      * with a blank Collection (with blank and empty Strings and nulls) and a dummy QueryModifier.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void collectionEmptyValues() {
         final Collection<?> toAdd = Lists.newArrayList("   ", null, "", null, "     ");
         final LuceneQuery unit = unit().addArgument(toAdd, QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        unit.getQuery();
     }
     
     /**

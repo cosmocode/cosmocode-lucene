@@ -1,70 +1,66 @@
 package de.cosmocode.lucene.fragments;
 
-import java.util.Collection;
-
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
 
 import de.cosmocode.lucene.LuceneQuery;
 import de.cosmocode.lucene.QueryModifier;
 
 /**
  * <p> Tests the addArgument-method
- * {@link LuceneQuery#addField(String, Collection, QueryModifier)}
+ * {@link LuceneQuery#addField(String, Object[], QueryModifier)}
  * for {@link LuceneQuery}.
  * </p>
  * 
  * @author Oliver Lorenz
  */
-public final class AddFieldCollectionModFragment extends AbstractQueryModifierFragment {
+public final class AddFieldArrayModFragment extends AbstractQueryModifierFragment {
     
     /**
-     * Tests {@link LuceneQuery#addField(String, Collection, QueryModifier)}
+     * Tests {@link LuceneQuery#addField(String, Object[], QueryModifier)}
      * with null and a dummy QueryModifier.
      */
     @Test(expected = IllegalStateException.class)
     public void collectionNull() {
-        final LuceneQuery unit = unit().addField(FIELD1, (Collection<?>) null, QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        final LuceneQuery unit = unit().addField(FIELD1, (Object[]) null, QueryModifier.DEFAULT);
+        unit.getQuery();
     }
     
     /**
-     * Tests {@link LuceneQuery#addField(String, Collection, QueryModifier)}
-     * with an empty Collection and a dummy QueryModifier.
+     * Tests {@link LuceneQuery#addField(String, Object[], QueryModifier)}
+     * with an empty array and a dummy QueryModifier.
      */
     @Test(expected = IllegalStateException.class)
     public void collectionEmpty() {
-        final LuceneQuery unit = unit().addField(FIELD1, Lists.newArrayList(), QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        final LuceneQuery unit = unit().addField(FIELD1, new String[] {}, QueryModifier.DEFAULT);
+        unit.getQuery();
     }
     
     /**
-     * Tests {@link LuceneQuery#addField(String, Collection, QueryModifier)}
-     * with a blank Collection (with blank and empty Strings and null) and a dummy QueryModifier.
+     * Tests {@link LuceneQuery#addField(String, Object[], QueryModifier)}
+     * with a blank array (with blank and empty Strings and null) and a dummy QueryModifier.
      */
     @Test(expected = IllegalStateException.class)
     public void collectionEmptyValues() {
-        final Collection<?> toAdd = Lists.newArrayList("   ", null, "", null, "     ");
+        final Object[] toAdd = new Object[] {"   ", null, "", null, "     "};
         final LuceneQuery unit = unit().addField(FIELD1, toAdd, QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        unit.getQuery();
     }
     
     /**
-     * Tests {@link LuceneQuery#addField(String, Collection, QueryModifier)}
+     * Tests {@link LuceneQuery#addField(String, Object[], QueryModifier)}
      * with a normal value and the QueryModifier null.
      * Expects a NullPointerException.
      */
     @Test(expected = NullPointerException.class)
     public void modifierNull() {
-        unit().addField(FIELD1, Lists.newArrayList(ARG1), null);
+        unit().addField(FIELD1, new String[] {ARG1}, null);
     }
     
     
     
     @Override
     protected void applyNormal(LuceneQuery query, QueryModifier mod) {
-        final Collection<?> toAdd = Lists.<Object>newArrayList(ARG1, "  ", ARG2, null, ARG3, "");
+        final Object[] toAdd = new Object[] {ARG1, "  ", ARG2, null, ARG3, ""};
         query.addField(FIELD1, toAdd, mod);
     }
     
@@ -82,7 +78,7 @@ public final class AddFieldCollectionModFragment extends AbstractQueryModifierFr
     
     @Override
     protected void applyWildcarded(LuceneQuery query, QueryModifier mod) {
-        final Collection<?> toAdd = Lists.newArrayList(WILDCARD1, "  ", null, "", WILDCARD2, null);
+        final Object[] toAdd = new Object[] {WILDCARD1, "  ", null, "", WILDCARD2, null};
         query.addField(FIELD1, toAdd, mod);
     }
     
@@ -100,7 +96,7 @@ public final class AddFieldCollectionModFragment extends AbstractQueryModifierFr
     
     @Override
     protected void applySplit(LuceneQuery query, QueryModifier mod) {
-        final Collection<?> toAdd = Lists.<Object>newArrayList(ARG1 + "  " + ARG3, "", ARG2, null, "  ");
+        final Object[] toAdd = new Object[] {ARG1 + "  " + ARG3, "", ARG2, null, "  "};
         query.addField(FIELD1, toAdd, mod);
     }
     
@@ -118,7 +114,7 @@ public final class AddFieldCollectionModFragment extends AbstractQueryModifierFr
     
     @Override
     protected void applyFuzzy(LuceneQuery query, QueryModifier mod) {
-        final Collection<?> toAdd = Lists.<Object>newArrayList(FUZZY1, "", null, "   ", FUZZY2);
+        final Object[] toAdd = new Object[] {FUZZY1, "", null, "   ", FUZZY2};
         query.addField(FIELD1, toAdd, mod);
     }
     
@@ -136,7 +132,7 @@ public final class AddFieldCollectionModFragment extends AbstractQueryModifierFr
     
     @Override
     protected void applyWildcardedFuzzy(LuceneQuery query, QueryModifier mod) {
-        final Collection<?> toAdd = Lists.<Object>newArrayList(FUZZY1, WILDCARD1, null, "  ", FUZZY2, WILDCARD2);
+        final Object[] toAdd = new Object[] {FUZZY1, WILDCARD1, null, "  ", FUZZY2, WILDCARD2};
         query.addField(FIELD1, toAdd, mod);
     }
     
@@ -166,7 +162,7 @@ public final class AddFieldCollectionModFragment extends AbstractQueryModifierFr
     
     @Override
     protected void applyFuzzySplit(LuceneQuery query, QueryModifier mod) {
-        final Collection<?> toAdd = Lists.newArrayList(FUZZY1 + "  " + FUZZY2, "", null, FUZZY3, null, "   ");
+        final Object[] toAdd = new Object[] {FUZZY1 + "  " + FUZZY2, "", null, FUZZY3, null, "   "};
         query.addField(FIELD1, toAdd, mod);
     }
     
@@ -194,7 +190,7 @@ public final class AddFieldCollectionModFragment extends AbstractQueryModifierFr
     
     @Override
     protected void applyWildcardedSplit(LuceneQuery query, QueryModifier mod) {
-        final Collection<?> toAdd = Lists.newArrayList(WILDCARD1 + "  " + WILDCARD2, "", null, WILDCARD3);
+        final Object[] toAdd = new Object[] {WILDCARD1 + "  " + WILDCARD2, "", null, WILDCARD3};
         query.addField(FIELD1, toAdd, mod);
     }
     
@@ -234,8 +230,7 @@ public final class AddFieldCollectionModFragment extends AbstractQueryModifierFr
     
     @Override
     protected void applyWildcardedFuzzySplit(LuceneQuery query, QueryModifier mod) {
-        final Collection<?> toAdd = Lists.newArrayList(
-            WILDCARD1 + "  " + FUZZY2, "  ", null, "  ", WILDCARD2, FUZZY3);
+        final Object[] toAdd = new Object[] {WILDCARD1 + "  " + FUZZY2, "  ", null, "  ", WILDCARD2, FUZZY3};
         query.addField(FIELD1, toAdd, mod);
     }
     

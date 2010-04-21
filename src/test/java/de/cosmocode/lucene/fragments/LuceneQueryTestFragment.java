@@ -21,16 +21,15 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cosmocode.junit.UnitProvider;
 import de.cosmocode.lucene.AbstractLuceneQueryTest;
 import de.cosmocode.lucene.LuceneQuery;
-import de.cosmocode.lucene.QueryModifier;
 
 /**
  * <p> This is an abstract Test class that implements no test itself.
@@ -47,7 +46,7 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
     public static final Analyzer ANALYZER = new KeywordAnalyzer();
     
     public static final Version USED_VERSION = Version.LUCENE_CURRENT;
-   
+    
     /** A helper for wildcard queries, different then WILDCARD2. */
     public static final String WILDCARD1 = "arg";
     /** A helper for wildcard queries, different then WILDCARD1. */
@@ -83,9 +82,7 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
     
     @Override
     public LuceneQuery unit() {
-        final LuceneQuery unit = AbstractLuceneQueryTest.getInstance().unit();
-        unit.addField("empty", "empty", QueryModifier.start().required().end()).addBoost(0.01);
-        return unit;
+        return AbstractLuceneQueryTest.unitProvider().unit();
     }
     
     /**
@@ -98,7 +95,7 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
      * @param actual the generated LuceneQuery
      */
     protected void assertEquals(final String expected, final LuceneQuery actual) {
-        final String expectedString = unit().getQuery() + expected;
+        final String expectedString = expected;
         final String actualString = actual.getQuery();
         
         final QueryParser parser = new QueryParser(USED_VERSION, DEFAULT_FIELD, ANALYZER);
@@ -172,7 +169,7 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
      * @param keyValues name and value of the fields, alternating (key, value, key, value, ...)
      * @return a new document with a field set to the given values
      */
-    protected Document createDocument(final String... keyValues) {
+    protected static Document createDocument(final String... keyValues) {
         final Document doc = new Document();
         String key = null;
         for (String keyOrValue : keyValues) {
@@ -193,8 +190,8 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
      * Creates a new Lucene Index with some predefined field and arguments.
      * @throws IOException if creating the index failed
      */
-    @Before
-    public void createLuceneIndex() throws IOException {
+    @BeforeClass
+    public static void createLuceneIndex() throws IOException {
         final IndexWriter writer = new IndexWriter(DIRECTORY, ANALYZER, MaxFieldLength.UNLIMITED);
         
         final String[] fields = new String[] {FIELD1, FIELD2, DEFAULT_FIELD};
@@ -228,8 +225,8 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
      * Cleans the index up again, to ensure an empty lucene index in the next test.
      * @throws IOException if cleaning the index failed
      */
-    @After
-    public void cleanLuceneIndex() throws IOException {
+    @AfterClass
+    public static void cleanLuceneIndex() throws IOException {
         final IndexWriter writer = new IndexWriter(DIRECTORY, ANALYZER, MaxFieldLength.UNLIMITED);
         writer.deleteAll();
         writer.close();

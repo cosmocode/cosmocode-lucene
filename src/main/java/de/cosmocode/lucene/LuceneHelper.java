@@ -14,6 +14,54 @@ public final class LuceneHelper {
     
     public static final Factory<LuceneQuery> DEFAULT_FACTORY = new DefaultLuceneQueryFactory();
     
+    /**
+     * <p> A {@link QueryModifier} that has
+     * {@link QueryModifier.Builder#required()} and
+     * {@link QueryModifier.Builder#disjunct()} set.
+     * </p>
+     * <p> Can be used to include one or more IDs into the search.
+     * </p>
+     */
+    public static final QueryModifier MOD_ID = QueryModifier.start().required().disjunct().end();
+    
+    /**
+     * <p> A {@link QueryModifier} that has
+     * {@link QueryModifier.Builder#prohibited()} and
+     * {@link QueryModifier.Builder#conjunct()} set.
+     * </p>
+     * <p> Can be used to exclude one or more IDs from the search.
+     * </p>
+     */
+    public static final QueryModifier MOD_NOT_ID = QueryModifier.start().prohibited().conjunct().end();
+    
+    /**
+     * <p> A {@link QueryModifier} that has
+     * {@link QueryModifier.Builder#required()},
+     * {@link QueryModifier.Builder#conjunct()},
+     * {@link QueryModifier.Builder#wildcarded()} and
+     * {@link QueryModifier.Builder#doSplit()} set.
+     * </p>
+     * <p> Can be used for required text fields.
+     * </p>
+     */
+    public static final QueryModifier MOD_TEXT = 
+        QueryModifier.start().required().conjunct().wildcarded().doSplit().end();
+    
+    /**
+     * <p> A {@link QueryModifier} that has
+     * {@link QueryModifier.Builder#required()},
+     * {@link QueryModifier.Builder#disjunct()},
+     * {@link QueryModifier.Builder#wildcarded()},
+     * {@link QueryModifier.Builder#setFuzzyness(Double)} with 0.7 and
+     * {@link QueryModifier.Builder#doSplit()} set.
+     * </p>
+     * <p> Can be used for some autocompletion, though the fuzzyness may vary
+     * from project to project.
+     * </p>
+     */
+    public static final QueryModifier MOD_AUTOCOMPLETE = 
+        QueryModifier.start().required().disjunct().wildcarded().setFuzzyness(0.7).doSplit().end();
+    
     
     //---------------------------
     //   public helper methods
@@ -92,7 +140,7 @@ public final class LuceneHelper {
     
     /**
      * Escapes all special chars, blanks and quotes for solr.
-     * <br>Escaped chars are: +,\,&,|,!,(,),{,},[,],^,~,?,*,:
+     * <br>Escaped chars are: +,\,&,|,!,(,),{,},[,],^,~,?,*, ,",:
      * @param input the input to escape
      * @return the input with escaped special chars
      */
@@ -108,6 +156,14 @@ public final class LuceneHelper {
      */
     public static LuceneQuery newQuery() {
         return DEFAULT_FACTORY.create();
+    }
+    
+    /**
+     * Creates a new {@link LuceneQueryBuilder}.
+     * @return a new LuceneQueryBuilder
+     */
+    public static LuceneQueryBuilder newQueryBuilder() {
+        return new LuceneQueryBuilder();
     }
 
 }

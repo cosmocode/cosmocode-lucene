@@ -4,30 +4,33 @@ import java.util.Collection;
 
 
 /**
- * <p> An interface that specifies a builder for Lucene queries.
+ * <p> The LuceneQuery is a builder for Lucene queries.
+ * It provides several methods that all handle proper escaping.
  * </p>
  * <p> An abstract implemententation of this interface,
  * that takes care of the redirects to methods with
  * default values and those with old style "boolean mandatory" signature,
  * is available at {@link AbstractLuceneQuery}.
+ * A version that delegates every call is {@link ForwardingLuceneQuery}.
  * </p>
  * <p> Example for the usage:
  * </p>
  * <pre>
  *   import com.google.common.collect.Lists;
+ *   import de.cosmocode.lucene.LuceneQuery;
  *   ...
- *   
  *   // This example uses the default implemtation, but any other implementation works alike
  *   LuceneQuery builder = LuceneHelper.newQuery();
  *   builder.setModifier(QueryModifier.start().required().end());
  *   builder.addField("test", Lists.newArrayList("test1", "test2"));
  *   builder.addArgument("blubb");
- *   builder.addSubquery(LuceneHelper.newQuery().addField("sub", "test").addField("array", new int[] {1, 2}));
+ *   builder.addSubquery(LuceneHelper.newQuery().addField("sub", "test^3").addField("array", new int[] {1, 2}));
  *   System.out.println(builder.getQuery());
- *   // prints out: +test:(test1 test2) +blubb +(sub:test array:(1 2))
+ *   // prints out: +test:(test1 test2) +blubb +(sub:test\^3 array:(1 2))
  * </pre>
  * 
  * @see AbstractLuceneQuery
+ * @see ForwardingLuceneQuery
  * 
  * @author Oliver Lorenz
  *
@@ -42,12 +45,26 @@ public interface LuceneQuery {
      *  <li> {@link LuceneQuery#addFuzzyArgument(String, QueryModifier)}</li>
      *  <li> {@link LuceneQuery#addFuzzyField(String, String)}</li>
      *  <li> {@link LuceneQuery#addFuzzyField(String, String, boolean)}</li>
-     *  <li> {@link LuceneQuery#addFuzzyField(String, String, QueryModifier)}</li>
      * </ul>
      */
     double DEFAULT_FUZZYNESS = 0.5;
     
-    String ERR_EMPTY_QUERY = "The resulting query is empty, no addField or addArgument methods were successful";
+    /**
+     * Error that is thrown when {@link #getQuery()} is called,
+     * but the result would be an empty String.
+     */
+    String ERR_EMPTY_QUERY = 
+        "The resulting query is empty, no previous method call was successful";
+    
+    /**
+     * Error to show that the boost is out of bounds.
+     * Valid boost values are: 0 < boostFactor < 10000000
+     */
+    String ERR_BOOST_OUT_OF_BOUNDS = 
+        "boostFactor must be greater than 0 and less than 10.000.000 (10 millions)";
+    
+    String ERR_MODIFIER_NULL = 
+        "the default QueryModifier must not be null, choose QueryModifier.DEFAULT instead";
     
     // TODO: JavaDoc
     
@@ -106,13 +123,32 @@ public interface LuceneQuery {
     /**
      * <p> Returns the query which was built with the add...-methods.
      * It throws an IllegalStateException if no add...-methods were successful
-     * and the resulting query is therefor empty.
+     * and the resulting query is empty.
      * </p>
      * 
      * @return the query which was built with the add...-methods
      * @throws IllegalStateException if no add...-methods were successful so that the query would be empty
      */
     String getQuery() throws IllegalStateException;
+    
+    
+    /**
+     * <p> If the last method call was successful (that means it altered the output of this query),
+     * then this method returns true, false otherwise.
+     * </p>
+     * All method calls but the following alter this state:
+     * <ul>
+     *   <li> {@link #addBoost(double)} - but the boost uses this feature </li>
+     *   <li> {@link #getModifier()} </li>
+     *   <li> {@link #getQuery()} </li>
+     *   <li> {@link #isWildCarded()} </li>
+     *   <li> {@link #lastSuccessful()} </li>
+     *   <li> {@link #setModifier(QueryModifier)} </li>
+     *   <li> {@link #setWildCarded(boolean)} </li>
+     * </ul>
+     * @return true if the last method call changed this LuceneQuery, false otherwise
+     */
+    boolean lastSuccessful();
     
     
     //---------------------------
@@ -156,31 +192,6 @@ public interface LuceneQuery {
      * @return this
      */
     LuceneQuery addFuzzyArgument(String value, boolean mandatory, double fuzzyness);
-    
-    
-    /**
-     * Append a fuzzy term with default fuzzyness of 0.5. <br>
-     * fuzzy searches include arguments that are in the levenshtein distance of the searched term.
-     * <br><br>
-     * This method uses the {@link #DEFAULT_FUZZYNESS}.
-     * 
-     * @param value the value to search for
-     * @param modifier the QueryModifier affects the way in that the argument is added.
-     * @return this
-     */
-    LuceneQuery addFuzzyArgument(String value, QueryModifier modifier);
-    
-    
-    /**
-     * Append a fuzzy argument with the given fuzzyness. <br>
-     * fuzzy searches include arguments that are in the levenshtein distance of the searched term.
-     * 
-     * @param value the value to search for
-     * @param modifier the QueryModifier affects the way in that the argument is added.
-     * @param fuzzyness the fuzzyness; must be between 0 (inclusive) and 1 (exclusive), so that: 0 <= fuzzyness < 1
-     * @return this
-     */
-    LuceneQuery addFuzzyArgument(String value, QueryModifier modifier, double fuzzyness);
 
     
     
@@ -191,8 +202,16 @@ public interface LuceneQuery {
 
     
     /**
-     * @param value
+     * <p> Adds a String term to this LuceneQuery.
+     * The default modifier is applied to the value.
+     * This method uses {@link #getModifier()} and
+     * redirects to {@link #addArgument(String, QueryModifier)}.
+     * </p>
+     * 
+     * @param value the String value to add
      * @return this
+     * 
+     * @see #addArgument(String, QueryModifier)
      */
     LuceneQuery addArgument(String value);
     
@@ -210,7 +229,8 @@ public interface LuceneQuery {
      * <p> Adds a String term to this LuceneQuery.
      * The given modifier is applied to the value.
      * </p>
-     * <p> The value can have any value, including null, but the modifier must not be null.
+     * <p> The first parameter `value` can have any value, including null,
+     * but the modifier must not be null.
      * </p>
      * 
      * @param value the String value to add
@@ -232,8 +252,24 @@ public interface LuceneQuery {
     
     
     /**
-     * @param values
-     * @param mandatory
+     * <p> Add a collection of Terms to this LuceneQuery.
+     * </p>
+     * <p> The first parameter contains the values which are added to the final query.
+     * It can be null or empty or contain only blank or empty Strings,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * <p> If the second parameter `mandatory` is true, then the array of terms are added as required
+     * (i.e. the result contains only documents that match all values).
+     * Otherwise the array is added as a "boost" so that all documents matching
+     * at least one of the values are ordered to the top.
+     * </p>
+     * 
+     * @param values a collection of search terms
+     * @param mandatory if true then the value must be found,
+     *                  otherwise it is just prioritized in the search results
      * @return this
      */
     LuceneQuery addArgument(Collection<?> values, boolean mandatory);
@@ -267,7 +303,7 @@ public interface LuceneQuery {
      * </p>
      * <p> If the second parameter `mandatory` is true, then the array of terms are added as required
      * (i.e. the result contains only documents that match all values).
-     * Otherwise the sub query is added as a "boost" so that all documents matching
+     * Otherwise the array is added as a "boost" so that all documents matching
      * at least one of the values are ordered to the top.
      * </p>
      * 
@@ -301,7 +337,7 @@ public interface LuceneQuery {
     
     /**
      * <p> Add an array of doubles to this LuceneQuery,
-     * using the given QueryModifier.
+     * using the given {@link QueryModifier}.
      * </p>
      * 
      * @param values the array of terms to search for
@@ -393,7 +429,8 @@ public interface LuceneQuery {
      * If all other method calls don't change this LuceneQuery,
      * then {@link #getQuery()} will throw an IllegalStateException.
      * </p>
-     * <p> This method uses the {@link #getModifier()}.
+     * <p> This method uses the {@link #getModifier()}
+     * and invokes {@link #addSubquery(LuceneQuery, QueryModifier)} with it.
      * </p>
      * 
      * @param value the SubQuery to add
@@ -503,8 +540,8 @@ public interface LuceneQuery {
     
     /**
      * 
-     * @param key
-     * @param value
+     * @param key the name of the field
+     * @param value the (string)-value of the field
      * @param mandatoryKey
      * @return this
      */
@@ -516,7 +553,7 @@ public interface LuceneQuery {
      * 
      * @see LuceneQuery#addField(String, String, boolean)
      * 
-     * @param key
+     * @param key the name of the field
      * @param value
      * @param mandatoryKey
      * @param boostFactor
@@ -529,13 +566,13 @@ public interface LuceneQuery {
      * <p> Append a field with a string value with the specified QueryModifier.
      * </p>
      * <p> The first parameter, key, must be a valid field name
-     * (i.e. it must no contain any special characters of Lucene).
+     * (i.e. it must not contain any special characters of Lucene).
      * </p>
      * <p> The second parameter, value, can be any valid String.
      * Blank or empty String or null value is permitted,
      * but then this method call has no effect on the final query.
      * </p>
-     * <p> The third parameter, the QueryModifier `modifier`, must not be null.
+     * <p> The third parameter, the {@link QueryModifier} `modifier`, must not be null.
      * A NullPointerException is thrown otherwise.
      * </p> 
      * 
@@ -557,56 +594,85 @@ public interface LuceneQuery {
     
     
     /**
-     * Append a field with a collection of values.
+     * <p> Append a field with a collection of values.
+     * </p>
+     * <p> The first parameter, key, must be a valid field name
+     * (i.e. it must not contain any special characters of Lucene).
+     * </p>
+     * <p> If the second parameter, `mandatoryKey`, is true,
+     * then the field is search for as required
+     * (i.e. the result contains only documents that have the specified field).
+     * Otherwise the field is added as a "boost" so that all documents
+     * that have this field are ordered to the top.
+     * <p> The third parameter, value, can be any valid String.
+     * Blank or empty String or null value is permitted,
+     * but then this method call has no effect on the final query.
+     * No Exception will be thrown on this invocation.
+     * If all other method calls don't change this LuceneQuery,
+     * then {@link #getQuery()} will throw an IllegalStateException.
+     * </p>
+     * <p> If the fourth parameter, `mandatoryValue`, is true,
+     * then the field must have all values given in the collection.
+     * Otherwise the field must have only one of the values.
+     * </p> 
      * 
-     * @param key
-     * @param mandatoryKey
-     * @param value
-     * @param mandatoryValue
+     * @param key the name of the field
+     * @param mandatoryKey if true then the field is required, otherwise the field is only boosted
+     * @param values the values (as a collection) for the field
+     * @param mandatoryValue if true then field must have all values, otherwise only one of them
      * @return this
      */
-    LuceneQuery addField(String key, boolean mandatoryKey, Collection<?> value, boolean mandatoryValue);
+    LuceneQuery addField(String key, boolean mandatoryKey, Collection<?> values, boolean mandatoryValue);
     
     
     /**
-     * Append a field with a collection of values, and apply a boost afterwards.
+     * <p> Append a field with a collection of values, and apply a boost afterwards.
+     * </p>
+     * <p> This method calls {@link #addField(String, boolean, Collection, boolean)} first
+     * and then {@link #addBoost(double)}.
+     * </p>
      * 
-     * @see LuceneQuery#addField(String, boolean, Collection, boolean)
-     * 
-     * @param key
-     * @param mandatoryKey
-     * @param value
-     * @param mandatoryValue
-     * @param boostFactor
+     * @param key the name of the field
+     * @param mandatoryKey if true then the field is required, otherwise the field is only boosted
+     * @param values the values (as a collection) for the field
+     * @param mandatoryValue if true then field must have all values, otherwise only one of them
+     * @param boostFactor the boost to apply afterwards.
      * @return this
+     * 
+     * @see #addField(String, boolean, Collection, boolean)
+     * @see #addBoost(double)
      */
-    LuceneQuery addField(String key, boolean mandatoryKey, Collection<?> value, 
+    LuceneQuery addField(String key, boolean mandatoryKey, Collection<?> values, 
             boolean mandatoryValue, double boostFactor);
     
 
     /**
-     * Add a field with the name `key` to the query.
+     * <p> Add a field with the name `key` to the query.
      * The values to search for are given in a collection.
-     * <br><br>
-     * This method uses the {@link #getModifier()}.
+     * </p>
+     * <p> This method calls {@link #addField(String, Collection, QueryModifier)}
+     * with {@link #getModifier()}.
+     * </p>
      * 
      * @param key the name of the field
-     * @param value
+     * @param values the values (as a collection) for the field
      * @return this
+     * 
+     * @see #addField(String, Collection, QueryModifier)
      */
-    LuceneQuery addField(String key, Collection<?> value);
+    LuceneQuery addField(String key, Collection<?> values);
     
 
     /**
      * Add a field with the name `key` to the query.
      * The values to search for are given in a collection.
      * 
-     * @param key
-     * @param value
+     * @param key the name of the field
+     * @param values the values (as a collection) for the field
      * @param modifier
      * @return this
      */
-    LuceneQuery addField(String key, Collection<?> value, QueryModifier modifier);
+    LuceneQuery addField(String key, Collection<?> values, QueryModifier modifier);
 
     
     
@@ -622,7 +688,7 @@ public interface LuceneQuery {
      * <br><br>
      * This method uses the {@link #getModifier()}.
      * 
-     * @param <K>
+     * @param <K> generic element type
      * @param key the name of the field
      * @param value the values to be searched in the field
      * @return this
@@ -634,7 +700,7 @@ public interface LuceneQuery {
      * Add a field with the name `key` to the query.
      * The values to search for are given in an array.
      * 
-     * @param <K>
+     * @param <K> generic element type
      * @param key the name of the field
      * @param value the values to be searched in the field
      * @param modifier the query modifier
@@ -693,37 +759,6 @@ public interface LuceneQuery {
      * @return this
      */
     LuceneQuery addFuzzyField(String key, String value, boolean mandatoryKey, double fuzzyness);
-    
-    
-    /**
-     * Append a fuzzy search argument with the given fuzzyness for the given field.
-     * <br>fuzzy searches include arguments that are in the levenshtein distance of the searched term.
-     * <br>Less fuzzyness (closer to 0) means less accuracy, and vice versa
-     *   (the closer to 1, solr yields less but accurater results)
-     * <br>
-     * <br>This method uses the {@link #DEFAULT_FUZZYNESS}.
-     * 
-     * @param key the name of the field
-     * @param value the value to search for
-     * @param mod the modifiers to use
-     * @return this
-     */
-    LuceneQuery addFuzzyField(String key, String value, QueryModifier mod);
-    
-    
-    /**
-     * Append a fuzzy search argument with the given fuzzyness for the given field.
-     * <br>fuzzy searches include arguments that are in the levenshtein distance of the searched term.
-     * <br>Less fuzzyness (closer to 0) means less accuracy, and vice versa
-     *   (the closer to 1, solr yields less but accurater results)
-     * 
-     * @param key the name of the field
-     * @param value the value to search for
-     * @param mod the modifiers to use
-     * @param fuzzyness the fuzzyness; must be between 0 and 1, so that 0 <= fuzzyness < 1
-     * @return this
-     */
-    LuceneQuery addFuzzyField(String key, String value, QueryModifier mod, double fuzzyness);
 
     
 
@@ -732,16 +767,20 @@ public interface LuceneQuery {
     //---------------------------
     
     /**
-     * Adds a field named `key`, with the values of `value`.
-     * 
-     * <p> This method uses {@link #getModifier()}.
+     * <p> Add a field with the name `key` to the query.
+     * The values to search for are given in a collection.
+     * </p>
+     * <p> This method calls {@link #addFieldAsCollection(String, Collection, QueryModifier)}
+     * with {@link #getModifier()}.
      * </p>
      * 
      * @param key the name of the field
-     * @param value the collection of values for the field
+     * @param values the values (as a collection) for the field
      * @return this
+     * 
+     * @see #addFieldAsCollection(String, Collection, QueryModifier)
      */
-    LuceneQuery addFieldAsCollection(String key, Collection<?> value);
+    LuceneQuery addFieldAsCollection(String key, Collection<?> values);
     
     
     /**
@@ -796,29 +835,6 @@ public interface LuceneQuery {
      * @return this
      */
     <K> LuceneQuery addFieldAsArray(String key, K[] value, QueryModifier modifier);
-    
-    
-    /**
-     * Add a field with the name `key` to the query.
-     * The values to search for are given in an array.
-     * 
-     * @param key the name of the field
-     * @param value the values to add
-     * @return this
-     */
-    LuceneQuery addFieldAsArray(String key, Object value);
-    
-    
-    /**
-     * Add a field with the name `key` to the query.
-     * The values to search for are given in an array.
-     * 
-     * @param key the name of the field
-     * @param value the values to add
-     * @param modifier the QueryModifier to apply
-     * @return this
-     */
-    LuceneQuery addFieldAsArray(String key, Object value, QueryModifier modifier);
     
     
     

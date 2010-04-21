@@ -33,23 +33,32 @@ public final class AddArgumentCollectionFragment extends LuceneQueryTestFragment
     /**
      * Tests {@link LuceneQuery#addArgument(Collection)} with null.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentNull() {
         final LuceneQuery query = unit();
         query.addArgument((Collection<?>) null);
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
 
     /**
      * Tests {@link LuceneQuery#addArgument(Collection)} with an empty collection.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentEmpty() {
         final LuceneQuery query = unit();
         query.addArgument(Collections.emptySet());
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
+    }
+
+    /**
+     * Tests {@link LuceneQuery#addArgument(Collection)}
+     * with a collection that contains only null or empty or blank Strings.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void addArgumentOnlyInvalid() {
+        final LuceneQuery query = unit();
+        query.addArgument(Lists.newArrayList("   ", null, "", null, "   "));
+        query.getQuery();
     }
     
     /**
@@ -88,24 +97,22 @@ public final class AddArgumentCollectionFragment extends LuceneQueryTestFragment
     /**
      * Tests {@link LuceneQuery#addArgument(Collection, boolean)} with null and true.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentNullTrue() {
         final LuceneQuery query = unit();
         query.addArgument((Collection<?>) null, true);
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
 
     /**
      * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
      * with an empty collection and true.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentEmptyTrue() {
         final LuceneQuery query = unit();
         query.addArgument(Collections.emptySet(), true);
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
     
     /**
@@ -148,24 +155,22 @@ public final class AddArgumentCollectionFragment extends LuceneQueryTestFragment
      * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
      * with null and false.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentNullFalse() {
         final LuceneQuery query = unit();
         query.addArgument((Collection<?>) null, false);
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
 
     /**
      * Tests {@link LuceneQuery#addArgument(Collection, boolean)}
      * with an empty collection and with false.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void addArgumentEmptyFalse() {
         final LuceneQuery query = unit();
         query.addArgument(Collections.emptySet(), false);
-        final String expected = "";
-        assertEquals(expected, query);
+        query.getQuery();
     }
     
     /**

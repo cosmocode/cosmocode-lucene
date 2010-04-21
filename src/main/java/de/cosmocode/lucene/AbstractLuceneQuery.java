@@ -1,9 +1,8 @@
 package de.cosmocode.lucene;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Preconditions;
 
 
 /**
@@ -11,14 +10,13 @@ import org.apache.commons.lang.StringUtils;
  * that takes care of the redirects to methods with
  * default values and those with old style "boolean mandatory" signature. 
  * </p>
- * <p>It implements every method, except:
+ * <p>It implements most methods, with these exceptions:
  * </p>
  * <ul>
  *   <li>{@link #addArgument(String, QueryModifier)}</li>
  *   <li>{@link #addArgumentAsCollection(Collection, QueryModifier)}</li>
  *   <li>{@link #addArgumentAsArray(Object[], QueryModifier)}</li>
  *   <li>{@link #addArgumentAsArray(Object, QueryModifier)}</li>
- *   <li>{@link #addFuzzyArgument(String, QueryModifier, double)}</li>
  *   <li>{@link #addSubquery(LuceneQuery, QueryModifier)}</li>
  *   <li>{@link #addUnescaped(CharSequence, boolean)}</li>
  *   <li>{@link #addUnescapedField(String, CharSequence, boolean)}</li>
@@ -38,6 +36,8 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     
     private QueryModifier defaultModifier;
+    
+    private boolean wasLastSuccessful;
     
     
     /**
@@ -80,11 +80,16 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     @Override
     public final void setModifier(QueryModifier mod) {
-        if (mod == null) {
-            throw new NullPointerException("the default QueryModifier must not be null");
-        } else {
-            this.defaultModifier = mod;
-        }
+        this.defaultModifier = Preconditions.checkNotNull(mod, ERR_MODIFIER_NULL);
+    }
+    
+    @Override
+    public boolean lastSuccessful() {
+        return wasLastSuccessful;
+    }
+    
+    protected void setLastSuccessful(final boolean lastSuccessful) {
+        this.wasLastSuccessful = lastSuccessful;
     }
     
     @Override
@@ -99,7 +104,7 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     @Override
     public final LuceneQuery addFuzzyArgument(final String value) {
-        return addFuzzyArgument(value, defaultModifier, DEFAULT_FUZZYNESS);
+        return addArgument(value, defaultModifier.copy().setFuzzyness(DEFAULT_FUZZYNESS).end());
     }
     
     
@@ -110,24 +115,10 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     
     @Override
-    public LuceneQuery addFuzzyArgument(final String value, final boolean mandatory,
-            final double fuzzyness) {
+    public LuceneQuery addFuzzyArgument(final String value, final boolean mandatory, final double fuzzyness) {
         final TermModifier tm = mandatory ? TermModifier.REQUIRED : TermModifier.NONE;
-        final QueryModifier mod = defaultModifier.copy().setTermModifier(tm).end();
-        return this.addFuzzyArgument(value, mod, fuzzyness);
-    }
-    
-    
-    @Override
-    public final LuceneQuery addFuzzyArgument(final String value, final QueryModifier modifier) {
-        return addFuzzyArgument(value, modifier, DEFAULT_FUZZYNESS);
-    }
-    
-    
-    @Override
-    public LuceneQuery addFuzzyArgument(final String value, 
-            final QueryModifier modifier, final double fuzzyness) {
-        return this.addArgument(value, modifier.copy().setFuzzyness(fuzzyness).end());
+        final QueryModifier mod = defaultModifier.copy().setTermModifier(tm).setFuzzyness(fuzzyness).end();
+        return this.addArgument(value, mod);
     }
     
     
@@ -328,12 +319,11 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     @Override
     public LuceneQuery addField(final String key, final String value, final QueryModifier modifier) {
-        if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
-            this.startField(key, modifier);
+        this.startField(key, modifier);
+        if (lastSuccessful()) {
             this.addArgument(value, modifier.getArgumentModifier());
             this.endField();
         }
-        
         return this;
     }
     
@@ -379,28 +369,9 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public LuceneQuery addField(String key, boolean mandatoryKey,
             Collection<?> value, boolean mandatoryValue, double boostFactor) {
-        final QueryModifier.Builder builder = defaultModifier.copy();
-        final QueryModifier mod;
-        
-        if (mandatoryKey && mandatoryValue) {
-            // field is required; all values must occur: conjunction (and)
-            mod = builder.setTermModifier(TermModifier.REQUIRED).setDisjunct(false).end();
-        } else if (mandatoryKey && !mandatoryValue) {
-            // field is required; no value is mandatory: disjunction (or)
-            // that means that one of the values must occur
-            mod = builder.setTermModifier(TermModifier.REQUIRED).setDisjunct(true).end();
-        } else if (!mandatoryKey && mandatoryValue) {
-            // field is not required (but boosted in results);
-            // all values must occur: conjunction (and)
-            mod = builder.setTermModifier(TermModifier.NONE).setDisjunct(false).end();
-        } else {
-            // field is not required (but boosted in results);
-            // no value is mandatory: disjunction (or)
-            // This means: Each document that has one of the given values for the field is boosted
-            mod = builder.setTermModifier(TermModifier.NONE).setDisjunct(true).end();
-        }
-        
-        return addFieldAsCollection(key, value, mod, boostFactor);
+        return
+            addField(key, mandatoryKey, value, mandatoryValue).
+            addBoost(boostFactor);
     }
     
     @Override
@@ -434,40 +405,22 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     @Override
     public final LuceneQuery addFuzzyField(String key, String value) {
-        return addFuzzyField(key, value, defaultModifier, DEFAULT_FUZZYNESS);
+        return addField(key, value, defaultModifier.copy().setFuzzyness(DEFAULT_FUZZYNESS).end());
     }
     
     @Override
     public LuceneQuery addFuzzyField(String key, String value, boolean mandatoryKey) {
         final TermModifier tm = mandatoryKey ? TermModifier.REQUIRED : TermModifier.NONE;
-        final QueryModifier mod = defaultModifier.copy().setTermModifier(tm).end();
-        return addFuzzyField(key, value, mod, DEFAULT_FUZZYNESS);
+        final QueryModifier mod = defaultModifier.copy().
+            setTermModifier(tm).setFuzzyness(DEFAULT_FUZZYNESS).end();
+        return addField(key, value, mod);
     }
     
     @Override
     public LuceneQuery addFuzzyField(String key, String value, boolean mandatoryKey, double fuzzyness) {
         final TermModifier tm = mandatoryKey ? TermModifier.REQUIRED : TermModifier.NONE;
-        final QueryModifier mod = defaultModifier.copy().setTermModifier(tm).end();
-        return addFuzzyField(key, value, mod, fuzzyness);
-    }
-    
-    @Override
-    public final LuceneQuery addFuzzyField(String key, String value, QueryModifier mod) {
-        return addFuzzyField(key, value, mod, DEFAULT_FUZZYNESS);
-    }
-    
-    @Override
-    public LuceneQuery addFuzzyField(final String key, final String value, 
-            final QueryModifier modifier, final double fuzzyness) {
-        final QueryModifier argMod;
-        argMod = modifier.copy().setFuzzyness(fuzzyness).setTermModifier(TermModifier.NONE).end();
-        if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
-            this.startField(key, modifier);
-            this.addFuzzyArgument(value, argMod);
-            this.endField();
-        }
-        
-        return this;
+        final QueryModifier mod = defaultModifier.copy().setTermModifier(tm).setFuzzyness(fuzzyness).end();
+        return addField(key, value, mod);
     }
     
     
@@ -492,13 +445,12 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public LuceneQuery addFieldAsCollection(
         final String key, final Collection<?> value, final QueryModifier modifier) {
-        
-        if (StringUtils.isNotBlank(key) && value != null && value.size() > 0) {
-            startField(key, modifier);
-            addArgumentAsCollection(value, modifier.getArgumentModifier());
-            endField();
+
+        this.startField(key, modifier);
+        if (lastSuccessful()) {
+            this.addArgumentAsCollection(value, modifier.getArgumentModifier());
+            this.endField();
         }
-        
         return this;
     }
 
@@ -509,31 +461,37 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     };
     
     @Override
-    public <K> LuceneQuery addFieldAsArray(final String key, final K[] value, final QueryModifier modifier) {
-        if (StringUtils.isNotBlank(key) && value != null && value.length > 0) {
-            startField(key, modifier);
-            addArgumentAsArray(value, modifier.getArgumentModifier());
-            endField();
-        }
+    public <K> LuceneQuery addFieldAsArray(
+        final String key, final K[] value, final QueryModifier modifier) {
         
+        this.startField(key, modifier);
+        if (lastSuccessful()) {
+            this.addArgumentAsArray(value, modifier.getArgumentModifier());
+            this.endField();
+        }
         return this;
     }
     
-    @Override
-    public final LuceneQuery addFieldAsArray(String key, Object value) {
-        return addFieldAsArray(key, value, defaultModifier);
-    }
-    
-    @Override
-    public LuceneQuery addFieldAsArray(final String key, final Object value, final QueryModifier modifier) {
-        if (StringUtils.isNotBlank(key) && value != null 
-            && value.getClass().isArray() && Array.getLength(value) > 0) {
-            
-            startField(key, modifier);
-            addArgumentAsArray(value, modifier.getArgumentModifier());
+    /**
+     * <p> Add a field with an array of Terms to this LuceneQuery.
+     * </p>
+     * <p> This method can be used for the system type arrays:
+     * int[], long[], boolean[], ...
+     * </p>
+     * 
+     * @param key the name of the field
+     * @param values the array of terms to search for
+     * @param modifier the modifier for the search of this term.
+     * @return this
+     */
+    protected LuceneQuery addFieldAsArray(
+        final String key, final Object values, final QueryModifier modifier) {
+
+        startField(key, modifier);
+        if (lastSuccessful()) {
+            addArgumentAsArray(values, modifier.getArgumentModifier());
             endField();
         }
-        
         return this;
     }
     

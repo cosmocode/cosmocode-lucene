@@ -1,9 +1,13 @@
 package de.cosmocode.lucene;
 
 import java.lang.reflect.Array;
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
 
 import org.apache.commons.lang.StringUtils;
+
+import com.google.common.base.Preconditions;
 
 /**
  * <p>
@@ -15,19 +19,18 @@ import org.apache.commons.lang.StringUtils;
  */
 public final class DefaultLuceneQuery extends AbstractLuceneQuery implements LuceneQuery {
     
-    public static final String ERR_BOOST_OUT_OF_BOUNDS = 
-        "boostFactor must be greater than 0 and less than 10.000.000 (10 millions)";
-
     
     private final StringBuilder queryArguments;
+    
+    private final Deque<Integer> positionStack = new ArrayDeque<Integer>(8);
     
     public DefaultLuceneQuery() {
         this.queryArguments = new StringBuilder();
     }
 
-    // TODO is an empty String on getQuery() ok? should it throw an IllegalStateException instead?
     @Override
     public String getQuery() {
+        Preconditions.checkState(this.queryArguments.length() > 0, ERR_EMPTY_QUERY);
         return this.queryArguments.toString();
     }
     
@@ -77,26 +80,31 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     @Override
     public DefaultLuceneQuery addArgument(final String value, final QueryModifier modifier) {
-        if (StringUtils.isNotBlank(value)) {
-            queryArguments.append(modifier.getTermPrefix());
-            
-            queryArguments.append("(");
-            if (modifier.isWildcarded() && modifier.isFuzzyEnabled()) {
-                addWildcardedFuzzy(value, modifier.getFuzzyness());
-            } else if (modifier.isWildcarded()) {
-                addWildcarded(value);
-            } else if (modifier.isFuzzyEnabled()) {
-                addFuzzy(value, modifier.getFuzzyness());
-            } else {
-                queryArguments.append(LuceneHelper.escapeAll(value));
-            }
-            
-            if (modifier.isSplit() && (value.contains(" "))) {
-                addSplitted(value, modifier);
-            }
-            
-            queryArguments.append(") ");
+        if (StringUtils.isBlank(value)) {
+            setLastSuccessful(false);
+            return this;
         }
+        
+        queryArguments.append(modifier.getTermPrefix());
+        queryArguments.append("(");
+        
+        if (modifier.isWildcarded() && modifier.isFuzzyEnabled()) {
+            addWildcardedFuzzy(value, modifier.getFuzzyness());
+        } else if (modifier.isWildcarded()) {
+            addWildcarded(value);
+        } else if (modifier.isFuzzyEnabled()) {
+            addFuzzy(value, modifier.getFuzzyness());
+        } else {
+            queryArguments.append(LuceneHelper.escapeAll(value));
+        }
+        
+        if (modifier.isSplit() && (value.contains(" "))) {
+            addSplitted(value, modifier);
+        }
+        
+        queryArguments.append(") ");
+        
+        setLastSuccessful(true);
         
         return this;
     }
@@ -107,22 +115,32 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
      */
     
     private void beforeIteration(final QueryModifier modifier) {
+        positionStack.push(queryArguments.length());
         queryArguments.append(modifier.getTermPrefix());
         queryArguments.append("(");
     }
     
-    private void afterIteration() {
+    private void afterIteration(final QueryModifier modifier) {
+        // get previous position here to ensure that positionStack.poll() is executed
+        final int previousPosition = positionStack.poll();
+        
         if (queryArguments.charAt(queryArguments.length() - 1) == '(') {
             // if the just opened bracket is still the last character, then revert it
-            queryArguments.setLength(queryArguments.length() - 1);
+            queryArguments.setLength(previousPosition);
+            setLastSuccessful(false);
         } else {
             queryArguments.append(") ");
+            setLastSuccessful(true);
         }
     }
     
     @Override
     public DefaultLuceneQuery addArgumentAsCollection(final Collection<?> values, final QueryModifier modifier) {
-        if (values == null || values.size() == 0) return this;
+        
+        if (values == null || values.size() == 0) {
+            setLastSuccessful(false);
+            return this;
+        }
         
         beforeIteration(modifier);
 
@@ -132,7 +150,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
             addArgument(val, valueModifier);
         }
         
-        afterIteration();
+        afterIteration(modifier);
         
         return this;
     }
@@ -140,8 +158,12 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     @Override
     public <K> DefaultLuceneQuery addArgumentAsArray(final K[] values, final QueryModifier modifier) {
+        
         // quick return
-        if (values == null || values.length == 0) return this;
+        if (values == null || values.length == 0) {
+            setLastSuccessful(false);
+            return this;
+        }
 
         beforeIteration(modifier);
         
@@ -151,28 +173,30 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
             addArgument(val, valueModifier);
         }
         
-        afterIteration();
+        afterIteration(modifier);
         
         return this;
     }
     
     @Override
     protected DefaultLuceneQuery addArgumentAsArray(Object values, final QueryModifier modifier) {
-        if (values == null) return this;
         
-        if (values.getClass().isArray() && Array.getLength(values) > 0) {
-            final int arrayLength = Array.getLength(values);
-            
-            beforeIteration(modifier);
-            
-            // add all items
-            final QueryModifier valueModifier = modifier.getMultiValueModifier();
-            for (int i = 0; i < arrayLength; i++) {
-                addArgument(Array.get(values, i), valueModifier);
-            }
-            
-            afterIteration();
+        if (values == null || !values.getClass().isArray() || Array.getLength(values) == 0) {
+            setLastSuccessful(false);
+            return this;
         }
+        
+        final int arrayLength = Array.getLength(values);
+        
+        beforeIteration(modifier);
+        
+        // add all items
+        final QueryModifier valueModifier = modifier.getMultiValueModifier();
+        for (int i = 0; i < arrayLength; i++) {
+            addArgument(Array.get(values, i), valueModifier);
+        }
+        
+        afterIteration(modifier);
         
         return this;
     }
@@ -180,13 +204,20 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     @Override
     public DefaultLuceneQuery addSubquery(final LuceneQuery value, final QueryModifier modifier) {
-        if (value == null) return this;
+        if (value == null) {
+            setLastSuccessful(false);
+            return this;
+        }
 
         final CharSequence subQuery = value.getQuery();
-        if (subQuery.length() == 0) return this;
+        if (subQuery.length() == 0) {
+            setLastSuccessful(false);
+            return this;
+        }
         
         queryArguments.append(modifier.getTermPrefix());
         queryArguments.append("(").append(subQuery).append(") ");
+        setLastSuccessful(true);
         
         return this;
     }
@@ -199,11 +230,17 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     
     @Override
-    public DefaultLuceneQuery addUnescapedField(final String key, final CharSequence value, final boolean mandatory) {
-        if (key == null || value == null || value.length() == 0) return this;
+    public DefaultLuceneQuery addUnescapedField(
+        final String key, final CharSequence value, final boolean mandatory) {
+        
+        if (key == null || value == null || value.length() == 0) {
+            setLastSuccessful(false);
+            return this;
+        }
         
         if (mandatory) queryArguments.append("+");
-        queryArguments.append(key).append(":").append(value).append(" ");
+        queryArguments.append(key).append(":(").append(value).append(") ");
+        setLastSuccessful(true);
         
         return this;
     }
@@ -211,10 +248,14 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     @Override
     public DefaultLuceneQuery addUnescaped(final CharSequence value, final boolean mandatory) {
-        if (value == null || value.length() == 0) return this;
+        if (value == null || value.length() == 0) {
+            setLastSuccessful(false);
+            return this;
+        }
         
         if (mandatory) queryArguments.append("+");
         queryArguments.append(value).append(" ");
+        setLastSuccessful(true);
         
         return this;
     }
@@ -226,10 +267,15 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     @Override
     public DefaultLuceneQuery startField(final String fieldName, final boolean mandatory) {
-        if (StringUtils.isBlank(fieldName)) return this;
-        
+        if (StringUtils.isBlank(fieldName)) {
+            setLastSuccessful(false);
+            return this;
+        }
+
+        positionStack.push(queryArguments.length() - 1);
         if (mandatory) queryArguments.append("+");
         queryArguments.append(fieldName).append(":(");
+        setLastSuccessful(true);
         
         return this;
     }
@@ -237,10 +283,15 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     @Override
     public DefaultLuceneQuery startField(final String fieldName, final QueryModifier modifier) {
-        if (StringUtils.isBlank(fieldName)) return this;
+        if (StringUtils.isBlank(fieldName)) {
+            setLastSuccessful(false);
+            return this;
+        }
         
+        positionStack.push(queryArguments.length());
         queryArguments.append(modifier.getTermPrefix());
         queryArguments.append(fieldName).append(":(");
+        setLastSuccessful(true);
         
         return this;
     }
@@ -248,11 +299,17 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     @Override
     public DefaultLuceneQuery endField() {
+        // get previous position here to ensure that positionStack.poll() is executed
+        final int previousPosition = positionStack.poll();
+        
         if (queryArguments.charAt(queryArguments.length() - 1) == '(') {
-            // add an empty string, if the field was ended right after it was started
-            queryArguments.append("\"\"");
+            // revert to position before startField(), if the field was ended right after it was started
+            queryArguments.setLength(previousPosition);
+            setLastSuccessful(false);
+        } else {
+            queryArguments.append(") ");
+            setLastSuccessful(true);
         }
-        queryArguments.append(") ");
         
         return this;
     }
@@ -263,8 +320,8 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         if (boostFactor <= 0.0 || boostFactor >= 10000000.0)
             throw new IllegalArgumentException(ERR_BOOST_OUT_OF_BOUNDS);
         
-        // optimization: only add boost factor if != 1
-        if (boostFactor != 1.0) {
+        // only add boost factor if != 1 (optimization) and last action was successful
+        if (boostFactor != 1.0 && lastSuccessful()) {
             final double rounded = ((int) (boostFactor * 100.0)) / 100.0;
             this.queryArguments.append("^").append(rounded).append(" ");
         }

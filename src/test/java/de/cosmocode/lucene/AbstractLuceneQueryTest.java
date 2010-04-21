@@ -13,9 +13,12 @@ import de.cosmocode.lucene.fragments.AddArgumentArrayModFragment;
 import de.cosmocode.lucene.fragments.AddArgumentCollectionFragment;
 import de.cosmocode.lucene.fragments.AddArgumentCollectionModFragment;
 import de.cosmocode.lucene.fragments.AddArgumentStringModFragment;
+import de.cosmocode.lucene.fragments.AddFieldArrayFragment;
+import de.cosmocode.lucene.fragments.AddFieldArrayModFragment;
 import de.cosmocode.lucene.fragments.AddFieldCollectionFragment;
 import de.cosmocode.lucene.fragments.AddArgumentStringFragment;
 import de.cosmocode.lucene.fragments.AddFieldCollectionModFragment;
+import de.cosmocode.lucene.fragments.AddFieldStringFragment;
 import de.cosmocode.lucene.fragments.AddFieldStringModFragment;
 
 /**
@@ -48,8 +51,11 @@ import de.cosmocode.lucene.fragments.AddFieldStringModFragment;
     AddFieldCollectionModFragment.class,
     AddArgumentArrayFragment.class,
     AddArgumentArrayModFragment.class,
+    AddFieldArrayFragment.class,
+    AddFieldArrayModFragment.class,
     AddArgumentStringFragment.class,
     AddArgumentStringModFragment.class,
+    AddFieldStringFragment.class,
     AddFieldStringModFragment.class
 })
 public abstract class AbstractLuceneQueryTest implements UnitProvider<LuceneQuery> {
@@ -64,7 +70,7 @@ public abstract class AbstractLuceneQueryTest implements UnitProvider<LuceneQuer
      * Returns a new {@code UnitProvider<LuceneQuery>}.
      * @return a new {@code UnitProvider<LuceneQuery>}
      */
-    public static UnitProvider<LuceneQuery> getInstance() {
+    public static UnitProvider<LuceneQuery> unitProvider() {
         Preconditions.checkNotNull(unitProvider, 
             "UnitProvider class not yet set, set it with AbstractLuceneQueryTest.setUnitProvider(...)");
         try {

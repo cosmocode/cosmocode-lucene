@@ -19,30 +19,30 @@ public final class AddArgumentArrayModFragment extends AbstractQueryModifierFrag
      * Tests {@link LuceneQuery#addArgument(Object[], QueryModifier)}
      * with null and a dummy QueryModifier.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void arrayNull() {
         final LuceneQuery unit = unit().addArgument((Object[]) null, QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        unit.getQuery();
     }
     
     /**
      * Tests {@link LuceneQuery#addArgument(Object[], QueryModifier)}
      * with an empty array and a dummy QueryModifier.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void arrayEmpty() {
         final LuceneQuery unit = unit().addArgument(new Object[] {}, QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        unit.getQuery();
     }
     
     /**
      * Tests {@link LuceneQuery#addArgument(Object[], QueryModifier)}
      * with an array that contains nulls and blank Strings and a dummy QueryModifier.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void arrayEmptyValues() {
         final LuceneQuery unit = unit().addArgument(new String[] {"", null, "   "}, QueryModifier.DEFAULT);
-        assertEquals("", unit);
+        unit.getQuery();
     }
     
     /**
