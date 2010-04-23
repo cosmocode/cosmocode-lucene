@@ -175,11 +175,11 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
                 continue;
             }
             
-            final Field field = new Field(key, keyOrValue, Store.YES, Index.ANALYZED);
+            final Field field = new Field(key, keyOrValue, Store.YES, Index.TOKENIZED);
             doc.add(field);
             key = null;
         }
-        doc.add(new Field("empty", "empty", Store.NO, Index.ANALYZED));
+        doc.add(new Field("empty", "empty", Store.NO, Index.TOKENIZED));
         return doc;
     }
     

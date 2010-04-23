@@ -159,8 +159,12 @@ public class AddFieldStringModFragment extends AbstractQueryModifierFragment {
     protected String expectedWildcardedSplitConjunct() {
         return 
             FIELD1 + ":(" + 
-                "(" + WILDCARD1 + "* " + WILDCARD1 + ")" +
-                "AND (" + WILDCARD2 + "* " + WILDCARD2 + ")" +
+                "(\"" + WILDCARD1 + "   " + WILDCARD2 + "\" " +
+                    WILDCARD1 + "\\ \\ \\ " + WILDCARD2 + "*" +
+                ") OR (" +
+                    "(" + WILDCARD1 + " " + WILDCARD1 + "*) " +
+                    "AND (" + WILDCARD2 + " " + WILDCARD2 + "*)" +
+                ")^0.5" +
             ")";
     }
 
@@ -168,8 +172,12 @@ public class AddFieldStringModFragment extends AbstractQueryModifierFragment {
     protected String expectedWildcardedSplitDisjunct() {
         return 
             FIELD1 + ":(" + 
-                "(" + WILDCARD1 + "* " + WILDCARD1 + ") " +
-                "OR (" + WILDCARD2 + "* " + WILDCARD2 + ")" +
+                "(\"" + WILDCARD1 + "   " + WILDCARD2 + "\" " +
+                    WILDCARD1 + "\\ \\ \\ " + WILDCARD2 + "*" +
+                ") OR (" +
+                    "(" + WILDCARD1 + " " + WILDCARD1 + "*) " +
+                    "OR (" + WILDCARD2 + " " + WILDCARD2 + "*)" +
+                ")^0.5" +
             ")";
     }
     
