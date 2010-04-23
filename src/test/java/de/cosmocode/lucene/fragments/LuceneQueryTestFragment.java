@@ -20,7 +20,6 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -28,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cosmocode.junit.UnitProvider;
-import de.cosmocode.lucene.LuceneQueryTest;
 import de.cosmocode.lucene.LuceneQuery;
+import de.cosmocode.lucene.LuceneQueryTest;
 
 /**
  * <p> This is an abstract Test class that implements no test itself.
@@ -44,8 +43,6 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
     
     public static final Directory DIRECTORY = new RAMDirectory();
     public static final Analyzer ANALYZER = new KeywordAnalyzer();
-    
-    public static final Version USED_VERSION = Version.LUCENE_CURRENT;
     
     /** A helper for wildcard queries, different then WILDCARD2. */
     public static final String WILDCARD1 = "arg";
@@ -98,7 +95,7 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
         final String expectedString = expected;
         final String actualString = actual.getQuery();
         
-        final QueryParser parser = new QueryParser(USED_VERSION, DEFAULT_FIELD, ANALYZER);
+        final QueryParser parser = new QueryParser(DEFAULT_FIELD, ANALYZER);
         final Query queryExpected;
         final Query queryActual;
         
@@ -224,11 +221,12 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
     /**
      * Cleans the index up again, to ensure an empty lucene index in the next test.
      * @throws IOException if cleaning the index failed
+     * @throws ParseException should not happen
      */
     @AfterClass
-    public static void cleanLuceneIndex() throws IOException {
+    public static void cleanLuceneIndex() throws IOException, ParseException {
         final IndexWriter writer = new IndexWriter(DIRECTORY, ANALYZER, MaxFieldLength.UNLIMITED);
-        writer.deleteAll();
+        writer.deleteDocuments(new QueryParser(DEFAULT_FIELD, ANALYZER).parse("+empty:empty"));
         writer.close();
     }
 

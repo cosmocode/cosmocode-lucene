@@ -157,12 +157,16 @@ public class AddArgumentStringModFragment extends AbstractQueryModifierFragment 
 
     @Override
     protected String expectedWildcardedSplitConjunct() {
-        return "(" + WILDCARD1 + "* " + WILDCARD1 + ") AND (" + WILDCARD2 + "* " + WILDCARD2 + ")";
+        return
+            "(\"" + WILDCARD1 + "   " + WILDCARD2 + "\" " + WILDCARD1 + "\\ \\ \\ " + WILDCARD2 + "*)" +
+            "((" + WILDCARD1 + " " + WILDCARD1 + "*) AND (" + WILDCARD2 + " " + WILDCARD2 + "*))^0.5";
     }
 
     @Override
     protected String expectedWildcardedSplitDisjunct() {
-        return "(" + WILDCARD1 + "* " + WILDCARD1 + ") OR (" + WILDCARD2 + "* " + WILDCARD2 + ")";
+        return
+            "(\"" + WILDCARD1 + "   " + WILDCARD2 + "\" " + WILDCARD1 + "\\ \\ \\ " + WILDCARD2 + "*)" +
+            "((" + WILDCARD1 + " " + WILDCARD1 + "*) OR (" + WILDCARD2 + " " + WILDCARD2 + "*))^0.5";
     }
     
 
