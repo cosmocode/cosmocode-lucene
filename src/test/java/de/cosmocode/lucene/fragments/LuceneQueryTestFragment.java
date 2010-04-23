@@ -28,12 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cosmocode.junit.UnitProvider;
-import de.cosmocode.lucene.AbstractLuceneQueryTest;
+import de.cosmocode.lucene.LuceneQueryTest;
 import de.cosmocode.lucene.LuceneQuery;
 
 /**
  * <p> This is an abstract Test class that implements no test itself.
- * It can only be executed by an {@link AbstractLuceneQueryTest}.
+ * It can only be executed by an {@link LuceneQueryTest}.
  * It sets up a dummy Lucene search directory in which the resulting queries
  * can be tested with the method {@link #assertEquals(String, LuceneQuery)}.
  * </p>
@@ -82,7 +82,7 @@ public abstract class LuceneQueryTestFragment implements UnitProvider<LuceneQuer
     
     @Override
     public LuceneQuery unit() {
-        return AbstractLuceneQueryTest.unitProvider().unit();
+        return LuceneQueryTest.unitProvider().unit();
     }
     
     /**

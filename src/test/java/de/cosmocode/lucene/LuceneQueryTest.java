@@ -12,33 +12,39 @@ import de.cosmocode.lucene.fragments.AddArgumentArrayFragment;
 import de.cosmocode.lucene.fragments.AddArgumentArrayModFragment;
 import de.cosmocode.lucene.fragments.AddArgumentCollectionFragment;
 import de.cosmocode.lucene.fragments.AddArgumentCollectionModFragment;
+import de.cosmocode.lucene.fragments.AddArgumentStringFragment;
 import de.cosmocode.lucene.fragments.AddArgumentStringModFragment;
 import de.cosmocode.lucene.fragments.AddFieldArrayFragment;
 import de.cosmocode.lucene.fragments.AddFieldArrayModFragment;
 import de.cosmocode.lucene.fragments.AddFieldCollectionFragment;
-import de.cosmocode.lucene.fragments.AddArgumentStringFragment;
 import de.cosmocode.lucene.fragments.AddFieldCollectionModFragment;
 import de.cosmocode.lucene.fragments.AddFieldStringFragment;
 import de.cosmocode.lucene.fragments.AddFieldStringModFragment;
 
 /**
  * <p> Generic Test for {@link LuceneQuery}.
- * It provides only static methods, but implements {@code UnitProvider<LuceneQuery>}.
- * The unit() method is not implemented, but left for implementation.
- * A test for LuceneQuery must extend this class, implement the unit()-method
- * and add a static method to set the UnitProvider of this class.
+ * This is a final class that executes a test suite and provides only static methods.
+ * </p>
+ * <p> This test has a dependency to the maven artifact: org.apache.lucene:lucene-core:jar:3.0.0 
+ * </p>
+ * <p> A test for LuceneQuery must have this class in a TestSuite
+ * and add a static method with {@code @}BeforeClass to set the UnitProvider of this class.
  * </p>
  * <p> Example:
  * </p>
  * <pre>
- * {@code @}Override
- *  public LuceneQuery unit() {
- *      return new DefaultLuceneQuery();
- *  }
- * 
- * {@code @}BeforeClass
- *  public static void setInstance() {
- *      setUnitProvider(DefaultLuceneQueryTest.class);
+ * {@code @}RunWith(Suite.class)
+ * {@code @}SuiteClasses(LuceneQueryTest.class)
+ *  public final class MyLuceneQueryTest implements {@code UnitProvider<LuceneQuery>} {
+ *     {@code @}Override
+ *      public LuceneQuery unit() {
+ *          return new MyLuceneQuery();
+ *      }
+ *  
+ *     {@code @}BeforeClass
+ *      public static void setupClass() {
+ *          LuceneQueryTest.setUnitProvider(MyLuceneQueryTest.class);
+ *      }
  *  }
  * </pre>
  * @author Oliver Lorenz
@@ -58,11 +64,16 @@ import de.cosmocode.lucene.fragments.AddFieldStringModFragment;
     AddFieldStringFragment.class,
     AddFieldStringModFragment.class
 })
-public abstract class AbstractLuceneQueryTest implements UnitProvider<LuceneQuery> {
+public abstract class LuceneQueryTest {
     
-    private static Class<? extends UnitProvider<LuceneQuery>> unitProvider;
+    private static final String ERR_NO_PROVIDER = 
+        "UnitProvider class not yet set, " +
+        "set it with LuceneQueryTest.setUnitProvider(MyProvider.class) " +
+        "in an @BeforeClass annotated static method";
     
-    protected AbstractLuceneQueryTest() {
+    private static UnitProvider<? extends LuceneQuery> unitProvider;
+    
+    private LuceneQueryTest() {
         
     }
     
@@ -70,11 +81,15 @@ public abstract class AbstractLuceneQueryTest implements UnitProvider<LuceneQuer
      * Returns a new {@code UnitProvider<LuceneQuery>}.
      * @return a new {@code UnitProvider<LuceneQuery>}
      */
-    public static UnitProvider<LuceneQuery> unitProvider() {
-        Preconditions.checkNotNull(unitProvider, 
-            "UnitProvider class not yet set, set it with AbstractLuceneQueryTest.setUnitProvider(...)");
+    public static UnitProvider<? extends LuceneQuery> unitProvider() {
+        Preconditions.checkNotNull(unitProvider, ERR_NO_PROVIDER);
+        return unitProvider;
+    }
+    
+    public static void setUnitProvider(Class<? extends UnitProvider<? extends LuceneQuery>> providerClass) {
+        Preconditions.checkNotNull(providerClass, "The given Provider class must not be null");
         try {
-            return unitProvider.newInstance();
+            unitProvider = providerClass.newInstance();
         } catch (InstantiationException e) {
             throw new IllegalStateException(e);
         } catch (IllegalAccessException e) {
@@ -82,17 +97,12 @@ public abstract class AbstractLuceneQueryTest implements UnitProvider<LuceneQuer
         }
     }
     
-    public static void setUnitProvider(Class<? extends UnitProvider<LuceneQuery>> newInstance) {
-        unitProvider = newInstance;
-    }
-    
     /**
-     * Unsets the unit provider class, so that is null afterwards.
-     * This method is called after class, this means after the test suite was run.
+     * Cleans the AbstractLuceneQueryTest for the next test.
      */
     @AfterClass
     public static void unsetUnitProvider() {
-        setUnitProvider(null);
+        unitProvider = null;
     }
 
 }

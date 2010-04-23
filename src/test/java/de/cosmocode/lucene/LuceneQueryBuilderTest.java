@@ -8,17 +8,17 @@ import org.junit.runners.Suite.SuiteClasses;
 import de.cosmocode.junit.UnitProvider;
 
 /**
- * Tests {@link DefaultLuceneQuery}.
- * 
+ * Tests {@link LuceneQueryBuilder}.
+ *
  * @author Oliver Lorenz
  */
 @RunWith(Suite.class)
 @SuiteClasses(LuceneQueryTest.class)
-public final class DefaultLuceneQueryTest implements UnitProvider<LuceneQuery> {
+public final class LuceneQueryBuilderTest implements UnitProvider<LuceneQuery> {
     
     @Override
     public LuceneQuery unit() {
-        return new DefaultLuceneQuery();
+        return new LuceneQueryBuilder();
     }
     
     /**
@@ -27,7 +27,7 @@ public final class DefaultLuceneQueryTest implements UnitProvider<LuceneQuery> {
      */
     @BeforeClass
     public static void setupClass() {
-        LuceneQueryTest.setUnitProvider(DefaultLuceneQueryTest.class);
+        LuceneQueryTest.setUnitProvider(LuceneQueryBuilderTest.class);
     }
 
 }
