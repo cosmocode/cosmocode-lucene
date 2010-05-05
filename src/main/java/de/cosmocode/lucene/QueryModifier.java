@@ -1,12 +1,39 @@
+/**
+ * Copyright 2010 CosmoCode GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.cosmocode.lucene;
+
+import com.google.common.base.Preconditions;
 
 import de.cosmocode.patterns.Immutable;
 import de.cosmocode.patterns.ThreadSafe;
 
 /**
- * This is an immutable class that affects the addArgument and addField methods of SolrQuery.
+ * <p> This is an immutable class that affects the addArgument and addField methods of SolrQuery.
  * It is for that reason just a storage class, to keep the signature of the LuceneQuery methods short.
- * Detailed documentation for the input types can be found in the methods of the {@link Builder} of this class.
+ * Detailed documentation for the input types can be found in the methods of the {@link ModifierBuilder}.
+ * </p>
+ * <p> Some predefined QueryModifiers can be found at LuceneHelper:
+ * </p>
+ * <ul>
+ *   <li> {@link LuceneHelper#MOD_ID} - for ids </li>
+ *   <li> {@link LuceneHelper#MOD_TEXT} - for texts </li>
+ *   <li> {@link LuceneHelper#MOD_NOT_ID} - to exclude ids </li>
+ *   <li> {@link LuceneHelper#MOD_AUTOCOMPLETE} - a sample for autocompletion, with fuzzyness at 0.7 </li>
+ * </ul>
  * 
  * @since 1.0
  * @author Oliver Lorenz
@@ -38,24 +65,63 @@ public final class QueryModifier {
     private final boolean disjunct;
     private final boolean wildcarded;
     private final Double fuzzyness;
+    
+    private final int myHashCode;
+    private QueryModifier multiModifier;
+    private QueryModifier argumentModifier;
 
     
     public QueryModifier(TermModifier termModifier, boolean split,
             boolean disjunct, boolean wildcarded, Double fuzzyness) {
         super();
         
-        if (termModifier == null) {
-            throw new NullPointerException(ERR_TERMMOD_NULL);
-        }
-        if (fuzzyness != null && (fuzzyness < 0 || fuzzyness >= 1)) {
-            throw new IllegalArgumentException(ERR_FUZZYNESS_INVALID);
-        }
+        Preconditions.checkNotNull(termModifier, ERR_TERMMOD_NULL);
+        Preconditions.checkArgument(
+            fuzzyness == null || (fuzzyness >= 0 && fuzzyness < 1),
+            ERR_FUZZYNESS_INVALID
+        );
         
         this.termModifier = termModifier;
         this.split = split;
         this.disjunct = disjunct;
         this.wildcarded = wildcarded;
         this.fuzzyness = fuzzyness;
+
+        this.myHashCode = generateHashCode();
+    }
+    
+    
+    private int generateHashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (disjunct ? 1231 : 1237);
+        result = prime * result + ((fuzzyness == null) ? 0 : fuzzyness.hashCode());
+        result = prime * result + (split ? 1231 : 1237);
+        result = prime * result + ((termModifier == null) ? 0 : termModifier.hashCode());
+        result = prime * result + (wildcarded ? 1231 : 1237);
+        return result;
+    }
+    
+    
+    private QueryModifier createMultiModifier() {
+        if (disjunct && termModifier == TermModifier.NONE) {
+            return this;
+        } else if (disjunct) {
+            return this.copy().setTermModifier(TermModifier.NONE).end();
+        } else if (termModifier == TermModifier.REQUIRED) {
+            return this;
+        } else {
+            return this.copy().required().end();
+        }
+    }
+    
+    
+    private QueryModifier createArgumentModifier() {
+        if (termModifier == TermModifier.NONE) {
+            return this;
+        } else {
+            return new QueryModifier(TermModifier.NONE, split, disjunct, wildcarded, fuzzyness);
+        }
     }
     
     
@@ -80,11 +146,10 @@ public final class QueryModifier {
      * @return the QueryModifier for the values of a collection or an array
      */
     public QueryModifier getMultiValueModifier() {
-        if (disjunct) {
-            return new QueryModifier(TermModifier.NONE, split, disjunct, wildcarded, fuzzyness);
-        } else {
-            return new QueryModifier(TermModifier.REQUIRED, split, disjunct, wildcarded, fuzzyness);
+        if (this.multiModifier == null) {
+            this.multiModifier = createMultiModifier();
         }
+        return multiModifier;
     }
     
     /**
@@ -93,7 +158,10 @@ public final class QueryModifier {
      * @return the QueryModifier for the arguments of a field
      */
     public QueryModifier getArgumentModifier() {
-        return new QueryModifier(TermModifier.NONE, split, disjunct, wildcarded, fuzzyness);
+        if (this.argumentModifier == null) {
+            this.argumentModifier = createArgumentModifier();
+        }
+        return argumentModifier;
     }
     
     public boolean isDisjunct() {
@@ -121,23 +189,14 @@ public final class QueryModifier {
      * @see #isFuzzyEnabled()
      */
     public double getFuzzyness() {
-        if (fuzzyness == null) throw new IllegalStateException(ERR_FUZZYNESS_DISABLED);
+        Preconditions.checkState(fuzzyness != null, ERR_FUZZYNESS_DISABLED);
         return fuzzyness.doubleValue();
     }
     
     
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (disjunct ? 1231 : 1237);
-        result = prime * result
-                + ((fuzzyness == null) ? 0 : fuzzyness.hashCode());
-        result = prime * result + (split ? 1231 : 1237);
-        result = prime * result
-                + ((termModifier == null) ? 0 : termModifier.hashCode());
-        result = prime * result + (wildcarded ? 1231 : 1237);
-        return result;
+        return myHashCode;
     }
 
 
@@ -174,26 +233,26 @@ public final class QueryModifier {
     
     /* 
      * Builder Pattern
-     * The Builder is a static class, and QueryModifier has some helper methods
+     * The Builder is an external class, and following are some helper methods
      */
 
 
     /**
-     * Returns a {@link Builder} which is initialized as a copy of this QueryModifier.
-     * @return a copy of this QueryModifier, as a {@link Builder}
+     * Returns a {@link ModifierBuilder} which is initialized as a copy of this QueryModifier.
+     * @return a copy of this QueryModifier, as a {@link ModifierBuilder}
      */
-    public QueryModifier.Builder copy() {
+    public ModifierBuilder copy() {
         return copyOf(this);
     }
     
     /**
      * Returns a copy of the given QueryModifier. 
-     * It returns a {@link Builder} which is initialized with the same values as `mod`
+     * It returns a {@link ModifierBuilder} which is initialized with the same values as `mod`
      * @param mod the QueryModifier to copy
-     * @return a copy of a QueryModifier, as a {@link Builder}
+     * @return a copy of a QueryModifier, as a {@link ModifierBuilder}
      */
-    public static QueryModifier.Builder copyOf(final QueryModifier mod) {
-        final QueryModifier.Builder builder = new QueryModifier.Builder();
+    public static ModifierBuilder copyOf(final QueryModifier mod) {
+        final ModifierBuilder builder = new ModifierBuilder();
         builder.setTermModifier(mod.termModifier);
         builder.setSplit(mod.isSplit());
         builder.setDisjunct(mod.isDisjunct());
@@ -203,223 +262,16 @@ public final class QueryModifier {
     }
     
     /**
-     * Returns an empty {@link Builder}. 
+     * Returns an empty {@link ModifierBuilder}. 
      * It can be used to create a new {@link QueryModifier}.
      * <br> The TermModifier ({@link #getTermModifier()}) is set to {@link TermModifier#NONE}
      * split is false, disjunct is false and wildcarded is false.
-     * @return an empty {@link Builder}
+     * @return an empty {@link ModifierBuilder}
      */
-    public static QueryModifier.Builder start() {
-        final QueryModifier.Builder builder = new QueryModifier.Builder();
+    public static ModifierBuilder start() {
+        final ModifierBuilder builder = new ModifierBuilder();
         builder.setTermModifier(TermModifier.NONE);
         return builder;
-    }
-    
-    /**
-     * This class is a Builder for a {@link QueryModifier}.
-     * An object of this class is mutable, but the resulting {@link QueryModifier} 
-     * of the {@link #end()} method is immutable.
-     * 
-     * @author Oliver Lorenz
-     */
-    public static final class Builder {
-        
-        private TermModifier tm;
-        private boolean s;
-        private boolean d;
-        private boolean wc;
-        private Double fuzzy;
-        
-        
-        public Builder() {
-            this.tm = TermModifier.NONE;
-        }
-        
-        
-        /**
-         * Set the {@link TermModifier}.
-         * @param termModifier the {@link TermModifier} to set.
-         * @return this
-         * @throws NullPointerException if tm is null
-         */
-        public Builder setTermModifier(final TermModifier termModifier) {
-            if (termModifier == null) throw new NullPointerException(ERR_TERMMOD_NULL);
-            this.tm = termModifier;
-            return this;
-        }
-        
-        /**
-         * Set split.
-         * <br> If true, then all added fields and arguments to a {@link LuceneQuery} are
-         * - additionally to being added normally - split at blanks and each fragment is added to the query.
-         * @param isSplit whether or not 
-         * @return this
-         */
-        public Builder setSplit(final boolean isSplit) {
-            this.s = isSplit;
-            return this;
-        }
-        
-        /**
-         * Set disjunct.
-         * <br> If disjunct is true then multiple values added to a field on a {@link LuceneQuery}
-         * are added in disjunction (or-clause, one of the values must be found).
-         * <br> Otherwise multiple values in a field on a {@link LuceneQuery}
-         * are added in conjunction (and-clause, all values must be found).
-         * @param disjunct if true then values are disjunct (or-clause), otherwise conjunct (and-clause)
-         * @return this
-         */
-        public Builder setDisjunct(final boolean disjunct) {
-            this.d = disjunct;
-            return this;
-        }
-        
-        /**
-         * Set wildCarded.
-         * <br> If true then values added to a {@link LuceneQuery} are searched wildcarded.
-         * That means: If the user searches for "abc", then the Query is built so that
-         * Lucene searches for everything that starts with "abc", or is "abc" itself.
-         * <br> In Lucene's Query Language this is: abc* "abc"
-         * <br> Otherwise values are added normally.
-         * @param wildCarded whether values should be wildcarded or not
-         * @return this
-         */
-        public Builder setWildcarded(final boolean wildCarded) {
-            this.wc = wildCarded;
-            return this;
-        }
-        
-        /**
-         * Set fuzzyness to given value.
-         * @param fuzzyness the fuzzyness to set
-         * @return this
-         * @throws IllegalArgumentException if fuzzyness < 0 || f >= 1
-         */
-        public Builder setFuzzyness(final Double fuzzyness) {
-            if (fuzzyness != null) {
-                if (fuzzyness < 0 || fuzzyness >= 1) throw new IllegalArgumentException(ERR_FUZZYNESS_INVALID);
-            }
-            this.fuzzy = fuzzyness;
-            return this;
-        }
-        
-        
-        /**
-         * <p> This is a shortcut for {@code setTermModifier(TermModifier.REQUIRED)}.
-         * </p> 
-         * @return this
-         * @see TermModifier#REQUIRED
-         * @see #setTermModifier(TermModifier)
-         */
-        public Builder required() {
-            this.setTermModifier(TermModifier.REQUIRED);
-            return this;
-        }
-        
-        /**
-         * <p> This is a shortcut for {@code setTermModifier(TermModifier.PROHIBITED)}.
-         * </p> 
-         * @return this
-         * @see TermModifier#PROHIBITED
-         */
-        public Builder excluded() {
-            this.setTermModifier(TermModifier.PROHIBITED);
-            return this;
-        }
-
-        /**
-         * <p> This is a shortcut for {@code setTermModifier(TermModifier.PROHIBITED)}.
-         * </p> 
-         * @return this
-         * @see TermModifier#PROHIBITED
-         */
-        public Builder prohibited() {
-            this.setTermModifier(TermModifier.PROHIBITED);
-            return this;
-        }
-        
-        /**
-         * Set wildCarded to true.
-         * <br> Values added to a {@link LuceneQuery} are searched wildcarded.
-         * That means: If the user searches for "abc", then the Query is built so that
-         * Lucene searches for everything that starts with "abc", or is "abc" itself.
-         * <br> In Lucene's Query Language this is: abc* "abc"
-         * @return this
-         */
-        public Builder wildcarded() {
-            this.wc = true;
-            return this;
-        }
-        
-        /**
-         * Set wildCarded to false.
-         * <br> Values added to a {@link LuceneQuery} are searched normally, without wildcards.
-         * @return this
-         */
-        public Builder notWildcarded() {
-            this.wc = false;
-            return this;
-        }
-        
-        /**
-         * Set split to true. 
-         * <br> That means that all added fields and arguments to the {@link LuceneQuery} are 
-         * - additionally to being added normally - split at blanks and each fragment is added to the query.
-         * @return this
-         */
-        public Builder doSplit() {
-            this.s = true;
-            return this;
-        }
-        
-        /**
-         * Set split to false.
-         * <br> All added fields and arguments to a {@link LuceneQuery} are added normally.
-         * @return this
-         */
-        public Builder dontSplit() {
-            this.s = false;
-            return this;
-        }
-        
-        /**
-         * Set disjunct to true.
-         * <br> This means: multiple values added to a field on a {@link LuceneQuery}
-         * are added in disjunction (or-clause, one of the values must be found).
-         * @return this
-         */
-        public Builder disjunct() {
-            this.d = true;
-            return this;
-        }
-        
-        /**
-         * Set disjunct to false.
-         * <br> This means: Multiple values in a field on a {@link LuceneQuery}
-         * are added in conjunction (and-clause, all values must be found).
-         * @return this
-         */
-        public Builder conjunct() {
-            this.d = false;
-            return this;
-        }
-        
-        /**
-         * Disables fuzzyness (the default state of a freshly initialized {@link Builder}).
-         * @return this
-         */
-        public Builder noFuzzyness() {
-            this.fuzzy = null;
-            return this;
-        }
-        
-        /**
-         * Builds the {@link QueryModifier} that this {@link Builder} represents.
-         * @return the finished {@link QueryModifier}
-         */
-        public QueryModifier end() {
-            return new QueryModifier(tm, s, d, wc, fuzzy);
-        }
     }
     
 }

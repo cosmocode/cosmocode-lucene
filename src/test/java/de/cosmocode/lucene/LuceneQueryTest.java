@@ -1,3 +1,19 @@
+/**
+ * Copyright 2010 CosmoCode GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.cosmocode.lucene;
 
 import org.junit.AfterClass;
@@ -8,24 +24,24 @@ import org.junit.runners.Suite.SuiteClasses;
 import com.google.common.base.Preconditions;
 
 import de.cosmocode.junit.UnitProvider;
-import de.cosmocode.lucene.fragments.AddArgumentArrayFragment;
-import de.cosmocode.lucene.fragments.AddArgumentArrayModFragment;
-import de.cosmocode.lucene.fragments.AddArgumentCollectionFragment;
-import de.cosmocode.lucene.fragments.AddArgumentCollectionModFragment;
-import de.cosmocode.lucene.fragments.AddArgumentStringFragment;
-import de.cosmocode.lucene.fragments.AddArgumentStringModFragment;
-import de.cosmocode.lucene.fragments.AddFieldArrayFragment;
-import de.cosmocode.lucene.fragments.AddFieldArrayModFragment;
-import de.cosmocode.lucene.fragments.AddFieldCollectionFragment;
-import de.cosmocode.lucene.fragments.AddFieldCollectionModFragment;
-import de.cosmocode.lucene.fragments.AddFieldStringFragment;
-import de.cosmocode.lucene.fragments.AddFieldStringModFragment;
+import de.cosmocode.lucene.fragments.query.AddArgumentArrayFragment;
+import de.cosmocode.lucene.fragments.query.AddArgumentArrayModFragment;
+import de.cosmocode.lucene.fragments.query.AddArgumentCollectionFragment;
+import de.cosmocode.lucene.fragments.query.AddArgumentCollectionModFragment;
+import de.cosmocode.lucene.fragments.query.AddArgumentStringFragment;
+import de.cosmocode.lucene.fragments.query.AddArgumentStringModFragment;
+import de.cosmocode.lucene.fragments.query.AddFieldArrayFragment;
+import de.cosmocode.lucene.fragments.query.AddFieldArrayModFragment;
+import de.cosmocode.lucene.fragments.query.AddFieldCollectionFragment;
+import de.cosmocode.lucene.fragments.query.AddFieldCollectionModFragment;
+import de.cosmocode.lucene.fragments.query.AddFieldStringFragment;
+import de.cosmocode.lucene.fragments.query.AddFieldStringModFragment;
 
 /**
  * <p> Generic Test for {@link LuceneQuery}.
  * This is a final class that executes a test suite and provides only static methods.
  * </p>
- * <p> This test has a dependency to the maven artifact: org.apache.lucene:lucene-core:jar:3.0.0 
+ * <p> This test has a dependency to the maven artifact: org.apache.lucene:lucene-core:jar:2.4.0 
  * </p>
  * <p> A test for LuceneQuery must have this class in a TestSuite
  * and add a static method with {@code @}BeforeClass to set the UnitProvider of this class.
@@ -82,10 +98,17 @@ public abstract class LuceneQueryTest {
      * @return a new {@code UnitProvider<LuceneQuery>}
      */
     public static UnitProvider<? extends LuceneQuery> unitProvider() {
-        Preconditions.checkNotNull(unitProvider, ERR_NO_PROVIDER);
-        return unitProvider;
+        return Preconditions.checkNotNull(unitProvider, ERR_NO_PROVIDER);
     }
     
+    /**
+     * <p> Sets the UnitProvider to the given class.
+     * It is then created with newInstance(),
+     * so it must have a standard constructor without parameters.
+     * </p>
+     * 
+     * @param providerClass the class of the given provider, used for creation
+     */
     public static void setUnitProvider(Class<? extends UnitProvider<? extends LuceneQuery>> providerClass) {
         Preconditions.checkNotNull(providerClass, "The given Provider class must not be null");
         try {

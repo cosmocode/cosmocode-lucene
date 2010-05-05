@@ -1,3 +1,19 @@
+/**
+ * Copyright 2010 CosmoCode GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.cosmocode.lucene;
 
 import org.junit.Assert;
@@ -34,7 +50,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setFuzzyness(Double)} with a valid fuzzyness of 0.7.
+     * Tests {@link ModifierBuilder#setFuzzyness(Double)} with a valid fuzzyness of 0.7.
      */
     @Test
     public void setFuzzyness() {
@@ -47,7 +63,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setFuzzyness(Double)} with a valid fuzzyness of 0.0.
+     * Tests {@link ModifierBuilder#setFuzzyness(Double)} with a valid fuzzyness of 0.0.
      */
     @Test
     public void setFuzzynessZero() {
@@ -57,7 +73,7 @@ public final class QueryModifierTest {
     }
 
     /**
-     * Tests {@link QueryModifier.Builder#setFuzzyness(Double)} with an invalid negative fuzzyness.
+     * Tests {@link ModifierBuilder#setFuzzyness(Double)} with an invalid negative fuzzyness.
      */
     @Test(expected = IllegalArgumentException.class)
     public void setFuzzynessNegative() {
@@ -65,7 +81,7 @@ public final class QueryModifierTest {
     }
 
     /**
-     * Tests {@link QueryModifier.Builder#setFuzzyness(Double)} with an invalid fuzzyness greater than one.
+     * Tests {@link ModifierBuilder#setFuzzyness(Double)} with an invalid fuzzyness greater than one.
      */
     @Test(expected = IllegalArgumentException.class)
     public void setFuzzynessGreaterOne() {
@@ -73,7 +89,7 @@ public final class QueryModifierTest {
     }
 
     /**
-     * Tests {@link QueryModifier.Builder#setFuzzyness(Double)} with an invalid fuzzyness of one.
+     * Tests {@link ModifierBuilder#setFuzzyness(Double)} with an invalid fuzzyness of one.
      */
     @Test(expected = IllegalArgumentException.class)
     public void setFuzzynessOne() {
@@ -81,7 +97,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setFuzzyness(Double)} with a valid fuzzyness of null.
+     * Tests {@link ModifierBuilder#setFuzzyness(Double)} with a valid fuzzyness of null.
      * Fuzzyness is then disabled.
      */
     @Test
@@ -92,7 +108,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#noFuzzyness()}.
+     * Tests {@link ModifierBuilder#noFuzzyness()}.
      */
     @Test
     public void noFuzzyness() {
@@ -112,7 +128,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setDisjunct(boolean)} with true.
+     * Tests {@link ModifierBuilder#setDisjunct(boolean)} with true.
      */
     @Test
     public void setDisjunctTrue() {
@@ -122,7 +138,7 @@ public final class QueryModifierTest {
     }
 
     /**
-     * Tests {@link QueryModifier.Builder#setDisjunct(boolean)} with false.
+     * Tests {@link ModifierBuilder#setDisjunct(boolean)} with false.
      */
     @Test
     public void setDisjunctFalse() {
@@ -132,7 +148,7 @@ public final class QueryModifierTest {
     }
 
     /**
-     * Tests {@link QueryModifier.Builder#disjunct()}.
+     * Tests {@link ModifierBuilder#disjunct()}.
      */
     @Test
     public void disjunct() {
@@ -142,7 +158,7 @@ public final class QueryModifierTest {
     }
 
     /**
-     * Tests {@link QueryModifier.Builder#conjunct()}.
+     * Tests {@link ModifierBuilder#conjunct()}.
      */
     @Test
     public void conjunct() {
@@ -152,7 +168,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setSplit(boolean)} with true.
+     * Tests {@link ModifierBuilder#setSplit(boolean)} with true.
      */
     @Test
     public void setSplitTrue() {
@@ -162,7 +178,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setSplit(boolean)} with false.
+     * Tests {@link ModifierBuilder#setSplit(boolean)} with false.
      */
     @Test
     public void setSplitFalse() {
@@ -172,7 +188,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#doSplit()}.
+     * Tests {@link ModifierBuilder#doSplit()}.
      */
     @Test
     public void doSplit() {
@@ -182,7 +198,7 @@ public final class QueryModifierTest {
     }
 
     /**
-     * Tests {@link QueryModifier.Builder#dontSplit()}.
+     * Tests {@link ModifierBuilder#dontSplit()}.
      */
     @Test
     public void dontSplit() {
@@ -192,7 +208,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setWildcarded(boolean)} with true.
+     * Tests {@link ModifierBuilder#setWildcarded(boolean)} with true.
      */
     @Test
     public void setWildcardedTrue() {
@@ -202,7 +218,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setWildcarded(boolean)} with false.
+     * Tests {@link ModifierBuilder#setWildcarded(boolean)} with false.
      */
     @Test
     public void setWildcardedFalse() {
@@ -212,7 +228,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#wildcarded()}.
+     * Tests {@link ModifierBuilder#wildcarded()}.
      */
     @Test
     public void wildcarded() {
@@ -222,7 +238,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#notWildcarded()}.
+     * Tests {@link ModifierBuilder#notWildcarded()}.
      */
     @Test
     public void notWildcarded() {
@@ -232,7 +248,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setTermModifier(TermModifier)} with null.
+     * Tests {@link ModifierBuilder#setTermModifier(TermModifier)} with null.
      * Expects a NullPointerException.
      */
     @Test(expected = NullPointerException.class)
@@ -241,7 +257,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setTermModifier(TermModifier)} with TermModifier.NONE.
+     * Tests {@link ModifierBuilder#setTermModifier(TermModifier)} with TermModifier.NONE.
      */
     @Test
     public void setTermModifierNONE() {
@@ -251,7 +267,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setTermModifier(TermModifier)} with TermModifier.PROHIBITED.
+     * Tests {@link ModifierBuilder#setTermModifier(TermModifier)} with TermModifier.PROHIBITED.
      */
     @Test
     public void setTermModifierPROHIBITED() {
@@ -261,7 +277,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#setTermModifier(TermModifier)} with TermModifier.REQUIRED.
+     * Tests {@link ModifierBuilder#setTermModifier(TermModifier)} with TermModifier.REQUIRED.
      */
     @Test
     public void setTermModifierREQUIRED() {
@@ -271,7 +287,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#required()}.
+     * Tests {@link ModifierBuilder#required()}.
      */
     @Test
     public void required() {
@@ -281,7 +297,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#prohibited()}.
+     * Tests {@link ModifierBuilder#prohibited()}.
      */
     @Test
     public void prohibited() {
@@ -291,7 +307,7 @@ public final class QueryModifierTest {
     }
     
     /**
-     * Tests {@link QueryModifier.Builder#excluded()}.
+     * Tests {@link ModifierBuilder#excluded()}.
      */
     @Test
     public void excluded() {

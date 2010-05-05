@@ -1,3 +1,19 @@
+/**
+ * Copyright 2010 CosmoCode GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.cosmocode.lucene;
 
 import java.util.regex.Pattern;
@@ -13,12 +29,13 @@ import de.cosmocode.patterns.Factory;
 public final class LuceneHelper {
     
     
-    public static final Factory<LuceneQuery> DEFAULT_FACTORY = new DefaultLuceneQueryFactory();
+    public static final Factory<LuceneQuery> DEFAULT_FACTORY = 
+        new DefaultLuceneQueryFactory(QueryModifier.DEFAULT);
     
     /**
      * <p> A {@link QueryModifier} that has
-     * {@link QueryModifier.Builder#required()} and
-     * {@link QueryModifier.Builder#disjunct()} set.
+     * {@link ModifierBuilder#required()} and
+     * {@link ModifierBuilder#disjunct()} set.
      * </p>
      * <p> Can be used to include one or more IDs into the search.
      * </p>
@@ -27,8 +44,8 @@ public final class LuceneHelper {
     
     /**
      * <p> A {@link QueryModifier} that has
-     * {@link QueryModifier.Builder#prohibited()} and
-     * {@link QueryModifier.Builder#conjunct()} set.
+     * {@link ModifierBuilder#prohibited()} and
+     * {@link ModifierBuilder#conjunct()} set.
      * </p>
      * <p> Can be used to exclude one or more IDs from the search.
      * </p>
@@ -37,10 +54,10 @@ public final class LuceneHelper {
     
     /**
      * <p> A {@link QueryModifier} that has
-     * {@link QueryModifier.Builder#required()},
-     * {@link QueryModifier.Builder#conjunct()},
-     * {@link QueryModifier.Builder#wildcarded()} and
-     * {@link QueryModifier.Builder#doSplit()} set.
+     * {@link ModifierBuilder#required()},
+     * {@link ModifierBuilder#conjunct()},
+     * {@link ModifierBuilder#wildcarded()} and
+     * {@link ModifierBuilder#doSplit()} set.
      * </p>
      * <p> Can be used for required text fields.
      * </p>
@@ -50,11 +67,11 @@ public final class LuceneHelper {
     
     /**
      * <p> A {@link QueryModifier} that has
-     * {@link QueryModifier.Builder#required()},
-     * {@link QueryModifier.Builder#disjunct()},
-     * {@link QueryModifier.Builder#wildcarded()},
-     * {@link QueryModifier.Builder#setFuzzyness(Double)} with 0.7 and
-     * {@link QueryModifier.Builder#doSplit()} set.
+     * {@link ModifierBuilder#required()},
+     * {@link ModifierBuilder#disjunct()},
+     * {@link ModifierBuilder#wildcarded()},
+     * {@link ModifierBuilder#setFuzzyness(Double)} with 0.7 and
+     * {@link ModifierBuilder#doSplit()} set.
      * </p>
      * <p> Can be used for some autocompletion, though the fuzzyness may vary
      * from project to project.
