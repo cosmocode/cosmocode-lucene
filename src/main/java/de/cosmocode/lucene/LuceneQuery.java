@@ -953,7 +953,22 @@ public interface LuceneQuery {
      */
     <K> LuceneQuery addField(String key, K[] value, QueryModifier modifier);
     
+
+    /*
+     * addRangeField, for example: (fieldName):[(a) TO (b)]
+     */
     
+    LuceneQuery addRangeField(String fieldName, String from, String to);
+
+    LuceneQuery addRangeField(String fieldName, String from, String to, QueryModifier mod);
+    
+    LuceneQuery addRangeField(String fieldName, int from, int to);
+
+    LuceneQuery addRangeField(String fieldName, int from, int to, QueryModifier mod);
+    
+    LuceneQuery addRangeField(String fieldName, double from, double to);
+
+    LuceneQuery addRangeField(String fieldName, double from, double to, QueryModifier mod);
 
     //---------------------------
     //     addFuzzyField

@@ -471,6 +471,56 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     }
     
     
+    /*
+     * addRangeField
+     */
+    
+    @Override
+    public final LuceneQuery addRangeField(String fieldName, double from, double to) {
+        return addRangeField(fieldName, from, to, defaultModifier);
+    };
+    
+    @Override
+    public LuceneQuery addRangeField(String fieldName, double from, double to, QueryModifier mod) {
+        this.startField(fieldName, mod);
+        if (lastSuccessful()) {
+            this.addRange(from, to, mod.getArgumentModifier());
+            this.endField();
+        }
+        return this;
+    }
+
+    @Override
+    public final LuceneQuery addRangeField(String fieldName, int from, int to) {
+        return addRangeField(fieldName, from, to, defaultModifier);
+    };
+    
+    @Override
+    public LuceneQuery addRangeField(String fieldName, int from, int to, QueryModifier mod) {
+        this.startField(fieldName, mod);
+        if (lastSuccessful()) {
+            this.addRange(from, to, mod.getArgumentModifier());
+            this.endField();
+        }
+        return this;
+    }
+    
+    @Override
+    public final LuceneQuery addRangeField(String fieldName, String from, String to) {
+        return addRangeField(fieldName, from, to, defaultModifier);
+    }
+    
+    @Override
+    public LuceneQuery addRangeField(String fieldName, String from, String to, QueryModifier mod) {
+        this.startField(fieldName, mod);
+        if (lastSuccessful()) {
+            this.addRange(from, to, mod.getArgumentModifier());
+            this.endField();
+        }
+        return this;
+    }
+    
+    
     //---------------------------
     //     addFieldAs...
     //---------------------------

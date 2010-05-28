@@ -250,7 +250,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         }
         
         // TODO take the given QueryModifier into consideration (e.g. wildcarded)
-        queryArguments.append("[").append(from).append(" ").append(to).append("] ");
+        queryArguments.append("[").append(from).append(" TO ").append(to).append("] ");
         
         setLastSuccessful(true);
         return this;

@@ -314,6 +314,41 @@ public abstract class ForwardingLuceneQuery extends ForwardingObject implements 
         delegate().addRange(from, to, mod);
         return this;
     }
+    
+    @Override
+    public LuceneQuery addRangeField(String fieldName, double from, double to) {
+        delegate().addRangeField(fieldName, from, to);
+        return this;
+    }
+    
+    @Override
+    public LuceneQuery addRangeField(String fieldName, double from, double to, QueryModifier mod) {
+        delegate().addRangeField(fieldName, from, to, mod);
+        return this;
+    }
+    @Override
+    public LuceneQuery addRangeField(String fieldName, int from, int to) {
+        delegate().addRangeField(fieldName, from, to);
+        return this;
+    }
+    
+    @Override
+    public LuceneQuery addRangeField(String fieldName, int from, int to, QueryModifier mod) {
+        delegate().addRangeField(fieldName, from, to, mod);
+        return this;
+    }
+    
+    @Override
+    public LuceneQuery addRangeField(String fieldName, String from, String to) {
+        delegate().addRangeField(fieldName, from, to);
+        return this;
+    }
+    
+    @Override
+    public LuceneQuery addRangeField(String fieldName, String from, String to, QueryModifier mod) {
+        delegate().addRangeField(fieldName, from, to, mod);
+        return this;
+    }
 
     @Override
     public LuceneQuery addSubquery(LuceneQuery value, boolean mandatory) {
