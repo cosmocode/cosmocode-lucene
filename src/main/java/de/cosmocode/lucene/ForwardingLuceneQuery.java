@@ -278,6 +278,42 @@ public abstract class ForwardingLuceneQuery extends ForwardingObject implements 
         delegate().addFuzzyField(key, value);
         return this;
     }
+    
+    @Override
+    public LuceneQuery addRange(double from, double to) {
+        delegate().addRange(from, to);
+        return this;
+    }
+    
+    @Override
+    public LuceneQuery addRange(double from, double to, QueryModifier mod) {
+        delegate().addRange(from, to, mod);
+        return this;
+    }
+    
+    @Override
+    public LuceneQuery addRange(int from, int to) {
+        delegate().addRange(from, to);
+        return this;
+    }
+    
+    @Override
+    public LuceneQuery addRange(int from, int to, QueryModifier mod) {
+        delegate().addRange(from, to, mod);
+        return this;
+    }
+    
+    @Override
+    public LuceneQuery addRange(String from, String to) {
+        delegate().addRange(from, to);
+        return this;
+    }
+    
+    @Override
+    public LuceneQuery addRange(String from, String to, QueryModifier mod) {
+        delegate().addRange(from, to, mod);
+        return this;
+    }
 
     @Override
     public LuceneQuery addSubquery(LuceneQuery value, boolean mandatory) {

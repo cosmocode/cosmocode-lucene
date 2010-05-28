@@ -287,6 +287,35 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     public abstract LuceneQuery addArgumentAsCollection(Collection<?> values, QueryModifier modifier);
     
     
+    /*
+     * addRange
+     */
+
+    @Override
+    public final LuceneQuery addRange(double from, double to) {
+        return addRange(from, to, defaultModifier);
+    };
+    
+    @Override
+    public abstract LuceneQuery addRange(double from, double to, QueryModifier mod);
+    
+    @Override
+    public final LuceneQuery addRange(int from, int to) {
+        return addRange(from, to, defaultModifier);
+    }
+    
+    @Override
+    public abstract LuceneQuery addRange(int from, int to, QueryModifier mod);
+    
+    @Override
+    public final LuceneQuery addRange(String from, String to) {
+        return addRange(from, to, defaultModifier);
+    }
+    
+    @Override
+    public abstract LuceneQuery addRange(String from, String to, QueryModifier mod);
+    
+    
     
     //---------------------------
     //     addSubquery

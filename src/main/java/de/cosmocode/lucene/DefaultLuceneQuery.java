@@ -172,7 +172,6 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         return this;
     }
     
-    
     @Override
     public <K> DefaultLuceneQuery addArgumentAsArray(final K[] values, final QueryModifier modifier) {
         
@@ -219,6 +218,44 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     }
     
     
+    /*
+     * addRange
+     */
+    
+    @Override
+    public DefaultLuceneQuery addRange(double from, double to, QueryModifier mod) {
+        if (from >= to) {
+            setLastSuccessful(false);
+            return this;
+        }
+        
+        return addRange(Double.toString(from), Double.toString(to), mod);
+    }
+    
+    @Override
+    public DefaultLuceneQuery addRange(int from, int to, QueryModifier mod) {
+        if (from >= to) {
+            setLastSuccessful(false);
+            return this;
+        }
+        
+        return addRange(Integer.toString(from), Integer.toString(to), mod);
+    }
+    
+    @Override
+    public DefaultLuceneQuery addRange(String from, String to, QueryModifier mod) {
+        // TODO sanity checks on from and to
+        // TODO take the given QueryModifier into consideration (e.g. wildcarded)
+        queryArguments.append("[").append(from).append(" ").append(to).append("]");
+        
+        return this;
+    }
+    
+    
+    /*
+     * addSubquery
+     */
+    
     @Override
     public DefaultLuceneQuery addSubquery(final LuceneQuery value, final QueryModifier modifier) {
         if (value == null) {
@@ -240,11 +277,9 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     }
     
     
-    
     /*---------------------------
      *     addUnescaped-methods
      */
-    
     
     @Override
     public DefaultLuceneQuery addUnescapedField(
@@ -261,7 +296,6 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         
         return this;
     }
-    
     
     @Override
     public DefaultLuceneQuery addUnescaped(final CharSequence value, final boolean mandatory) {
@@ -297,7 +331,6 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         return this;
     }
     
-    
     @Override
     public DefaultLuceneQuery startField(final String fieldName, final QueryModifier modifier) {
         if (StringUtils.isBlank(fieldName)) {
@@ -312,7 +345,6 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         
         return this;
     }
-    
     
     @Override
     public DefaultLuceneQuery endField() {
@@ -330,7 +362,6 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         
         return this;
     }
-    
     
     @Override
     public DefaultLuceneQuery addBoost(final double boostFactor) {

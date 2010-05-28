@@ -33,52 +33,34 @@ public final class LuceneHelper {
         new DefaultLuceneQueryFactory(QueryModifier.DEFAULT);
     
     /**
-     * <p> A {@link QueryModifier} that has
-     * {@link ModifierBuilder#required()} and
-     * {@link ModifierBuilder#disjunct()} set.
-     * </p>
-     * <p> Can be used to include one or more IDs into the search.
-     * </p>
+     * A QueryModifier that can be used to include one or more IDs into a search.
+     * 
+     * @see LuceneQuery#MOD_ID
      */
-    public static final QueryModifier MOD_ID = QueryModifier.start().required().disjunct().end();
+    public static final QueryModifier MOD_ID = LuceneQuery.MOD_ID;
     
     /**
-     * <p> A {@link QueryModifier} that has
-     * {@link ModifierBuilder#prohibited()} and
-     * {@link ModifierBuilder#conjunct()} set.
-     * </p>
-     * <p> Can be used to exclude one or more IDs from the search.
-     * </p>
+     * A QueryModifier that can be used to exclude one or more IDs from the search.
+     * 
+     * @see LuceneQuery#MOD_NOT_ID
      */
-    public static final QueryModifier MOD_NOT_ID = QueryModifier.start().prohibited().conjunct().end();
+    public static final QueryModifier MOD_NOT_ID = LuceneQuery.MOD_NOT_ID;
     
     /**
-     * <p> A {@link QueryModifier} that has
-     * {@link ModifierBuilder#required()},
-     * {@link ModifierBuilder#conjunct()},
-     * {@link ModifierBuilder#wildcarded()} and
-     * {@link ModifierBuilder#doSplit()} set.
-     * </p>
-     * <p> Can be used for required text fields.
-     * </p>
+     * A QueryModifier that can be used for required text fields.
+     * 
+     * @see LuceneQuery#MOD_TEXT
      */
-    public static final QueryModifier MOD_TEXT = 
-        QueryModifier.start().required().conjunct().wildcarded().doSplit().end();
+    public static final QueryModifier MOD_TEXT = LuceneQuery.MOD_TEXT;
     
     /**
-     * <p> A {@link QueryModifier} that has
-     * {@link ModifierBuilder#required()},
-     * {@link ModifierBuilder#disjunct()},
-     * {@link ModifierBuilder#wildcarded()},
-     * {@link ModifierBuilder#setFuzzyness(Double)} with 0.7 and
-     * {@link ModifierBuilder#doSplit()} set.
-     * </p>
-     * <p> Can be used for some autocompletion, though the fuzzyness may vary
-     * from project to project.
-     * </p>
+     * A QueryModifier that can be used for some autocompletion,
+     * though the fuzzyness may vary from project to project.
+     * 
+     * @see LuceneQuery#MOD_AUTOCOMPLETE
      */
-    public static final QueryModifier MOD_AUTOCOMPLETE = 
-        QueryModifier.start().required().disjunct().wildcarded().setFuzzyness(0.7).doSplit().end();
+    public static final QueryModifier MOD_AUTOCOMPLETE = LuceneQuery.MOD_AUTOCOMPLETE;
+    
     
     /** escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: and blanks  with "\". */
     public static final Pattern ESCAPE_PATTERN           = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:; \\E]");
@@ -138,7 +120,7 @@ public final class LuceneHelper {
     public static String removeSpecialCharacters(final String input) {
         if (input == null) return "";
         final Pattern pattern = ESCAPE_PATTERN;
-        return escapeQuotes(pattern.matcher(input).replaceAll(""));
+        return removeQuotes(pattern.matcher(input).replaceAll(""));
     }
     
     

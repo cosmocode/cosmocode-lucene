@@ -53,6 +53,62 @@ import java.util.Collection;
  */
 public interface LuceneQuery {
     
+    /*
+     * Some general QueryModifiers.
+     */
+    
+    /**
+     * <p> A {@link QueryModifier} that has
+     * {@link ModifierBuilder#required()} and
+     * {@link ModifierBuilder#disjunct()} set.
+     * </p>
+     * <p> Can be used to include one or more IDs into the search.
+     * </p>
+     */
+    QueryModifier MOD_ID = QueryModifier.start().required().disjunct().end();
+    
+    /**
+     * <p> A {@link QueryModifier} that has
+     * {@link ModifierBuilder#prohibited()} and
+     * {@link ModifierBuilder#conjunct()} set.
+     * </p>
+     * <p> Can be used to exclude one or more IDs from the search.
+     * </p>
+     */
+    QueryModifier MOD_NOT_ID = QueryModifier.start().prohibited().conjunct().end();
+    
+    /**
+     * <p> A {@link QueryModifier} that has
+     * {@link ModifierBuilder#required()},
+     * {@link ModifierBuilder#conjunct()},
+     * {@link ModifierBuilder#wildcarded()} and
+     * {@link ModifierBuilder#doSplit()} set.
+     * </p>
+     * <p> Can be used for required text fields.
+     * </p>
+     */
+    QueryModifier MOD_TEXT = QueryModifier.start().required().conjunct().wildcarded().doSplit().end();
+    
+    /**
+     * <p> A {@link QueryModifier} that has
+     * {@link ModifierBuilder#required()},
+     * {@link ModifierBuilder#disjunct()},
+     * {@link ModifierBuilder#wildcarded()},
+     * {@link ModifierBuilder#setFuzzyness(Double)} with 0.7 and
+     * {@link ModifierBuilder#doSplit()} set.
+     * </p>
+     * <p> Can be used for some autocompletion, though the fuzzyness may vary
+     * from project to project.
+     * </p>
+     */
+    QueryModifier MOD_AUTOCOMPLETE = 
+        QueryModifier.start().required().disjunct().wildcarded().setFuzzyness(0.7).doSplit().end();
+    
+    
+    /*
+     * Other default values.
+     */
+    
     /**
      * The default fuzzyness. It is used by
      * <ul>
@@ -84,6 +140,10 @@ public interface LuceneQuery {
     String ERR_MODIFIER_NULL = 
         "the QueryModifier must not be null, choose QueryModifier.DEFAULT instead";
     
+    
+    /*
+     * Utility methods
+     */
 
     /**
      * Returns true if this LuceneQuery appends a wildcard ("*") after each added argument, false otherwise.
@@ -92,7 +152,6 @@ public interface LuceneQuery {
      * @return true if this LuceneQuery appends a wildcard ("*") after each added argument, false otherwise
      */
     boolean isWildCarded();
-    
     
     /**
      * The wildcard parameter.<br>
@@ -111,7 +170,6 @@ public interface LuceneQuery {
      */
     void setWildCarded(final boolean wildCarded);
     
-    
     /**
      * <p> Sets a default QueryModifier that is used
      * whenever a method is invoked without a QueryModifier parameter.
@@ -125,7 +183,6 @@ public interface LuceneQuery {
      */
     void setModifier(final QueryModifier mod);
     
-    
     /**
      * <p> Gets the default {@link QueryModifier} that is used
      * whenever a method is invoked without a QueryModifier parameter.
@@ -134,7 +191,6 @@ public interface LuceneQuery {
      * @return the default QueryModifier
      */
     QueryModifier getModifier();
-    
     
     /**
      * <p> Returns the query which was built with the add...-methods.
@@ -146,7 +202,6 @@ public interface LuceneQuery {
      * @throws IllegalStateException if no add...-methods were successful so that the query would be empty
      */
     String getQuery() throws IllegalStateException;
-    
     
     /**
      * <p> If the last method call was successful (that means it altered the output of this query),
@@ -525,6 +580,22 @@ public interface LuceneQuery {
      */
     <K> LuceneQuery addArgumentAsArray(K[] values, QueryModifier modifier);
     
+    
+    /*
+     * addRange
+     */
+    
+    LuceneQuery addRange(String from, String to);
+
+    LuceneQuery addRange(String from, String to, QueryModifier mod);
+    
+    LuceneQuery addRange(int from, int to);
+
+    LuceneQuery addRange(int from, int to, QueryModifier mod);
+    
+    LuceneQuery addRange(double from, double to);
+
+    LuceneQuery addRange(double from, double to, QueryModifier mod);
     
     
     //---------------------------
