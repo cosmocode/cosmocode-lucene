@@ -244,10 +244,15 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     @Override
     public DefaultLuceneQuery addRange(String from, String to, QueryModifier mod) {
-        // TODO sanity checks on from and to
-        // TODO take the given QueryModifier into consideration (e.g. wildcarded)
-        queryArguments.append("[").append(from).append(" ").append(to).append("]");
+        if (StringUtils.isBlank(from) || StringUtils.isBlank(to)) {
+            setLastSuccessful(false);
+            return this;
+        }
         
+        // TODO take the given QueryModifier into consideration (e.g. wildcarded)
+        queryArguments.append("[").append(from).append(" ").append(to).append("] ");
+        
+        setLastSuccessful(true);
         return this;
     }
     
