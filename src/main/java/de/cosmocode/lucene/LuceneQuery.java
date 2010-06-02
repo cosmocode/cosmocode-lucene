@@ -36,13 +36,13 @@ import java.util.Collection;
  *   import de.cosmocode.lucene.LuceneQuery;
  *   ...
  *   // This example uses the default implemtation, but any other implementation works alike
- *   LuceneQuery builder = LuceneHelper.newQuery();
- *   builder.setModifier(QueryModifier.start().required().end());
+ *   final LuceneQuery builder = LuceneHelper.newQuery();
+ *   builder.setModifier(LuceneQuery.MOD_ID);
  *   builder.addField("test", Lists.newArrayList("test1", "test2"));
- *   builder.addArgument("blubb");
+ *   builder.addArgument("blubb", LuceneQuery.MOD_TEXT);
  *   builder.addSubquery(LuceneHelper.newQuery().addField("sub", "test^3").addField("array", new int[] {1, 2}));
  *   System.out.println(builder.getQuery());
- *   // prints out: +test:(test1 test2) +blubb +(sub:test\^3 array:(1 2))
+ *   // prints out: +test:(test1 test2) +(blubb blubb*) +(sub:test\^3 array:(1 2))
  * </pre>
  * 
  * @since 1.0
