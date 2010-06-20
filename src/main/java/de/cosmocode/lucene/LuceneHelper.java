@@ -62,12 +62,12 @@ public final class LuceneHelper {
     public static final QueryModifier MOD_AUTOCOMPLETE = LuceneQuery.MOD_AUTOCOMPLETE;
     
     
-    /** escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: and blanks  with "\". */
-    public static final Pattern ESCAPE_PATTERN           = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:; \\E]");
-    /** escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: with "\". */
-    public static final Pattern ESCAPE_NO_BLANKS_PATTERN = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:;\\E]");
+    /** escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: and blanks with a backslash. */
+    public static final Pattern ESCAPE_PATTERN             = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:; \\E]");
+    /** escape +,\,&,|,!,(,),{,},[,],^,~,?,*,:," and blanks with a backslash. */
+    public static final Pattern ESCAPE_WITH_QUOTES_PATTERN = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:;\" \\E]");
     
-    public static final Pattern QUOTES_PATTERN           = Pattern.compile("\"");
+    public static final Pattern QUOTES_PATTERN             = Pattern.compile("\"");
     
     
     private LuceneHelper() {
@@ -119,27 +119,24 @@ public final class LuceneHelper {
      */
     public static String removeSpecialCharacters(final String input) {
         if (input == null) return "";
-        final Pattern pattern = ESCAPE_PATTERN;
-        return removeQuotes(pattern.matcher(input).replaceAll(""));
+        return ESCAPE_WITH_QUOTES_PATTERN.matcher(input).replaceAll("");
     }
     
     
     /**
-     * Escapes special chars for solr.<br>
-     * Special chars are: +,\,&,|,!,(,),{,},[,],^,~,?,*,:,;<br>
-     * If `escapeBlanks` is true, then blanks are escaped, otherwise they are removed.
-     * They are escaped with "\".<br>
+     * Escapes special characters for solr.<br>
+     * Special chars are: +,\,&,|,!,(,),{,},[,],^,~,?,*,:,;
+     * Blanks are also escaped.<br>
+     * Special characters are escaped with "\".<br>
      * <br>
      * This function was taken (with heavy modifications) from
      * http://www.javalobby.org/java/forums/t86124.html
      * @param input the input to escape
-     * @param escapeBlanks if true, then blanks are escaped, otherwise they are removed
      * @return the input, escaped for solr
      */
-    public static String escapeInput(final String input, final boolean escapeBlanks) {
+    public static String escapeInput(final String input) {
         if (input == null) return "";
-        final Pattern pattern = escapeBlanks ? ESCAPE_PATTERN : ESCAPE_NO_BLANKS_PATTERN;
-        return pattern.matcher(input).replaceAll("\\\\$0");
+        return ESCAPE_PATTERN.matcher(input).replaceAll("\\\\$0");
     }
     
     
@@ -150,7 +147,8 @@ public final class LuceneHelper {
      * @return the input with escaped special chars
      */
     public static String escapeAll(final String input) {
-        return escapeQuotes(escapeInput(input, true));
+        if (input == null) return "";
+        return ESCAPE_WITH_QUOTES_PATTERN.matcher(input).replaceAll("\\\\$0");
     }
     
     

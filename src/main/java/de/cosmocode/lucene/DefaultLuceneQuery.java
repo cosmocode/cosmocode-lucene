@@ -222,9 +222,26 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
      * addRange
      */
     
+    private void addRangePlain(final String from, final String to) {
+        queryArguments.append("[").
+            append(LuceneHelper.escapeAll(from)).
+            append(" TO ").
+            append(LuceneHelper.escapeAll(to)).
+            append("] ");
+    }
+    
+    private void addRangeWildcarded(final String from, final String to) {
+        queryArguments.append("[").
+            append(LuceneHelper.escapeAll(from)).append("*").
+            append(" TO ").
+            append(LuceneHelper.escapeAll(to)).append("*").
+            append("] ");
+    }
+    
+    
     @Override
     public DefaultLuceneQuery addRange(double from, double to, QueryModifier mod) {
-        if (from >= to) {
+        if (from > to) {
             setLastSuccessful(false);
             return this;
         }
@@ -234,7 +251,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
     
     @Override
     public DefaultLuceneQuery addRange(int from, int to, QueryModifier mod) {
-        if (from >= to) {
+        if (from > to) {
             setLastSuccessful(false);
             return this;
         }
@@ -249,8 +266,12 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
             return this;
         }
         
-        // TODO take the given QueryModifier into consideration (e.g. wildcarded)
-        queryArguments.append("[").append(from).append(" TO ").append(to).append("] ");
+        // TODO consider isSplit of QueryModifier
+        if (mod.isWildcarded()) {
+            addRangeWildcarded(from, to);
+        } else {
+            addRangePlain(from, to);
+        }
         
         setLastSuccessful(true);
         return this;

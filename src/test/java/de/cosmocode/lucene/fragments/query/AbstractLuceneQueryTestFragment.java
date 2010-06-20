@@ -60,25 +60,24 @@ public abstract class AbstractLuceneQueryTestFragment implements UnitProvider<Lu
     public static final Directory DIRECTORY = new RAMDirectory();
     public static final Analyzer ANALYZER = new KeywordAnalyzer();
     
-    /** A helper for wildcard queries, different then WILDCARD2. */
+    /** A helper for wildcard queries, different than WILDCARD2. */
     public static final String WILDCARD1 = "arg";
-    /** A helper for wildcard queries, different then WILDCARD1. */
+    /** A helper for wildcard queries, different than WILDCARD1. */
     public static final String WILDCARD2 = "hex";
-    /** A helper for wildcard queries. yields different results then WILDCARD1 and WILDCARD2. */
+    /** A helper for wildcard queries. yields different results than WILDCARD1 and WILDCARD2. */
     public static final String WILDCARD3 = "foo";
     
     /** A helper for fuzzy queries.
      * Also yields a result for wildcard queries, so it can be used for wildcard + fuzzy. */
     public static final String FUZZY1 = "truf";
-    /** A helper for fuzzy queries. yields different results then FUZZY1 and FUZZY3. */
+    /** A helper for fuzzy queries. yields different results than FUZZY1 and FUZZY3. */
     public static final String FUZZY2 = "arf1";
-    /** A helper for fuzzy queries. yields different results then FUZZY1 AND FUZZY2. */
+    /** A helper for fuzzy queries. yields different results than FUZZY1 AND FUZZY2. */
     public static final String FUZZY3 = "fooba";
     
     public static final String ARG1 = "arg1";
     public static final boolean ARG2 = true;
     public static final String ARG3 = "arg3";
-    public static final int ARG4 = 20;
     
     public static final String DEFAULT_FIELD = "default_field";
     public static final String FIELD1 = "field1";
@@ -88,8 +87,9 @@ public abstract class AbstractLuceneQueryTestFragment implements UnitProvider<Lu
     private static final Logger LOG = LoggerFactory.getLogger(AbstractLuceneQueryTestFragment.class);
     
     private static final Object[] ARGS = {
-        ARG1, ARG2, ARG3, ARG4, "hexff00aa", "hex559911", "foobar", "truffel",
-        WILDCARD1, WILDCARD2, WILDCARD3, FUZZY1, FUZZY2, FUZZY3
+        ARG1, ARG2, ARG3, "hexff00aa", "hex559911", "foobar", "truffel",
+        WILDCARD1, WILDCARD2, WILDCARD3, FUZZY1, FUZZY2, FUZZY3,
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
     };
     
     
@@ -129,8 +129,8 @@ public abstract class AbstractLuceneQueryTestFragment implements UnitProvider<Lu
         final List<?> docExpected;
         final List<?> docActual;
         try {
-            docExpected = search(queryExpected, 100);
-            docActual = search(queryActual, 100);
+            docExpected = search(queryExpected, 500);
+            docActual = search(queryActual, 500);
         } catch (IOException e) {
             throw new IllegalStateException("low level IOException", e);
         }
@@ -182,6 +182,7 @@ public abstract class AbstractLuceneQueryTestFragment implements UnitProvider<Lu
      * @param keyValues name and value of the fields, alternating (key, value, key, value, ...)
      * @return a new document with a field set to the given values
      */
+    @SuppressWarnings("deprecation")
     protected static Document createDocument(final String... keyValues) {
         final Document doc = new Document();
         String key = null;
@@ -191,10 +192,13 @@ public abstract class AbstractLuceneQueryTestFragment implements UnitProvider<Lu
                 continue;
             }
             
+            // Index.TOKENIZED is deprecated, but some solr libraries use an old lucene library.
+            // so this is used for backwards compatibility.
             final Field field = new Field(key, keyOrValue, Store.YES, Index.TOKENIZED);
             doc.add(field);
             key = null;
         }
+        // Index.TOKENIZED deprecated, see above
         doc.add(new Field("empty", "empty", Store.NO, Index.TOKENIZED));
         return doc;
     }
