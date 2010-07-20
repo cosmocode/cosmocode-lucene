@@ -8,10 +8,10 @@
 	<groupId>de.cosmocode</groupId>
 	<artifactId>cosmocode-lucene</artifactId>
 	<name>Cosmocode Lucene</name>
-	<version>1.1.0</version>
+	<version>1.2-SNAPSHOT</version>
 	<description>This maven project provides helper classes for creating lucene queries.</description>
 	<scm>
-		<developerConnection>scm:svn:https://commons.svn.cosmocode.de/cosmocode-lucene/tags/1.1.0</developerConnection>
+		<developerConnection>scm:svn:https://commons.svn.cosmocode.de/cosmocode-lucene/trunk</developerConnection>
 	</scm>
 	<repositories>
 		<repository>
