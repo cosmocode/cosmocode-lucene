@@ -610,6 +610,9 @@ public interface LuceneQuery {
      * {@code addRange("a", "b", QueryModifier.start().wildcarded().end()}
      * would return results that start with a or b.
      * </p>
+     * <p> <strong> Important: </strong> doSplit() and fuzzyness of the given QueryModifier
+     * have no effect on a range query.
+     * </p>
      * Examples:
      * <pre>
      * final LuceneQuery query = LuceneHelper.newQuery();
@@ -654,6 +657,9 @@ public interface LuceneQuery {
      * This means that for example a call of
      * {@code addRange(1, 3, QueryModifier.start().wildcarded().end()}
      * would return results that start with 1 or 3, so every number that starts with 1,2 or 3.
+     * </p>
+     * <p> <strong> Important: </strong> doSplit() and fuzzyness of the given QueryModifier
+     * have no effect on a range query.
      * </p>
      * Examples:
      * <pre>
@@ -700,6 +706,9 @@ public interface LuceneQuery {
      * {@code addRange(2.0, 3.0, QueryModifier.start().wildcarded().end()}
      * would return results that start with 2.0 or 3.0, so every floating point number
      * between 2 (inclusive) and 3.1 (exclusive).
+     * </p>
+     * <p> <strong> Important: </strong> doSplit() and fuzzyness of the given QueryModifier
+     * have no effect on a range query.
      * </p>
      * Example:
      * <pre>
