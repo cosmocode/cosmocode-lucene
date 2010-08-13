@@ -267,7 +267,6 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
         }
         
         queryArguments.append(mod.getTermPrefix());
-        // TODO consider isSplit of QueryModifier
         if (mod.isWildcarded()) {
             addRangeWildcarded(from, to);
         } else {

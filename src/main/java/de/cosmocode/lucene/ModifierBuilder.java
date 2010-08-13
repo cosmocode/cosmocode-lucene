@@ -112,7 +112,9 @@ public final class ModifierBuilder implements Builder<QueryModifier> {
     /**
      * <p> This is a shortcut for {@code setTermModifier(TermModifier.REQUIRED)}.
      * </p>
-     * TODO add consequences for this call
+     * <p> The affected term or field is added to the query as required,
+     * so that it MUST be found
+     * </p>
      * @return this
      * @see TermModifier#REQUIRED
      * @see #setTermModifier(TermModifier)
@@ -135,8 +137,10 @@ public final class ModifierBuilder implements Builder<QueryModifier> {
 
     /**
      * <p> This is a shortcut for {@code setTermModifier(TermModifier.PROHIBITED)}.
+     * </p>
+     * <p> The affected term or field is added to the query as prohibited,
+     * meaning that the found documents do not contain the given field or term.
      * </p> 
-     * TODO add consequences 
      * @return this
      * @see TermModifier#PROHIBITED
      */
