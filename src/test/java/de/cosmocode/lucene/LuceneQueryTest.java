@@ -36,6 +36,14 @@ import de.cosmocode.lucene.fragments.query.AddFieldCollectionFragment;
 import de.cosmocode.lucene.fragments.query.AddFieldCollectionModFragment;
 import de.cosmocode.lucene.fragments.query.AddFieldStringFragment;
 import de.cosmocode.lucene.fragments.query.AddFieldStringModFragment;
+import de.cosmocode.lucene.fragments.query.AddRangeDoubleDoubleModFragment;
+import de.cosmocode.lucene.fragments.query.AddRangeFieldDoubleDoubleModFragment;
+import de.cosmocode.lucene.fragments.query.AddRangeFieldFragment;
+import de.cosmocode.lucene.fragments.query.AddRangeFieldIntIntModFragment;
+import de.cosmocode.lucene.fragments.query.AddRangeFieldStringStringModFragment;
+import de.cosmocode.lucene.fragments.query.AddRangeFragment;
+import de.cosmocode.lucene.fragments.query.AddRangeIntIntModFragment;
+import de.cosmocode.lucene.fragments.query.AddRangeStringStringModFragment;
 
 /**
  * <p> Generic Test for {@link LuceneQuery}.
@@ -78,7 +86,15 @@ import de.cosmocode.lucene.fragments.query.AddFieldStringModFragment;
     AddArgumentStringFragment.class,
     AddArgumentStringModFragment.class,
     AddFieldStringFragment.class,
-    AddFieldStringModFragment.class
+    AddFieldStringModFragment.class,
+    AddRangeFragment.class,
+    AddRangeStringStringModFragment.class,
+    AddRangeIntIntModFragment.class,
+    AddRangeDoubleDoubleModFragment.class,
+    AddRangeFieldFragment.class,
+    AddRangeFieldStringStringModFragment.class,
+    AddRangeFieldIntIntModFragment.class,
+    AddRangeFieldDoubleDoubleModFragment.class
 })
 public abstract class LuceneQueryTest {
     

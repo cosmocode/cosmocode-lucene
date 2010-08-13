@@ -16,23 +16,23 @@
 
 package de.cosmocode.lucene;
 
-import com.google.common.base.Preconditions;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
-import de.cosmocode.patterns.Immutable;
-import de.cosmocode.patterns.ThreadSafe;
+import com.google.common.base.Preconditions;
 
 /**
  * <p> This is an immutable class that affects the addArgument and addField methods of SolrQuery.
  * It is for that reason just a storage class, to keep the signature of the LuceneQuery methods short.
  * Detailed documentation for the input types can be found in the methods of the {@link ModifierBuilder}.
  * </p>
- * <p> Some predefined QueryModifiers can be found at LuceneHelper:
+ * <p> Some predefined QueryModifiers can be found at LuceneQuery:
  * </p>
  * <ul>
- *   <li> {@link LuceneHelper#MOD_ID} - for ids </li>
- *   <li> {@link LuceneHelper#MOD_TEXT} - for texts </li>
- *   <li> {@link LuceneHelper#MOD_NOT_ID} - to exclude ids </li>
- *   <li> {@link LuceneHelper#MOD_AUTOCOMPLETE} - a sample for autocompletion, with fuzzyness at 0.7 </li>
+ *   <li> {@link LuceneQuery#MOD_ID} - for ids </li>
+ *   <li> {@link LuceneQuery#MOD_TEXT} - for texts </li>
+ *   <li> {@link LuceneQuery#MOD_NOT_ID} - to exclude ids </li>
+ *   <li> {@link LuceneQuery#MOD_AUTOCOMPLETE} - a sample for autocompletion, with fuzzyness at 0.7 </li>
  * </ul>
  * 
  * @since 1.0

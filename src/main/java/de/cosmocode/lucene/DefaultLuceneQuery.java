@@ -266,12 +266,14 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery implements Luc
             return this;
         }
         
+        queryArguments.append(mod.getTermPrefix());
         // TODO consider isSplit of QueryModifier
         if (mod.isWildcarded()) {
             addRangeWildcarded(from, to);
         } else {
             addRangePlain(from, to);
         }
+        queryArguments.append(" ");
         
         setLastSuccessful(true);
         return this;

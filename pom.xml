@@ -27,18 +27,16 @@
 		</dependency>
 		<dependency>
 			<groupId>de.cosmocode</groupId>
-			<artifactId>cosmocode-patterns</artifactId>
-			<version>[1.4,2)</version>
+			<artifactId>cosmocode-commons</artifactId>
+			<version>[1.11,2)</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
-			<version>2.4</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.collections</groupId>
-			<artifactId>google-collections</artifactId>
-			<version>1.0</version>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -55,6 +53,12 @@
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
 			<version>2.4.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>de.cosmocode</groupId>
+			<artifactId>log4j-config</artifactId>
+			<version>1.3.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

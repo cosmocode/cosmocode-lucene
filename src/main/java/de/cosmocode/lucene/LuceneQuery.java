@@ -585,16 +585,136 @@ public interface LuceneQuery {
      * addRange
      */
     
+    
+    /**
+     * <p> Adds a range to the query.
+     * This method calls {@link #addRange(String, String, QueryModifier)} with the default modifier 
+     * ({@link #getModifier()}).
+     * </p>
+     * 
+     * @param from the start of the range
+     * @param to the end of the range
+     * @return this (for chaining)
+     * 
+     * @since 1.2
+     * @see #addRange(String, String, QueryModifier)
+     */
     LuceneQuery addRange(String from, String to);
 
+    /**
+     * <p> Adds a range to the query, using the given QueryModifier.
+     * </p>
+     * <p> If the given QueryModifier has wildcarded set to true,
+     * then both the from and the to clause is set to wildcarded.
+     * This means that for example a call of
+     * {@code addRange("a", "b", QueryModifier.start().wildcarded().end()}
+     * would return results that start with a or b.
+     * </p>
+     * Examples:
+     * <pre>
+     * final LuceneQuery query = LuceneHelper.newQuery();
+     * query.addRange("a", "b");
+     * System.out.println(query.getQuery());   // prints something like [a TO b]
+     * </pre>
+     * <pre>
+     * final LuceneQuery query = LuceneHelper.newQuery();
+     * query.addRange("a", "b", LuceneQuery.MOD_TEXT);
+     * System.out.println(query.getQuery());   // prints something like [a* TO b*]
+     * </pre>
+     * 
+     * @param from the start of the range
+     * @param to the end of the range
+     * @param mod the QueryModifier that affects the 
+     * @return this (for chaining)
+     * 
+     * @since 1.2
+     */
     LuceneQuery addRange(String from, String to, QueryModifier mod);
     
+    /**
+     * <p> Adds a numerical range to the query.
+     * This method calls {@link #addRange(int, int, QueryModifier)} with the default modifier 
+     * ({@link #getModifier()}).
+     * </p>
+     * 
+     * @param from the start of the range
+     * @param to the end of the range
+     * @return this (for chaining)
+     * 
+     * @since 1.2
+     * @see #addRange(int, int, QueryModifier)
+     */
     LuceneQuery addRange(int from, int to);
 
+    /**
+     * <p> Adds a numerical range to the query, using the given QueryModifier.
+     * </p>
+     * <p> If the given QueryModifier has wildcarded set to true,
+     * then both the from and the to clause is set to wildcarded.
+     * This means that for example a call of
+     * {@code addRange(1, 3, QueryModifier.start().wildcarded().end()}
+     * would return results that start with 1 or 3, so every number that starts with 1,2 or 3.
+     * </p>
+     * Examples:
+     * <pre>
+     * final LuceneQuery query = LuceneHelper.newQuery();
+     * query.addRange(1, 10);
+     * System.out.println(query.getQuery());   // prints something like [1 TO 10]
+     * </pre>
+     * <pre>
+     * final LuceneQuery query = LuceneHelper.newQuery();
+     * query.addRange(1, 3, LuceneQuery.MOD_TEXT);
+     * System.out.println(query.getQuery());   // prints something like [1* TO 3*]
+     * </pre>
+     * 
+     * @param from the start of the range
+     * @param to the end of the range
+     * @param mod the QueryModifier that affects the 
+     * @return this (for chaining)
+     * 
+     * @since 1.2
+     */
     LuceneQuery addRange(int from, int to, QueryModifier mod);
     
+    /**
+     * <p> Adds a numerical, floating point range to the query.
+     * This method calls {@link #addRange(double, double, QueryModifier)} with the default modifier 
+     * ({@link #getModifier()}).
+     * </p>
+     * 
+     * @param from the start of the range
+     * @param to the end of the range
+     * @return this (for chaining)
+     * 
+     * @since 1.2
+     * @see #addRange(double, double, QueryModifier)
+     */
     LuceneQuery addRange(double from, double to);
 
+    /**
+     * <p> Adds a numerical, floating point range to the query, using the given QueryModifier.
+     * </p>
+     * <p> If the given QueryModifier has wildcarded set to true,
+     * then both the from and the to clause is set to wildcarded.
+     * This means that for example a call of
+     * {@code addRange(2.0, 3.0, QueryModifier.start().wildcarded().end()}
+     * would return results that start with 2.0 or 3.0, so every floating point number
+     * between 2 (inclusive) and 3.1 (exclusive).
+     * </p>
+     * Example:
+     * <pre>
+     * final LuceneQuery query = LuceneHelper.newQuery();
+     * query.addRange(1.1, 1.9);
+     * System.out.println(query.getQuery());   // prints something like [1.1 TO 1.9]
+     * </pre>
+     * 
+     * @param from the start of the range
+     * @param to the end of the range
+     * @param mod the QueryModifier that affects the 
+     * @return this (for chaining)
+     * 
+     * @since 1.2
+     */
     LuceneQuery addRange(double from, double to, QueryModifier mod);
     
     
@@ -958,16 +1078,101 @@ public interface LuceneQuery {
      * addRangeField, for example: (fieldName):[(a) TO (b)]
      */
     
+    
+    /**
+     * <p> Adds a range for a specific field to this query.
+     * This method calls {@link #addRangeField(String, String, String, QueryModifier)}
+     * with the default modifier ({@link #getModifier()}).
+     * </p>
+     * 
+     * @param fieldName the name of the field to search in
+     * @param from the start of the range
+     * @param to the end of the range
+     * @return this (for chaining)
+     * 
+     * @see #addRangeField(String, String, String, QueryModifier)
+     * @since 1.2
+     */
     LuceneQuery addRangeField(String fieldName, String from, String to);
 
+    /**
+     * <p> Adds a range for a specific field to this query, using the given QueryModifier.
+     * See {@link #addRange(String, String, QueryModifier)} for further documentation.
+     * </p>
+     * 
+     * @param fieldName the name of the field to search in
+     * @param from the start of the range
+     * @param to the end of the range
+     * @param mod the {@link QueryModifier} to apply to the field
+     * @return this (for chaining)
+     * 
+     * @see #addRange(String, String, QueryModifier)
+     * @since 1.2
+     */
     LuceneQuery addRangeField(String fieldName, String from, String to, QueryModifier mod);
     
+    /**
+     * <p> Adds a numeric range for a specific field to this query.
+     * This method calls {@link #addRangeField(String, int, int, QueryModifier)}
+     * with the default modifier ({@link #getModifier()}).
+     * </p>
+     * 
+     * @param fieldName the name of the field to search in
+     * @param from the start of the range
+     * @param to the end of the range
+     * @return this (for chaining)
+     * 
+     * @see #addRangeField(String, int, int, QueryModifier)
+     * @since 1.2
+     */
     LuceneQuery addRangeField(String fieldName, int from, int to);
 
+    /**
+     * <p> Adds a numeric range for a specific field to this query, using the given QueryModifier.
+     * See {@link #addRange(int, int, QueryModifier)} for further documentation.
+     * </p>
+     * 
+     * @param fieldName the name of the field to search in
+     * @param from the start of the range
+     * @param to the end of the range
+     * @param mod the {@link QueryModifier} to apply to the field
+     * @return this (for chaining)
+     * 
+     * @see #addRange(int, int, QueryModifier)
+     * @since 1.2
+     */
     LuceneQuery addRangeField(String fieldName, int from, int to, QueryModifier mod);
     
+    /**
+     * <p> Adds a numeric, floating point range for a specific field to this query.
+     * This method calls {@link #addRangeField(String, double, double, QueryModifier)}
+     * with the default modifier ({@link #getModifier()}).
+     * </p>
+     * 
+     * @param fieldName the name of the field to search in
+     * @param from the start of the range
+     * @param to the end of the range
+     * @return this (for chaining)
+     * 
+     * @see #addRangeField(String, double, double, QueryModifier)
+     * @since 1.2
+     */
     LuceneQuery addRangeField(String fieldName, double from, double to);
 
+    /**
+     * <p> Adds a numeric, floating point range for a specific field to this query, using the given QueryModifier.
+     * See {@link #addRange(double, double, QueryModifier)} for further documentation.
+     * </p>
+     * 
+     * @param fieldName the name of the field to search in
+     * @param from the start of the range
+     * @param to the end of the range
+     * @param mod the {@link QueryModifier} to apply to the field
+     * @return this (for chaining)
+     * 
+     * @see #addRange(double, double, QueryModifier)
+     * @since 1.2
+     */
     LuceneQuery addRangeField(String fieldName, double from, double to, QueryModifier mod);
 
     //---------------------------

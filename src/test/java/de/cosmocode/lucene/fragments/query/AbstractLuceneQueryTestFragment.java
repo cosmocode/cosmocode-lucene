@@ -89,7 +89,9 @@ public abstract class AbstractLuceneQueryTestFragment implements UnitProvider<Lu
     private static final Object[] ARGS = {
         ARG1, ARG2, ARG3, "hexff00aa", "hex559911", "foobar", "truffel",
         WILDCARD1, WILDCARD2, WILDCARD3, FUZZY1, FUZZY2, FUZZY3,
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        1.1, 1.2, 1.3, 1.4, 1.5, 1.63, 1.7, 1.8, 1.88, 1.9, 2.0,
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"
     };
     
     
@@ -108,8 +110,9 @@ public abstract class AbstractLuceneQueryTestFragment implements UnitProvider<Lu
      * @param actual the generated LuceneQuery
      */
     protected void assertEquals(final String expected, final LuceneQuery actual) {
-        final String expectedString = expected;
-        final String actualString = actual.getQuery();
+        // +empty:empty catches every document in the lucene index
+        final String expectedString = "+empty:empty " + expected;
+        final String actualString = "+empty:empty " + actual.getQuery();
         
         final QueryParser parser = new QueryParser(DEFAULT_FIELD, ANALYZER);
         final Query queryExpected;
@@ -135,7 +138,12 @@ public abstract class AbstractLuceneQueryTestFragment implements UnitProvider<Lu
             throw new IllegalStateException("low level IOException", e);
         }
         
-        if (!docExpected.equals(docActual)) {
+        if (docExpected.equals(docActual)) {
+            if (docExpected.size() == 0) {
+                LOG.warn("Expected 0 results for {} !!", queryExpected);
+                LOG.info("Original query was {}", expectedString);
+            }
+        } else {
             LOG.debug("Original queries:");
             LOG.debug("\texpected={}", expectedString);
             LOG.debug("\t  actual={}", actualString);
