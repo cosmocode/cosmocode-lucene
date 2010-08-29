@@ -35,7 +35,7 @@ import java.util.Collection;
  *   import com.google.common.collect.Lists;
  *   import de.cosmocode.lucene.LuceneQuery;
  *   ...
- *   // This example uses the default implemtation, but any other implementation works alike
+ *   // This example uses the default implementation, but any other implementation works alike
  *   final LuceneQuery builder = LuceneHelper.newQuery();
  *   builder.setModifier(LuceneQuery.MOD_ID);
  *   builder.addField("test", Lists.newArrayList("test1", "test2"));
