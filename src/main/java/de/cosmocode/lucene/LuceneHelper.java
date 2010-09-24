@@ -65,9 +65,9 @@ public final class LuceneHelper {
     /** escape +,\,&,|,!,(,),{,},[,],^,~,?,*,: and blanks with a backslash. */
     public static final Pattern ESCAPE_PATTERN             = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:; \\E]");
     /** escape +,\,&,|,!,(,),{,},[,],^,~,?,*,:," and blanks with a backslash. */
-    public static final Pattern ESCAPE_WITH_QUOTES_PATTERN = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:;\" \\E]");
+    public static final Pattern ESCAPE_WITH_QUOTES_PATTERN = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:; \"\\E]");
     
-    public static final Pattern QUOTES_PATTERN             = Pattern.compile("\"");
+    public static final Pattern QUOTES_PATTERN             = Pattern.compile("[\"]");
     
     
     private LuceneHelper() {
@@ -90,7 +90,7 @@ public final class LuceneHelper {
      */
     public static String escapeQuotes(final String input) {
         if (input == null) return "";
-        return QUOTES_PATTERN.matcher(input).replaceAll("\\\"");
+        return QUOTES_PATTERN.matcher(input).replaceAll("\\\\$0");
     }
     
     
