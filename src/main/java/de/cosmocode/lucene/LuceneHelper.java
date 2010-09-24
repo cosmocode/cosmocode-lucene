@@ -98,7 +98,6 @@ public final class LuceneHelper {
      */
     public static String escapeQuotes(final String input) {
         if (input == null) return "";
-        // TODO make a faster implementation
         return QUOTES_PATTERN.matcher(input).replaceAll("\\\\$0");
     }
     
@@ -115,7 +114,6 @@ public final class LuceneHelper {
      */
     public static String removeQuotes(final String input) {
         if (input == null) return "";
-        // TODO make a faster implementation
         return QUOTES_PATTERN.matcher(input).replaceAll("");
     }
     
