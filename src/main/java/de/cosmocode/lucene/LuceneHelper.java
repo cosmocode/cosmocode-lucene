@@ -36,21 +36,27 @@ public final class LuceneHelper {
      * A QueryModifier that can be used to include one or more IDs into a search.
      * 
      * @see LuceneQuery#MOD_ID
+     * @deprecated use LuceneQuery.MOD_ID instead
      */
+    @Deprecated
     public static final QueryModifier MOD_ID = LuceneQuery.MOD_ID;
     
     /**
      * A QueryModifier that can be used to exclude one or more IDs from the search.
      * 
      * @see LuceneQuery#MOD_NOT_ID
+     * @deprecated use LuceneQuery.MOD_NOT_ID instead
      */
+    @Deprecated
     public static final QueryModifier MOD_NOT_ID = LuceneQuery.MOD_NOT_ID;
     
     /**
      * A QueryModifier that can be used for required text fields.
      * 
      * @see LuceneQuery#MOD_TEXT
+     * @deprecated use LuceneQuery.MOD_TEXT instead
      */
+    @Deprecated
     public static final QueryModifier MOD_TEXT = LuceneQuery.MOD_TEXT;
     
     /**
@@ -58,7 +64,9 @@ public final class LuceneHelper {
      * though the fuzzyness may vary from project to project.
      * 
      * @see LuceneQuery#MOD_AUTOCOMPLETE
+     * @deprecated use LuceneQuery.MOD_AUTOCOMPLETE instead
      */
+    @Deprecated
     public static final QueryModifier MOD_AUTOCOMPLETE = LuceneQuery.MOD_AUTOCOMPLETE;
     
     
@@ -67,7 +75,7 @@ public final class LuceneHelper {
     /** escape +,\,&,|,!,(,),{,},[,],^,~,?,*,:," and blanks with a backslash. */
     public static final Pattern ESCAPE_WITH_QUOTES_PATTERN = Pattern.compile("[\\Q+-\\&|!(){}[]^~?*:; \"\\E]");
     
-    public static final Pattern QUOTES_PATTERN             = Pattern.compile("[\"]");
+    public static final Pattern QUOTES_PATTERN             = Pattern.compile("\"");
     
     
     private LuceneHelper() {
@@ -90,6 +98,7 @@ public final class LuceneHelper {
      */
     public static String escapeQuotes(final String input) {
         if (input == null) return "";
+        // TODO make a faster implementation
         return QUOTES_PATTERN.matcher(input).replaceAll("\\\\$0");
     }
     
@@ -106,6 +115,7 @@ public final class LuceneHelper {
      */
     public static String removeQuotes(final String input) {
         if (input == null) return "";
+        // TODO make a faster implementation
         return QUOTES_PATTERN.matcher(input).replaceAll("");
     }
     
@@ -163,6 +173,7 @@ public final class LuceneHelper {
     
     /**
      * Creates a new {@link LuceneQueryBuilder}.
+     * <br />This is just a convenience method for {@code new LuceneQueryBuilder()}.
      * @return a new LuceneQueryBuilder
      */
     public static LuceneQueryBuilder newQueryBuilder() {
