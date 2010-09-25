@@ -26,6 +26,9 @@ import org.junit.Test;
  */
 public class LuceneHelperTest {
 
+    /**
+     * Tests {@link LuceneHelper#escapeQuotes(String)}.
+     */
     @Test
     public void testEscapeQuotes() {
         final String input = "test \"wichtig\" blubb{()}";
@@ -34,6 +37,9 @@ public class LuceneHelperTest {
         Assert.assertEquals(expected, actual);
     }
 
+    /**
+     * Tests {@link LuceneHelper#escapeQuotes(String)} with a null input.
+     */
     @Test
     public void testEscapeQuotesNull() {
         final String input = null;
@@ -42,6 +48,9 @@ public class LuceneHelperTest {
         Assert.assertEquals(expected, actual);
     }
 
+    /**
+     * Tests {@link LuceneHelper#removeQuotes(String)}.
+     */
     @Test
     public void testRemoveQuotes() {
         final String input = "test \"wichtig\" blubb{()}";
@@ -50,6 +59,9 @@ public class LuceneHelperTest {
         Assert.assertEquals(expected, actual);
     }
 
+    /**
+     * Tests {@link LuceneHelper#removeQuotes(String)} with a null value.
+     */
     @Test
     public void testRemoveQuotesNull() {
         final String input = null;
@@ -58,6 +70,9 @@ public class LuceneHelperTest {
         Assert.assertEquals(expected, actual);
     }
 
+    /**
+     * Tests {@link LuceneHelper#removeSpecialCharacters(String)}.
+     */
     @Test
     public void testRemoveSpecialCharacters() {
         final String input = "bla %\"{]{/(CKD93jfs09 sdf}  {]";
@@ -66,6 +81,9 @@ public class LuceneHelperTest {
         Assert.assertEquals(expected, actual);
     }
 
+    /**
+     * Tests {@link LuceneHelper#removeSpecialCharacters(String)} with a null value.
+     */
     @Test
     public void testRemoveSpecialCharactersNull() {
         final String input = null;
@@ -74,6 +92,9 @@ public class LuceneHelperTest {
         Assert.assertEquals(expected, actual);
     }
 
+    /**
+     * Tests {@link LuceneHelper#escapeInput(String)}.
+     */
     @Test
     public void testEscapeInput() {
         final String input = "bla %\"{]{/(CKD93jfs09 sdf}  {]";
@@ -82,6 +103,9 @@ public class LuceneHelperTest {
         Assert.assertEquals(expected, actual);
     }
 
+    /**
+     * Tests {@link LuceneHelper#escapeInput(String)} with a null value.
+     */
     @Test
     public void testEscapeInputNull() {
         final String input = null;
@@ -90,6 +114,9 @@ public class LuceneHelperTest {
         Assert.assertEquals(expected, actual);
     }
 
+    /**
+     * Tests {@link LuceneHelper#escapeAll(String)}.
+     */
     @Test
     public void testEscapeAll() {
         final String input = "bla %\"{]{/(CKD93jfs09 sdf}  {]";
@@ -98,6 +125,9 @@ public class LuceneHelperTest {
         Assert.assertEquals(expected, actual);
     }
 
+    /**
+     * Tests {@link LuceneHelper#escapeAll(String)} with a null value.
+     */
     @Test
     public void testEscapeAllNull() {
         final String input = null;
