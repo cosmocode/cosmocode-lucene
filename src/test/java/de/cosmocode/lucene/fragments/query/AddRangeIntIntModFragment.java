@@ -106,7 +106,7 @@ public class AddRangeIntIntModFragment extends AbstractQueryModifierFragment {
 
     @Override
     protected String expectedFuzzySplitDisjunct() {
-        return expectedNormalConjunct();
+        return expectedNormalDisjunct();
     }
 
     @Override
