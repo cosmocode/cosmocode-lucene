@@ -11,7 +11,7 @@
 	<version>1.3-SNAPSHOT</version>
 	<description>This maven project provides helper classes for creating lucene queries.</description>
 	<scm>
-		<developerConnection>scm:svn:https://commons.svn.cosmocode.de/cosmocode-lucene/trunk</developerConnection>
+		<developerConnection>scm:git:git@github.com:cosmocode/${project.artifactId}.git</developerConnection>
 	</scm>
 	<repositories>
 		<repository>
