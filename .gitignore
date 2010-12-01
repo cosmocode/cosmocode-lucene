@@ -15,6 +15,7 @@
 .classpath
 .project
 .scala_dependencies
+.pmd
 
 # idea
 .idea
