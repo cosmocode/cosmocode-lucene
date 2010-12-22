@@ -246,7 +246,7 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public final LuceneQuery addRange(double from, double to) {
         return addRange(from, to, defaultModifier);
-    };
+    }
     
     @Override
     public abstract LuceneQuery addRange(double from, double to, QueryModifier mod);
@@ -360,8 +360,7 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public final <K> LuceneQuery addField(String key, K[] value) {
         return addFieldAsArray(key, value, defaultModifier);
-    };
-    
+    }
     
     @Override
     public final <K> LuceneQuery addField(String key, K[] value, QueryModifier modifier) {
@@ -391,7 +390,7 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public final LuceneQuery addRangeField(String fieldName, double from, double to) {
         return addRangeField(fieldName, from, to, defaultModifier);
-    };
+    }
     
     @Override
     public LuceneQuery addRangeField(String fieldName, double from, double to, QueryModifier mod) {
@@ -406,7 +405,7 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public final LuceneQuery addRangeField(String fieldName, int from, int to) {
         return addRangeField(fieldName, from, to, defaultModifier);
-    };
+    }
     
     @Override
     public LuceneQuery addRangeField(String fieldName, int from, int to, QueryModifier mod) {
@@ -458,11 +457,10 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         return this;
     }
 
-    
     @Override
     public final <K> LuceneQuery addFieldAsArray(String key, K[] value) {
         return addFieldAsArray(key, value, defaultModifier);
-    };
+    }
     
     @Override
     public <K> LuceneQuery addFieldAsArray(
