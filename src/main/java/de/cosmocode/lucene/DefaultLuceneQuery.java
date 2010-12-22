@@ -137,7 +137,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery {
         queryArguments.append("(");
     }
     
-    private void afterIteration(final QueryModifier modifier) {
+    private void afterIteration() {
         // get previous position here to ensure that positionStack.poll() is executed
         final int previousPosition = positionStack.poll();
         
@@ -167,7 +167,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery {
             addArgument(val, valueModifier);
         }
         
-        afterIteration(modifier);
+        afterIteration();
         
         return this;
     }
@@ -189,7 +189,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery {
             addArgument(val, valueModifier);
         }
         
-        afterIteration(modifier);
+        afterIteration();
         
         return this;
     }
@@ -212,7 +212,7 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery {
             addArgument(Array.get(values, i), valueModifier);
         }
         
-        afterIteration(modifier);
+        afterIteration();
         
         return this;
     }
