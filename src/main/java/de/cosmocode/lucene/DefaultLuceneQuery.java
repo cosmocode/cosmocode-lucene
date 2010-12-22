@@ -34,7 +34,7 @@ import com.google.common.base.Preconditions;
  * @since 1.0
  * @author Oliver Lorenz
  */
-public final class DefaultLuceneQuery extends AbstractLuceneQuery implements LuceneQuery {
+public final class DefaultLuceneQuery extends AbstractLuceneQuery {
     
     
     private final StringBuilder queryArguments;

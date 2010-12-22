@@ -29,8 +29,7 @@ import de.cosmocode.patterns.Factory;
  * @since 1.0
  * @author Oliver Lorenz
  */
-public final class LuceneQueryBuilder extends ForwardingLuceneQuery 
-    implements LuceneQuery, Builder<LuceneQuery> {
+public final class LuceneQueryBuilder extends ForwardingLuceneQuery implements Builder<LuceneQuery> {
     
     public static final String ERR_LOCKED = "LuceneQueryBuilder has been locked, no changes possible";
     
