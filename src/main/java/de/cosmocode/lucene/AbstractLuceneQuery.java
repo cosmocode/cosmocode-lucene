@@ -50,11 +50,9 @@ import com.google.common.base.Preconditions;
  */
 public abstract class AbstractLuceneQuery implements LuceneQuery {
     
-    
     private QueryModifier defaultModifier;
     
     private boolean wasLastSuccessful;
-    
     
     /**
      * Initializes this {@link AbstractLuceneQuery} with the QueryModifier {@link QueryModifier#DEFAULT}.
@@ -73,13 +71,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         this.wasLastSuccessful = false;
     }
     
-
-    
-    //---------------------------
-    //   default getter and setter
-    //---------------------------
-    
-    
     @Override
     public boolean isWildCarded() {
         return defaultModifier.isWildcarded();
@@ -89,7 +80,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     public void setWildCarded(boolean wildCarded) {
         this.defaultModifier = defaultModifier.copy().setWildcarded(wildCarded).end();
     }
-    
     
     @Override
     public final QueryModifier getModifier() {
@@ -113,24 +103,15 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public abstract String getQuery();
     
-    
-    
-    //---------------------------
-    //     addFuzzyArgument
-    //---------------------------
-    
-    
     @Override
     public final LuceneQuery addFuzzyArgument(final String value) {
         return addArgument(value, defaultModifier.copy().setFuzzyness(DEFAULT_FUZZYNESS).end());
     }
     
-    
     @Override
     public final LuceneQuery addFuzzyArgument(final String value, final boolean mandatory) {
         return addFuzzyArgument(value, mandatory, DEFAULT_FUZZYNESS);
     }
-    
     
     @Override
     public LuceneQuery addFuzzyArgument(final String value, final boolean mandatory, final double fuzzyness) {
@@ -139,18 +120,10 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         return this.addArgument(value, mod);
     }
     
-    
-    
-    //---------------------------
-    //     addArgument
-    //---------------------------
-    
-    
     @Override
     public final LuceneQuery addArgument(final String value) {
         return addArgument(value, defaultModifier);
     }
-    
     
     @Override
     public LuceneQuery addArgument(final String value, final boolean mandatory) {
@@ -159,16 +132,13 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         return this.addArgument(value, mod);
     }
     
-    
     @Override
     public abstract LuceneQuery addArgument(final String value, final QueryModifier modifiers);
-    
     
     @Override
     public final LuceneQuery addArgument(Collection<?> values) {
         return addArgument(values, defaultModifier);
     }
-    
     
     @Override
     public LuceneQuery addArgument(final Collection<?> value, final boolean mandatory) {
@@ -180,12 +150,10 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         return this.addArgument(value, mod);
     }
     
-    
     @Override
     public final LuceneQuery addArgument(Collection<?> values, QueryModifier modifier) {
         return addArgumentAsCollection(values, modifier);
     }
-    
     
     @Override
     public final <K> LuceneQuery addArgument(K[] values) {
@@ -227,7 +195,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         return addArgumentAsArray(values, modifier);
     }
     
-    
     /**
      * This is a utility method, that determines what to call based on "instanceof".
      * 
@@ -251,22 +218,13 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         }
     }
     
-    
-    
-    //---------------------------
-    //     addArgumentAs...
-    //---------------------------
-    
-    
     @Override
     public final <K> LuceneQuery addArgumentAsArray(K[] values) {
         return addArgumentAsArray(values, defaultModifier);
-    };
-    
+    }
     
     @Override
     public abstract <K> LuceneQuery addArgumentAsArray(K[] values, QueryModifier modifier);
-    
     
     /**
      * Add an array of Terms to this QueryBuilder.
@@ -277,7 +235,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
      */
     protected abstract LuceneQuery addArgumentAsArray(Object values, QueryModifier modifier);
     
-    
     @Override
     public final LuceneQuery addArgumentAsCollection(Collection<?> values) {
         return addArgumentAsCollection(values, defaultModifier);
@@ -286,11 +243,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public abstract LuceneQuery addArgumentAsCollection(Collection<?> values, QueryModifier modifier);
     
-    
-    /*
-     * addRange
-     */
-
     @Override
     public final LuceneQuery addRange(double from, double to) {
         return addRange(from, to, defaultModifier);
@@ -315,13 +267,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public abstract LuceneQuery addRange(String from, String to, QueryModifier mod);
     
-    
-    
-    //---------------------------
-    //     addSubquery
-    //---------------------------
-    
-    
     @Override
     public final LuceneQuery addSubquery(LuceneQuery value) {
         return addSubquery(value, defaultModifier);
@@ -336,13 +281,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     @Override
     public abstract LuceneQuery addSubquery(LuceneQuery value, QueryModifier modifiers);
-    
-    
-    
-    //---------------------------
-    //     addField(String, String, ...)
-    //---------------------------
-    
     
     @Override
     public final LuceneQuery addField(String key, String value) {
@@ -373,13 +311,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         }
         return this;
     }
-    
-    
-    
-    //---------------------------
-    //     addField(String, Collection, ...)
-    //---------------------------
-    
     
     @Override
     public final LuceneQuery addField(String key, Collection<?> value) {
@@ -426,13 +357,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         return addFieldAsCollection(key, value, modifier);
     }
     
-    
-    
-    //---------------------------
-    //     addField(String, Array, ...)
-    //---------------------------
-    
-    
     @Override
     public final <K> LuceneQuery addField(String key, K[] value) {
         return addFieldAsArray(key, value, defaultModifier);
@@ -442,13 +366,7 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public final <K> LuceneQuery addField(String key, K[] value, QueryModifier modifier) {
         return addFieldAsArray(key, value, modifier);
-    };
-    
-    
-    //---------------------------
-    //     addFuzzyField
-    //---------------------------
-    
+    }
     
     @Override
     public final LuceneQuery addFuzzyField(String key, String value) {
@@ -469,11 +387,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         final QueryModifier mod = defaultModifier.copy().setTermModifier(tm).setFuzzyness(fuzzyness).end();
         return addField(key, value, mod);
     }
-    
-    
-    /*
-     * addRangeField
-     */
     
     @Override
     public final LuceneQuery addRangeField(String fieldName, double from, double to) {
@@ -519,12 +432,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         }
         return this;
     }
-    
-    
-    //---------------------------
-    //     addFieldAs...
-    //---------------------------
-    
     
     @Override
     public final LuceneQuery addFieldAsCollection(String key, Collection<?> value) {
@@ -592,11 +499,6 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
         return this;
     }
     
-    
-    //-----------------------------------
-    //     startField/endField/addBoost
-    //-----------------------------------
-    
     @Override
     public LuceneQuery startField(String fieldName, boolean mandatory) {
         final TermModifier tm = mandatory ? TermModifier.REQUIRED : TermModifier.NONE;
@@ -613,16 +515,9 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     @Override
     public abstract LuceneQuery addBoost(double boostFactor);
     
-    
-    //-----------------------------------
-    //     addUnescaped...
-    //-----------------------------------
-    
     @Override
     public abstract LuceneQuery addUnescaped(CharSequence value, boolean mandatory);
     
     @Override
     public abstract LuceneQuery addUnescapedField(String key, CharSequence value, boolean mandatory);
-    
-
 }
