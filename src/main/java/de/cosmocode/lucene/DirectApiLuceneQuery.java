@@ -16,135 +16,238 @@
 
 package de.cosmocode.lucene;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.RangeQuery;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.BooleanClause.Occur;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+
+/**
+ * {@link LuceneQuery} implementation that uses the Lucene API directly.
+ * 
+ * @since 1.3
+ * @author Oliver Lorenz
+ */
 final class DirectApiLuceneQuery extends AbstractLuceneQuery {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(DirectApiLuceneQuery.class);
     
     private final String defaultField;
     private final Analyzer analyzer;
     private final BooleanQuery topQuery;
     
+    private Query lastQuery;
+    private String currentField;
+    
     public DirectApiLuceneQuery(String defaultField, Analyzer analyzer) {
         this.defaultField = defaultField;
         this.analyzer = analyzer;
         this.topQuery = new BooleanQuery();
+        this.currentField = defaultField;
     }
     
-    private static Occur fromTermModifierToOccur(TermModifier termModifier) {
-        switch (termModifier) {
-            case NONE: {
-                return Occur.SHOULD;
+    /* private methods that do the query conversion */
+
+    private void addQueryToTopQuery(final Query query, final Occur occur) {
+        this.topQuery.add(query, occur);
+        setLastSuccessful(true);
+        lastQuery = query;
+    }
+    
+    private Query createSingleQuery(String value, QueryModifier modifier) {
+        // TODO handle QueryModifier completely
+        // TODO use analyzer to construct tokens and add them to the query
+        return new TermQuery(new Term(currentField, value));
+    }
+    
+    private Query createMultiQuery(Iterable<?> values, QueryModifier modifier) {
+        final BooleanQuery multiQuery = new BooleanQuery();
+        final QueryModifier valueModifier = modifier.getMultiValueModifier();
+        final Occur occur = TermModifierToOccur.INSTANCE.apply(valueModifier.getTermModifier());
+        
+        for (Object value : values) {
+            if (value != null) {
+                multiQuery.add(createQuery(value, valueModifier), occur);
             }
-            case PROHIBITED: {
-                return Occur.MUST_NOT;
+        }
+        
+        return multiQuery;
+    }
+    
+    private Query createMultiQueryFromArray(Object values, QueryModifier modifier) {
+        final BooleanQuery multiQuery = new BooleanQuery();
+        final QueryModifier valueModifier = modifier.getMultiValueModifier();
+        final Occur occur = TermModifierToOccur.INSTANCE.apply(valueModifier.getTermModifier());
+        final int arrayLength = Array.getLength(values);
+        
+        // add all items
+        for (int i = 0; i < arrayLength; i++) {
+            final Object value = Array.get(values, i);
+            if (value != null) {
+                multiQuery.add(createQuery(value, valueModifier), occur);
             }
-            case REQUIRED: {
-                return Occur.MUST;
-            }
-            default: {
-                throw new IllegalStateException("Unknown term modifier " + termModifier);
-            }
+        }
+
+        return multiQuery;
+    }
+    
+    private Query createQuery(Object value, QueryModifier modifier) {
+        Preconditions.checkNotNull(value, "Value");
+        if (value instanceof String) {
+            return createSingleQuery(value.toString(), modifier);
+        } else if (value instanceof Iterable<?>) {
+            return createMultiQuery(Iterable.class.cast(value), modifier);
+        } else if (value.getClass().isArray()) { 
+            return createMultiQueryFromArray(value, modifier);
+        } else {
+            return createSingleQuery(value.toString(), modifier);
         }
     }
 
     @Override
     public LuceneQuery addArgument(String value, QueryModifier modifier) {
-        // TODO handle QueryModifier completely
-        // TODO use analyzer to construct tokens and add them to the query
-        final Query valueQuery = new TermQuery(new Term(defaultField, value));
-        final Occur occur = fromTermModifierToOccur(modifier.getTermModifier());
-        this.topQuery.add(valueQuery, occur);
+        Preconditions.checkState(value != null, "Value must not be null");
+        
+        final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
+        final Query query = createSingleQuery(value, modifier);
+        addQueryToTopQuery(query, occur);
+        
         return this;
     }
 
     @Override
     public <K> LuceneQuery addArgumentAsArray(K[] values, QueryModifier modifier) {
-        // TODO Auto-generated method stub
-        return null;
+        Preconditions.checkState(values != null, "Values must not be null");
+        
+        final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
+        final Query query = createMultiQueryFromArray(values, modifier);
+        addQueryToTopQuery(query, occur);
+        
+        return this;
     }
 
     @Override
-    protected LuceneQuery addArgumentAsArray(Object values,
-            QueryModifier modifier) {
-        // TODO Auto-generated method stub
-        return null;
+    protected LuceneQuery addArgumentAsArray(Object values, QueryModifier modifier) {
+        Preconditions.checkState(values != null, "Values must not be null");
+        
+        final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
+        final Query query = createMultiQueryFromArray(values, modifier);
+        addQueryToTopQuery(query, occur);
+        
+        return this;
     }
 
     @Override
-    public LuceneQuery addArgumentAsCollection(Collection<?> values,
-            QueryModifier modifier) {
-        // TODO Auto-generated method stub
-        return null;
+    public LuceneQuery addArgumentAsCollection(Collection<?> values, QueryModifier modifier) {
+        Preconditions.checkState(values != null, "Values must not be null");
+        
+        final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
+        final Query query = createMultiQuery(values, modifier);
+        addQueryToTopQuery(query, occur);
+        
+        return this;
     }
 
     @Override
     public LuceneQuery addBoost(double boostFactor) {
-        // TODO Auto-generated method stub
-        return null;
+        if (boostFactor <= 0.0 || boostFactor >= 10000000.0)
+            throw new IllegalArgumentException(ERR_BOOST_OUT_OF_BOUNDS);
+        
+        // only add boost factor if != 1 (optimization) and last action was successful
+        if (boostFactor != 1.0 && lastSuccessful()) {
+            lastQuery.setBoost((float) boostFactor);
+        }
+        
+        return this;
     }
 
     @Override
-    public LuceneQuery addRange(double from, double to, QueryModifier mod) {
-        // TODO Auto-generated method stub
-        return null;
+    public LuceneQuery addRange(double from, double to, QueryModifier modifier) {
+        return addRange(Double.toString(from), Double.toString(to), modifier);
     }
 
     @Override
-    public LuceneQuery addRange(int from, int to, QueryModifier mod) {
-        // TODO Auto-generated method stub
-        return null;
+    public LuceneQuery addRange(int from, int to, QueryModifier modifier) {
+        return addRange(Integer.toString(from), Integer.toString(to), modifier);
     }
 
     @Override
-    public LuceneQuery addRange(String from, String to, QueryModifier mod) {
-        // TODO Auto-generated method stub
-        return null;
+    public LuceneQuery addRange(String from, String to, QueryModifier modifier) {
+        final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
+        final Term lowerTerm = new Term(currentField, from);
+        final Term upperTerm = new Term(currentField, to);
+        final RangeQuery query = new RangeQuery(lowerTerm, upperTerm, true);
+        addQueryToTopQuery(query, occur);
+        
+        return this;
     }
 
     @Override
     public LuceneQuery addSubquery(LuceneQuery value, QueryModifier modifiers) {
-        // TODO Auto-generated method stub
-        return null;
+        final Occur occurance = TermModifierToOccur.INSTANCE.apply(modifiers.getTermModifier());
+        final QueryParser parser = new QueryParser(defaultField, analyzer);
+        
+        try {
+            this.topQuery.add(parser.parse(value.getQuery()), occurance);
+        } catch (ParseException e) {
+            setLastSuccessful(false);
+            LOG.error("Could not parse {}", value);
+            throw new IllegalArgumentException("Could not parse " + value, e);
+        }
+        
+        setLastSuccessful(true);
+        return this;
     }
 
     @Override
     public LuceneQuery addUnescaped(CharSequence value, boolean mandatory) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public LuceneQuery addUnescapedField(String key, CharSequence value,
-            boolean mandatory) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public LuceneQuery endField() {
-        // TODO Auto-generated method stub
-        return null;
+        if (value == null || value.length() == 0) {
+            setLastSuccessful(false);
+            return this;
+        }
+        
+        final Occur occurance = mandatory ? Occur.MUST : Occur.SHOULD;
+        final QueryParser parser = new QueryParser(defaultField, analyzer);
+        
+        try {
+            this.topQuery.add(parser.parse(value.toString()), occurance);
+        } catch (ParseException e) {
+            setLastSuccessful(false);
+            LOG.error("Could not parse {}", value);
+            throw new IllegalArgumentException("Could not parse " + value, e);
+        }
+        
+        setLastSuccessful(true);
+        return this;
     }
 
     @Override
     public String getQuery() {
-        // TODO Auto-generated method stub
-        return null;
+        Preconditions.checkState(this.topQuery.getClauses().length > 0, ERR_EMPTY_QUERY);
+        return this.topQuery.toString();
     }
 
     @Override
     public LuceneQuery startField(String fieldName, QueryModifier modifier) {
-        // TODO Auto-generated method stub
-        return null;
+        this.currentField = fieldName;
+        return this;
+    }
+
+    @Override
+    public LuceneQuery endField() {
+        this.currentField = defaultField;
+        return this;
     }
 
 }

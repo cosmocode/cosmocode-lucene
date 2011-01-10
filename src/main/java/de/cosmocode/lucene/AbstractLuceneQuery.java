@@ -515,7 +515,15 @@ public abstract class AbstractLuceneQuery implements LuceneQuery {
     
     @Override
     public abstract LuceneQuery addUnescaped(CharSequence value, boolean mandatory);
-    
+
     @Override
-    public abstract LuceneQuery addUnescapedField(String key, CharSequence value, boolean mandatory);
+    public LuceneQuery addUnescapedField(String key, CharSequence value, boolean mandatory) {
+        if (value == null || value.length() == 0) {
+            setLastSuccessful(false);
+            return this;
+        }
+        
+        return startField(key, mandatory).addUnescaped(value, false).endField();
+    }
+    
 }
