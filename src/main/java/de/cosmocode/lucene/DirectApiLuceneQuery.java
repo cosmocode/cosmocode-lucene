@@ -36,6 +36,8 @@ import com.google.common.base.Preconditions;
 /**
  * {@link LuceneQuery} implementation that uses the Lucene API directly.
  * 
+ * NOT FINISHED.
+ * 
  * @since 1.3
  * @author Oliver Lorenz
  */
@@ -66,8 +68,6 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
     }
     
     private Query createSingleQuery(String value, QueryModifier modifier) {
-        // TODO handle QueryModifier completely
-        // TODO use analyzer to construct tokens and add them to the query
         return new TermQuery(new Term(currentField, value));
     }
     

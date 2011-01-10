@@ -17,6 +17,7 @@
 package de.cosmocode.lucene;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -30,6 +31,7 @@ import de.cosmocode.junit.UnitProvider;
  */
 @RunWith(Suite.class)
 @SuiteClasses(LuceneQueryTest.class)
+@Ignore
 public final class DirectApiLuceneQueryTest implements UnitProvider<LuceneQuery> {
     
     @Override
