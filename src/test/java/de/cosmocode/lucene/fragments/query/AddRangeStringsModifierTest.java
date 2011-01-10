@@ -20,41 +20,42 @@ import de.cosmocode.lucene.LuceneQuery;
 import de.cosmocode.lucene.QueryModifier;
 
 /**
- * Tests {@link LuceneQuery#addRangeField(String, String, String, QueryModifier)}.
+ * Tests {@link LuceneQuery#addRange(String, String, QueryModifier)}.
  *
  * @author Oliver Lorenz
  */
-public class AddRangeFieldStringStringModFragment extends AbstractQueryModifierFragment {
+public abstract class AddRangeStringsModifierTest extends AbstractQueryModifierTestCase {
 
     @Override
     protected void applyNormal(LuceneQuery query, QueryModifier mod) {
-        query.addRangeField(FIELD1, "c", "g", mod);
+        query.addRange("a", "e", mod);
     }
 
     @Override
     protected String expectedNormalConjunct() {
-        return FIELD1 + ":[c TO g]";
+        return "[a TO e]";
     }
 
     @Override
     protected String expectedNormalDisjunct() {
-        return FIELD1 + ":[c TO g]";
+        return "[a TO e]";
     }
 
     @Override
     protected void applyWildcarded(LuceneQuery query, QueryModifier mod) {
-        query.addRangeField(FIELD1, "ar", "fo", mod);
+        query.addRange("ar", "fo", mod);
     }
 
     @Override
     protected String expectedWildcardedConjunct() {
-        return FIELD1 + ":[ar* TO fo*]";
+        return "[ar* TO fo*]";
     }
 
     @Override
     protected String expectedWildcardedDisjunct() {
-        return FIELD1 + ":[ar* TO fo*]";
+        return "[ar* TO fo*]";
     }
+
     
     // the rest below does not do anything different (yet).
 

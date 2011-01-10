@@ -31,7 +31,7 @@ import de.cosmocode.lucene.LuceneQuery;
  * 
  * @author Oliver Lorenz
  */
-public class AddArgumentStringFragment extends AbstractLuceneQueryTestFragment {
+public abstract class AddArgumentStringTest extends AbstractLuceneQueryTestCase {
     
     /**
      * Tests {@link LuceneQuery#addArgument(String)} with null.

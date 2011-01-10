@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.cosmocode.lucene.fragments.builder;
+package de.cosmocode.lucene;
 
 import java.util.Collection;
 
@@ -23,16 +23,13 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import de.cosmocode.junit.UnitProvider;
-import de.cosmocode.lucene.LuceneQuery;
-import de.cosmocode.lucene.LuceneQueryBuilder;
-import de.cosmocode.lucene.QueryModifier;
 
 /**
  * Tests the lock() method for {@link LuceneQueryBuilder}. 
  *
  * @author Oliver Lorenz
  */
-public final class BuilderLockFragment implements UnitProvider<LuceneQuery> {
+public final class LuceneQueryBuilderLockTest implements UnitProvider<LuceneQuery> {
     
     private static final QueryModifier TEST_MOD = QueryModifier.start().required().wildcarded().doSplit().build();
     

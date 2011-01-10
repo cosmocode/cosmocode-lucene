@@ -22,8 +22,6 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import de.cosmocode.junit.UnitProvider;
-import de.cosmocode.lucene.fragments.builder.BuilderBuildFragment;
-import de.cosmocode.lucene.fragments.builder.BuilderLockFragment;
 
 /**
  * Tests {@link LuceneQueryBuilder}.
@@ -32,24 +30,14 @@ import de.cosmocode.lucene.fragments.builder.BuilderLockFragment;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-    LuceneQueryTest.class,
-    BuilderLockFragment.class,
-    BuilderBuildFragment.class
+    LuceneQueryBuilderLockTest.class,
+    LuceneQueryBuilderBuildTest.class
 })
-public final class LuceneQueryBuilderTest implements UnitProvider<LuceneQuery> {
+public final class LuceneQueryBuilderTest implements UnitProvider<LuceneQueryBuilder> {
     
     @Override
-    public LuceneQuery unit() {
+    public LuceneQueryBuilder unit() {
         return new LuceneQueryBuilder();
-    }
-    
-    /**
-     * Sets up this class as the current class to test.
-     * Unset happens automatically.
-     */
-    @BeforeClass
-    public static void setupClass() {
-        LuceneQueryTest.setUnitProvider(LuceneQueryBuilderTest.class);
     }
 
 }

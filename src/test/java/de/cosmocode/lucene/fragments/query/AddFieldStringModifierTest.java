@@ -27,7 +27,7 @@ import de.cosmocode.lucene.QueryModifier;
  * 
  * @author Oliver Lorenz
  */
-public class AddFieldStringModFragment extends AbstractQueryModifierFragment {
+public abstract class AddFieldStringModifierTest extends AbstractQueryModifierTestCase {
     
     /**
      * Tests {@link LuceneQuery#addField(String, String, QueryModifier)}

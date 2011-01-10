@@ -32,7 +32,7 @@ import de.cosmocode.lucene.LuceneQuery;
  * 
  * @author Oliver Lorenz
  */
-public class AddFieldStringFragment extends AbstractLuceneQueryTestFragment {
+public abstract class AddFieldStringTest extends AbstractLuceneQueryTestCase {
     
     
     /*

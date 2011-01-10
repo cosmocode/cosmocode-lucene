@@ -39,14 +39,7 @@ import de.cosmocode.lucene.QueryModifier;
  * </ul>
  * @author Oliver Lorenz
  */
-public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment {
-    
-    @Override
-    public LuceneQuery unit() {
-        final LuceneQuery unit = super.unit();
-        unit.setModifier(QueryModifier.start().required().end());
-        return unit;
-    }
+public abstract class AddFieldCollectionTest extends AbstractLuceneQueryTestCase {
 
     /**
      * Tests {@link LuceneQuery#addField(String, Collection)}
@@ -110,6 +103,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldOneElement() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, ImmutableList.of(ARG1));
         final String expected = "+" + FIELD1 + ":" + ARG1;
         assertEquals(expected, query);
@@ -122,6 +116,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldField2OneElement() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD2, ImmutableList.of(ARG1));
         final String expected = "+" + FIELD2 + ":" + ARG1;
         assertEquals(expected, query);
@@ -134,6 +129,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldTwoElements() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, ImmutableList.of(ARG1, ARG2));
         final String expected = "+" + FIELD1 + ":" + "(+" + ARG1 + " +" + ARG2 + ")";
         assertEquals(expected, query);
@@ -146,6 +142,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldContainsInvalid() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, Lists.newArrayList(ARG1, "", null, ARG3, null, "   "));
         final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " AND " + ARG3 + ")";
         assertEquals(expected, query);
@@ -223,6 +220,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldOneElementTrueTrue() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, ImmutableList.of(ARG1), true);
         final String expected = "+" + FIELD1 + ":" + ARG1;
         assertEquals(expected, query);
@@ -235,6 +233,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldOneElementTrueFalse() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, ImmutableList.of(ARG1), false);
         final String expected = "+" + FIELD1 + ":" + ARG1;
         assertEquals(expected, query);
@@ -247,6 +246,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldOneElementFalseTrue() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, ImmutableList.of(ARG1), true);
         final String expected = FIELD1 + ":" + ARG1;
         assertEquals(expected, query);
@@ -259,6 +259,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldOneElementFalseFalse() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, ImmutableList.of(ARG1), false);
         final String expected = FIELD1 + ":" + ARG1;
         assertEquals(expected, query);
@@ -273,6 +274,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldTwoElementsTrueTrue() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, ImmutableList.of(ARG1, ARG2), true);
         final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " AND " + ARG2 + ")";
         assertEquals(expected, query);
@@ -285,6 +287,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldTwoElementsTrueFalse() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, ImmutableList.of(ARG1, ARG2), false);
         final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " OR " + ARG2 + ")";
         assertEquals(expected, query);
@@ -297,6 +300,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldTwoElementsFalseTrue() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, ImmutableList.of(ARG1, ARG2), true);
         final String expected = FIELD1 + ":" + "(" + ARG1 + " AND " + ARG2 + ")";
         assertEquals(expected, query);
@@ -309,6 +313,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldTwoElementsFalseFalse() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, ImmutableList.of(ARG1, ARG2), false);
         final String expected = FIELD1 + ":" + "(" + ARG1 + " OR " + ARG2 + ")";
         assertEquals(expected, query);
@@ -323,6 +328,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldContainsInvalidTrueTrue() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, Lists.newArrayList(ARG1, "", null, ARG3, null, "   "), true);
         final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " AND " + ARG3 + ")";
         assertEquals(expected, query);
@@ -335,6 +341,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldContainsInvalidTrueFalse() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, Lists.newArrayList(ARG1, "", null, ARG3, null, "   "), false);
         final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " OR " + ARG3 + ")";
         assertEquals(expected, query);
@@ -347,6 +354,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldContainsInvalidFalseTrue() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, Lists.newArrayList(ARG1, "", null, ARG3, null, "   "), true);
         final String expected = FIELD1 + ":" + "(" + ARG1 + " AND " + ARG3 + ")";
         assertEquals(expected, query);
@@ -359,6 +367,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldContainsInvalidFalseFalse() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, Lists.newArrayList(ARG1, "", null, ARG3, null, "   "), false);
         final String expected = FIELD1 + ":" + "(" + ARG1 + " OR " + ARG3 + ")";
         assertEquals(expected, query);
@@ -436,6 +445,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldOneElementTrueTrueDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, ImmutableList.of(ARG1), true, 5.0);
         query.addField(FIELD1, ARG3, false);
         final String expected = "+" + FIELD1 + ":" + ARG1 + "^5 " + FIELD1 + ":" + ARG3;
@@ -449,6 +459,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldOneElementTrueFalseDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, ImmutableList.of(ARG1), false, 3.5);
         query.addField(FIELD1, ARG3, false);
         final String expected = "+" + FIELD1 + ":" + ARG1 + "^3.5 " + FIELD1 + ":" + ARG3;
@@ -462,6 +473,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldOneElementFalseTrueDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, ImmutableList.of(ARG1), true, 2.5);
         query.addField(FIELD1, ARG3, false);
         final String expected = FIELD1 + ":" + ARG1 + "^2.5 " + FIELD1 + ":" + ARG3;
@@ -475,6 +487,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldOneElementFalseFalseDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, ImmutableList.of(ARG1), false, 2.35);
         query.addField(FIELD1, ARG3, false);
         final String expected = FIELD1 + ":" + ARG1 + "^2.35 " + FIELD1 + ":" + ARG3;
@@ -490,6 +503,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldTwoElementsTrueTrueDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, ImmutableList.of(ARG1, ARG2), true, 4.5);
         query.addField(FIELD1, ARG3, false);
         final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " AND " + ARG2 + ")^4.5 " + FIELD1 + ":" + ARG3;
@@ -503,6 +517,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldTwoElementsTrueFalseDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, ImmutableList.of(ARG1, ARG2), false, 2.15);
         query.addField(FIELD1, ARG3, false);
         final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " OR " + ARG2 + ")^2.15 " + FIELD1 + ":" + ARG3;
@@ -516,6 +531,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldTwoElementsFalseTrueDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, ImmutableList.of(ARG1, ARG2), true, 3.0);
         query.addField(FIELD1, ARG3, false);
         final String expected = FIELD1 + ":" + "(" + ARG1 + " AND " + ARG2 + ")^3.0 " + FIELD1 + ":" + ARG3;
@@ -529,6 +545,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldTwoElementsFalseFalseDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, ImmutableList.of(ARG1, ARG2), false, 4.0);
         query.addField(FIELD1, ARG3, false);
         final String expected = FIELD1 + ":" + "(" + ARG1 + " OR " + ARG2 + ")^4.0 " + FIELD1 + ":" + ARG3;
@@ -544,6 +561,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldContainsInvalidTrueTrueDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, Lists.newArrayList(ARG1, "", null, ARG3, null, "   "), true, 2.5);
         query.addField(FIELD1, ARG3, false);
         final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " AND " + ARG3 + ")^2.5 " + FIELD1 + ":" + ARG3;
@@ -557,6 +575,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldContainsInvalidTrueFalseDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, true, Lists.newArrayList(ARG1, "", null, ARG3, null, "   "), false, 4.2);
         query.addField(FIELD1, ARG3, false);
         final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " OR " + ARG3 + ")^4.2 " + FIELD1 + ":" + ARG3;
@@ -570,6 +589,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldContainsInvalidFalseTrueDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, Lists.newArrayList(ARG1, "", null, ARG3, null, "   "), true, 3.8);
         query.addField(FIELD1, ARG3, false);
         final String expected = FIELD1 + ":" + "(" + ARG1 + " AND " + ARG3 + ")^3.8 " + FIELD1 + ":" + ARG3;
@@ -583,6 +603,7 @@ public class AddFieldCollectionFragment extends AbstractLuceneQueryTestFragment 
     @Test
     public void addFieldContainsInvalidFalseFalseDouble() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, false, Lists.newArrayList(ARG1, "", null, ARG3, null, "   "), false, 3.4);
         query.addField(FIELD1, ARG3, false);
         final String expected = FIELD1 + ":" + "(" + ARG1 + " OR " + ARG3 + ")^3.4 " + FIELD1 + ":" + ARG3;

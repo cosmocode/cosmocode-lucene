@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.cosmocode.lucene.fragments.builder;
+package de.cosmocode.lucene;
 
 import junit.framework.Assert;
 
@@ -23,16 +23,13 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import de.cosmocode.junit.UnitProvider;
-import de.cosmocode.lucene.LuceneQuery;
-import de.cosmocode.lucene.LuceneQueryBuilder;
-import de.cosmocode.lucene.QueryModifier;
 
 /**
  * Tests build() method of the {@link LuceneQueryBuilder}. 
  *
  * @author Oliver Lorenz
  */
-public class BuilderBuildFragment implements UnitProvider<LuceneQueryBuilder> {
+public final class LuceneQueryBuilderBuildTest implements UnitProvider<LuceneQueryBuilder> {
     
     private static final QueryModifier TEST_MOD = QueryModifier.start().required().wildcarded().doSplit().build();
     

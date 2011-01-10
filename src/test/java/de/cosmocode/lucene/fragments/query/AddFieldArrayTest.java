@@ -31,14 +31,7 @@ import de.cosmocode.lucene.QueryModifier;
  * </ul>
  * @author Oliver Lorenz
  */
-public class AddFieldArrayFragment extends AbstractLuceneQueryTestFragment {
-    
-    @Override
-    public LuceneQuery unit() {
-        final LuceneQuery unit = super.unit();
-        unit.setModifier(QueryModifier.start().required().end());
-        return unit;
-    }
+public abstract class AddFieldArrayTest extends AbstractLuceneQueryTestCase {
 
     /**
      * Tests {@link LuceneQuery#addField(String, Object[])}
@@ -102,6 +95,7 @@ public class AddFieldArrayFragment extends AbstractLuceneQueryTestFragment {
     @Test
     public void addFieldOneElement() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, new String[] {ARG1});
         final String expected = "+" + FIELD1 + ":" + ARG1;
         assertEquals(expected, query);
@@ -114,6 +108,7 @@ public class AddFieldArrayFragment extends AbstractLuceneQueryTestFragment {
     @Test
     public void addFieldField2OneElement() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD2, new String[] {ARG1});
         final String expected = "+" + FIELD2 + ":" + ARG1;
         assertEquals(expected, query);
@@ -126,6 +121,7 @@ public class AddFieldArrayFragment extends AbstractLuceneQueryTestFragment {
     @Test
     public void addFieldTwoElements() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, new Object[] {ARG1, ARG2});
         final String expected = "+" + FIELD1 + ":" + "(+" + ARG1 + " +" + ARG2 + ")";
         assertEquals(expected, query);
@@ -138,6 +134,7 @@ public class AddFieldArrayFragment extends AbstractLuceneQueryTestFragment {
     @Test
     public void addFieldContainsInvalid() {
         final LuceneQuery query = unit();
+        query.setModifier(QueryModifier.start().required().end());
         query.addField(FIELD1, new Object[] {ARG1, "", null, ARG3, null, "   "});
         final String expected = "+" + FIELD1 + ":" + "(" + ARG1 + " AND " + ARG3 + ")";
         assertEquals(expected, query);

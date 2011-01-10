@@ -33,7 +33,7 @@ import de.cosmocode.lucene.QueryModifier;
  * 
  * @author Oliver Lorenz
  */
-public final class AddArgumentCollectionModFragment extends AbstractQueryModifierFragment {
+public abstract class AddArgumentCollectionModifierTest extends AbstractQueryModifierTestCase {
     
     /**
      * Tests {@link LuceneQuery#addArgument(Collection, QueryModifier)}

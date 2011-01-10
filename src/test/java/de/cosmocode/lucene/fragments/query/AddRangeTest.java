@@ -21,18 +21,57 @@ import org.junit.Test;
 import de.cosmocode.lucene.LuceneQuery;
 
 /**
- * <p> Tests all addRange methods without QueryModifiers from LuceneQuery.
+ * <p> Tests all addRange and addRangeField methods without QueryModifiers from LuceneQuery.
  * These are:
  * </p>
  * <ul>
  *   <li> {@link LuceneQuery#addRange(String, String)} </li>
  *   <li> {@link LuceneQuery#addRange(int, int)} </li>
  *   <li> {@link LuceneQuery#addRange(double, double)} </li>
+ *   <li> {@link LuceneQuery#addRangeField(String, String, String)} </li>
+ *   <li> {@link LuceneQuery#addRangeField(String, int, int)} </li>
+ *   <li> {@link LuceneQuery#addRangeField(String, double, double)} </li>
  * </ul>
  *
  * @author Oliver Lorenz
  */
-public final class AddRangeFragment extends AbstractLuceneQueryTestFragment {
+public abstract class AddRangeTest extends AbstractLuceneQueryTestCase {
+
+    /**
+     * Tests {@link LuceneQuery#addRangeField(String, String, String)} with null values.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void fieldNulls() {
+        final LuceneQuery unit = unit().addRangeField(FIELD1, null, null);
+        assertEquals("", unit);
+    }
+    
+    /**
+     * Tests {@link LuceneQuery#addRangeField(String, String, String)}.
+     */
+    @Test
+    public void fieldStrings() {
+        final LuceneQuery unit = unit().addRangeField(FIELD1, "a", "b");
+        assertEquals(FIELD1 + ":[a TO b]", unit);
+    }
+
+    /**
+     * Tests {@link LuceneQuery#addRangeField(String, int, int)}.
+     */
+    @Test
+    public void fieldInts() {
+        final LuceneQuery unit = unit().addRangeField(FIELD1, 0, 4);
+        assertEquals(FIELD1 + ":[0 TO 4]", unit);
+    }
+
+    /**
+     * Tests {@link LuceneQuery#addRangeField(String, double, double)}.
+     */
+    @Test
+    public void fieldDoubles() {
+        final LuceneQuery unit = unit().addRangeField(FIELD1, 1.2, 1.7);
+        assertEquals(FIELD1 + ":[1.2 TO 1.7]", unit);
+    }
 
     /**
      * Tests {@link LuceneQuery#addRange(String, String)}.

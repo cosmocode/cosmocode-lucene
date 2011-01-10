@@ -29,7 +29,7 @@ import de.cosmocode.lucene.QueryModifier;
  * 
  * @author Oliver Lorenz
  */
-public final class AddArgumentArrayModFragment extends AbstractQueryModifierFragment {
+public abstract class AddArgumentArrayModifierTest extends AbstractQueryModifierTestCase {
     
     /**
      * Tests {@link LuceneQuery#addArgument(Object[], QueryModifier)}

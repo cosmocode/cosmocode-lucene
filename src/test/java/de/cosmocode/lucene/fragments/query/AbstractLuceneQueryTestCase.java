@@ -44,7 +44,7 @@ import de.cosmocode.lucene.LuceneQueryTest;
  * 
  * @author Oliver Lorenz
  */
-abstract class AbstractLuceneQueryTestFragment implements UnitProvider<LuceneQuery> {
+abstract class AbstractLuceneQueryTestCase implements UnitProvider<LuceneQuery> {
     
     /** A helper for wildcard queries, different than WILDCARD2. */
     public static final String WILDCARD1 = IndexHelper.WILDCARD1;
@@ -69,13 +69,8 @@ abstract class AbstractLuceneQueryTestFragment implements UnitProvider<LuceneQue
     public static final String FIELD2 = IndexHelper.FIELD2;
     
     
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractLuceneQueryTestFragment.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractLuceneQueryTestCase.class);
     
-    
-    @Override
-    public LuceneQuery unit() {
-        return LuceneQueryTest.unitProvider().unit();
-    }
     
     /**
      * <p> Asserts that two queries return the same result from lucene.

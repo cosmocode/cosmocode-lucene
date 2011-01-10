@@ -24,7 +24,7 @@ import de.cosmocode.lucene.QueryModifier;
  *
  * @author Oliver Lorenz
  */
-public class AddRangeFieldIntIntModFragment extends AbstractQueryModifierFragment {
+public abstract class AddRangeFieldIntegersModifierTest extends AbstractQueryModifierTestCase {
 
     @Override
     protected void applyNormal(LuceneQuery query, QueryModifier mod) {

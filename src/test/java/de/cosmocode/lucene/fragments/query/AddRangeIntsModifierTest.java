@@ -20,41 +20,42 @@ import de.cosmocode.lucene.LuceneQuery;
 import de.cosmocode.lucene.QueryModifier;
 
 /**
- * Tests {@link LuceneQuery#addRangeField(String, double, double, QueryModifier)}.
+ * Tests {@link LuceneQuery#addRange(int, int, QueryModifier)}.
  *
  * @author Oliver Lorenz
  */
-public class AddRangeFieldDoubleDoubleModFragment extends AbstractQueryModifierFragment {
+public abstract class AddRangeIntsModifierTest extends AbstractQueryModifierTestCase {
 
     @Override
     protected void applyNormal(LuceneQuery query, QueryModifier mod) {
-        query.addRangeField(FIELD1, 1.2, 1.9, mod);
+        query.addRange(1, 5, mod);
     }
 
     @Override
     protected String expectedNormalConjunct() {
-        return FIELD1 + ":[1.2 TO 1.9]";
+        return "[1 TO 5]";
     }
 
     @Override
     protected String expectedNormalDisjunct() {
-        return FIELD1 + ":[1.2 TO 1.9]";
+        return "[1 TO 5]";
     }
 
     @Override
     protected void applyWildcarded(LuceneQuery query, QueryModifier mod) {
-        query.addRangeField(FIELD1, 1.7, 1.8, mod);
+        query.addRange(1, 3, mod);
     }
 
     @Override
     protected String expectedWildcardedConjunct() {
-        return FIELD1 + ":[1.7* TO 1.8*]";
+        return "[1* TO 3*]";
     }
 
     @Override
     protected String expectedWildcardedDisjunct() {
-        return FIELD1 + ":[1.7* TO 1.8*]";
+        return "[1* TO 3*]";
     }
+
     
     // the rest below does not do anything different (yet).
 
@@ -105,7 +106,7 @@ public class AddRangeFieldDoubleDoubleModFragment extends AbstractQueryModifierF
 
     @Override
     protected String expectedFuzzySplitDisjunct() {
-        return expectedNormalConjunct();
+        return expectedNormalDisjunct();
     }
 
     @Override

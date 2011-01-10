@@ -23,135 +23,20 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.queryParser.ParseException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import de.cosmocode.junit.UnitProvider;
-import de.cosmocode.lucene.fragments.query.AddArgumentArrayFragment;
-import de.cosmocode.lucene.fragments.query.AddArgumentArrayModFragment;
-import de.cosmocode.lucene.fragments.query.AddArgumentCollectionFragment;
-import de.cosmocode.lucene.fragments.query.AddArgumentCollectionModFragment;
-import de.cosmocode.lucene.fragments.query.AddArgumentStringFragment;
-import de.cosmocode.lucene.fragments.query.AddArgumentStringModFragment;
-import de.cosmocode.lucene.fragments.query.AddFieldArrayFragment;
-import de.cosmocode.lucene.fragments.query.AddFieldArrayModFragment;
-import de.cosmocode.lucene.fragments.query.AddFieldCollectionFragment;
-import de.cosmocode.lucene.fragments.query.AddFieldCollectionModFragment;
-import de.cosmocode.lucene.fragments.query.AddFieldStringFragment;
-import de.cosmocode.lucene.fragments.query.AddFieldStringModFragment;
-import de.cosmocode.lucene.fragments.query.AddRangeDoubleDoubleModFragment;
-import de.cosmocode.lucene.fragments.query.AddRangeFieldDoubleDoubleModFragment;
-import de.cosmocode.lucene.fragments.query.AddRangeFieldFragment;
-import de.cosmocode.lucene.fragments.query.AddRangeFieldIntIntModFragment;
-import de.cosmocode.lucene.fragments.query.AddRangeFieldStringStringModFragment;
-import de.cosmocode.lucene.fragments.query.AddRangeFragment;
-import de.cosmocode.lucene.fragments.query.AddRangeIntIntModFragment;
-import de.cosmocode.lucene.fragments.query.AddRangeStringStringModFragment;
-
 /**
  * <p> Generic Test for {@link LuceneQuery}.
- * This is a final class that executes a test suite and provides only static methods.
+ * This is an abstract class that only sets up the lucene index.
+ * Every test has to be declared separately and run in a test suite.
  * </p>
  * <p> This test has a dependency to the maven artifact: org.apache.lucene:lucene-core:jar:2.4.0 
  * </p>
- * <p> A test for LuceneQuery must have this class in a TestSuite
- * and add a static method with {@code @}BeforeClass to set the UnitProvider of this class.
- * </p>
- * <p> Example:
- * </p>
- * <pre>
- * {@code @}RunWith(Suite.class)
- * {@code @}SuiteClasses(LuceneQueryTest.class)
- *  public final class MyLuceneQueryTest implements {@code UnitProvider<LuceneQuery>} {
- *     {@code @}Override
- *      public LuceneQuery unit() {
- *          return new MyLuceneQuery();
- *      }
- *  
- *     {@code @}BeforeClass
- *      public static void setupClass() {
- *          LuceneQueryTest.setUnitProvider(MyLuceneQueryTest.class);
- *      }
- *  }
- * </pre>
  * @author Oliver Lorenz
  */
-@RunWith(Suite.class)
-@SuiteClasses({
-    AddArgumentCollectionFragment.class,
-    AddArgumentCollectionModFragment.class,
-    AddFieldCollectionFragment.class,
-    AddFieldCollectionModFragment.class,
-    AddArgumentArrayFragment.class,
-    AddArgumentArrayModFragment.class,
-    AddFieldArrayFragment.class,
-    AddFieldArrayModFragment.class,
-    AddArgumentStringFragment.class,
-    AddArgumentStringModFragment.class,
-    AddFieldStringFragment.class,
-    AddFieldStringModFragment.class,
-    AddRangeFragment.class,
-    AddRangeStringStringModFragment.class,
-    AddRangeIntIntModFragment.class,
-    AddRangeDoubleDoubleModFragment.class,
-    AddRangeFieldFragment.class,
-    AddRangeFieldStringStringModFragment.class,
-    AddRangeFieldIntIntModFragment.class,
-    AddRangeFieldDoubleDoubleModFragment.class
-})
 public abstract class LuceneQueryTest {
-    
-    private static final String ERR_NO_PROVIDER = 
-        "UnitProvider class not yet set, " +
-        "set it with LuceneQueryTest.setUnitProvider(MyProvider.class) " +
-        "in an @BeforeClass annotated static method";
-    
-    private static UnitProvider<? extends LuceneQuery> unitProvider;
-    
-    private LuceneQueryTest() {
-        
-    }
-    
-    /**
-     * Returns a new {@code UnitProvider<LuceneQuery>}.
-     * @return a new {@code UnitProvider<LuceneQuery>}
-     */
-    public static UnitProvider<? extends LuceneQuery> unitProvider() {
-        return Preconditions.checkNotNull(unitProvider, ERR_NO_PROVIDER);
-    }
-    
-    /**
-     * <p> Sets the UnitProvider to the given class.
-     * It is then created with newInstance(),
-     * so it must have a standard constructor without parameters.
-     * </p>
-     * 
-     * @param providerClass the class of the given provider, used for creation
-     */
-    public static void setUnitProvider(Class<? extends UnitProvider<? extends LuceneQuery>> providerClass) {
-        Preconditions.checkNotNull(providerClass, "The given Provider class must not be null");
-        try {
-            unitProvider = providerClass.newInstance();
-        } catch (InstantiationException e) {
-            throw new IllegalStateException(e);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-    
-    /**
-     * Cleans the AbstractLuceneQueryTest for the next test.
-     */
-    @AfterClass
-    public static void unsetUnitProvider() {
-        unitProvider = null;
-    }
-    
     
     /**
      * Creates a new Lucene Index with some predefined field and arguments.

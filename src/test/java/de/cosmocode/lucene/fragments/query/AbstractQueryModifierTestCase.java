@@ -30,7 +30,7 @@ import de.cosmocode.lucene.QueryModifier;
  * 
  * @author Oliver Lorenz
  */
-public abstract class AbstractQueryModifierFragment extends AbstractLuceneQueryTestFragment {
+public abstract class AbstractQueryModifierTestCase extends AbstractLuceneQueryTestCase {
     
     private LuceneQuery unit;
     
