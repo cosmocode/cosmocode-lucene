@@ -19,6 +19,7 @@ package de.cosmocode.lucene;
 import java.lang.reflect.Array;
 import java.util.Collection;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
@@ -66,26 +67,81 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
     }
     
     private Query createSingleQuery(String value, QueryModifier modifier) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        
         // TODO handle QueryModifier completely
         // TODO use analyzer to construct tokens and add them to the query
         return new TermQuery(new Term(currentField, value));
     }
     
     private Query createMultiQuery(Iterable<?> values, QueryModifier modifier) {
+        if (values == null) {
+            return null;
+        }
+        
         final BooleanQuery multiQuery = new BooleanQuery();
         final QueryModifier valueModifier = modifier.getMultiValueModifier();
         final Occur occur = TermModifierToOccur.INSTANCE.apply(valueModifier.getTermModifier());
         
         for (Object value : values) {
-            if (value != null) {
-                multiQuery.add(createQuery(value, valueModifier), occur);
+            final Query subQuery = createQuery(value, valueModifier);
+            if (subQuery == null) {
+                continue;
             }
+            multiQuery.add(subQuery, occur);
+        }
+        
+        if (multiQuery.clauses().size() == 0) {
+            return null;
+        } else {
+            return multiQuery;
+        }
+    }
+    
+    /**
+     * Returns a {@link Query} from a typed array.
+     * If no valid query could be constructed from the given array then this method returns null.
+     * 
+     * @param values the primitive array, as an object
+     * @param modifier the QueryModifier to apply to the query
+     * @return a {@link Query} that searches for the given values or null if no valid query could be constructed
+     */
+    private <K> Query createMultiQuery(K[] values, QueryModifier modifier) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        
+        final BooleanQuery multiQuery = new BooleanQuery();
+        final QueryModifier valueModifier = modifier.getMultiValueModifier();
+        final Occur occur = TermModifierToOccur.INSTANCE.apply(valueModifier.getTermModifier());
+        
+        for (Object value : values) {
+            final Query subQuery = createQuery(value, valueModifier);
+            if (subQuery == null) {
+                continue;
+            }
+            multiQuery.add(subQuery, occur);
         }
         
         return multiQuery;
     }
     
-    private Query createMultiQueryFromArray(Object values, QueryModifier modifier) {
+    /**
+     * Returns a {@link Query} from a primitive array, which is given as an Object.
+     * The values in the primitive array are accessed by reflection.
+     * If the given array is empty or the object is null then this method returns null.
+     * 
+     * @param values the primitive array, as an object
+     * @param modifier the QueryModifier to apply to the query
+     * @return a {@link Query} that searches for the given values or null if values are empty
+     */
+    private Query createMultiQueryFromPrimitiveArray(Object values, QueryModifier modifier) {
+        if (values == null || Array.getLength(values) == 0) {
+            return null;
+        }
+        
         final BooleanQuery multiQuery = new BooleanQuery();
         final QueryModifier valueModifier = modifier.getMultiValueModifier();
         final Occur occur = TermModifierToOccur.INSTANCE.apply(valueModifier.getTermModifier());
@@ -93,23 +149,31 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
         
         // add all items
         for (int i = 0; i < arrayLength; i++) {
+            // we can construct a single query without null check,
+            // because the type is primitive (long, byte, ...)
             final Object value = Array.get(values, i);
-            if (value != null) {
-                multiQuery.add(createQuery(value, valueModifier), occur);
-            }
+            final Query subQuery = createSingleQuery(value.toString(), valueModifier);
+            multiQuery.add(subQuery, occur);
         }
 
         return multiQuery;
     }
     
     private Query createQuery(Object value, QueryModifier modifier) {
-        Preconditions.checkNotNull(value, "Value");
-        if (value instanceof String) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof String) {
             return createSingleQuery(value.toString(), modifier);
         } else if (value instanceof Iterable<?>) {
             return createMultiQuery(Iterable.class.cast(value), modifier);
-        } else if (value.getClass().isArray()) { 
-            return createMultiQueryFromArray(value, modifier);
+        } else if (value.getClass().isArray()) {
+            if (Array.getLength(value) == 0) {
+                return null;
+            } else if (Array.get(value, 0).getClass().isPrimitive()) {
+                return createMultiQueryFromPrimitiveArray(value, modifier);
+            } else {
+                return createMultiQuery((Object[]) value, modifier);
+            }
         } else {
             return createSingleQuery(value.toString(), modifier);
         }
@@ -121,6 +185,7 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
         
         final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
         final Query query = createSingleQuery(value, modifier);
+        Preconditions.checkState(query != null, "Constructed an empty query from %s", value);
         addQueryToTopQuery(query, occur);
         
         return this;
@@ -131,7 +196,8 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
         Preconditions.checkState(values != null, "Values must not be null");
         
         final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
-        final Query query = createMultiQueryFromArray(values, modifier);
+        final Query query = createMultiQuery(values, modifier);
+        Preconditions.checkState(query != null, "Constructed an empty query from %s", values);
         addQueryToTopQuery(query, occur);
         
         return this;
@@ -142,7 +208,8 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
         Preconditions.checkState(values != null, "Values must not be null");
         
         final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
-        final Query query = createMultiQueryFromArray(values, modifier);
+        final Query query = createMultiQueryFromPrimitiveArray(values, modifier);
+        Preconditions.checkState(query != null, "Constructed an empty query from %s", values);
         addQueryToTopQuery(query, occur);
         
         return this;
@@ -154,6 +221,7 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
         
         final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
         final Query query = createMultiQuery(values, modifier);
+        Preconditions.checkState(query != null, "Constructed an empty query from %s", values);
         addQueryToTopQuery(query, occur);
         
         return this;
@@ -234,13 +302,19 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
 
     @Override
     public String getQuery() {
-        Preconditions.checkState(this.topQuery.getClauses().length > 0, ERR_EMPTY_QUERY);
+        Preconditions.checkState(this.topQuery.clauses().size() > 0, ERR_EMPTY_QUERY);
         return this.topQuery.toString();
     }
 
     @Override
     public LuceneQuery startField(String fieldName, QueryModifier modifier) {
+        if (StringUtils.isBlank(fieldName)) {
+            setLastSuccessful(false);
+            return this;
+        }
+        
         this.currentField = fieldName;
+        setLastSuccessful(true);
         return this;
     }
 
