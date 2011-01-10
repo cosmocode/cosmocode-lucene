@@ -344,21 +344,6 @@ public final class DefaultLuceneQuery extends AbstractLuceneQuery {
      */
     
     @Override
-    public DefaultLuceneQuery startField(final String fieldName, final boolean mandatory) {
-        if (StringUtils.isBlank(fieldName)) {
-            setLastSuccessful(false);
-            return this;
-        }
-
-        positionStack.push(queryArguments.length() - 1);
-        if (mandatory) queryArguments.append("+");
-        queryArguments.append(fieldName).append(":(");
-        setLastSuccessful(true);
-        
-        return this;
-    }
-    
-    @Override
     public DefaultLuceneQuery startField(final String fieldName, final QueryModifier modifier) {
         if (StringUtils.isBlank(fieldName)) {
             setLastSuccessful(false);
