@@ -26,8 +26,8 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.ConstantScoreRangeQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.RangeQuery;
 import org.apache.lucene.search.TermQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +125,11 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
             multiQuery.add(subQuery, occur);
         }
         
-        return multiQuery;
+        if (multiQuery.clauses().size() == 0) {
+            return null;
+        } else {
+            return multiQuery;
+        }
     }
     
     /**
@@ -253,9 +257,9 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
     @Override
     public LuceneQuery addRange(String from, String to, QueryModifier modifier) {
         final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
-        final Term lowerTerm = new Term(currentField, from);
-        final Term upperTerm = new Term(currentField, to);
-        final RangeQuery query = new RangeQuery(lowerTerm, upperTerm, true);
+        final String fromParsed = modifier.isWildcarded() ? from + "*" : from;
+        final String toParsed = modifier.isWildcarded() ? to + "*" : to;
+        final Query query = new ConstantScoreRangeQuery(currentField, fromParsed, toParsed, true, true);
         addQueryToTopQuery(query, occur);
         
         return this;
@@ -313,6 +317,7 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
             return this;
         }
         
+        // TODO we need to analyze the term modifier of the modifier
         this.currentField = fieldName;
         setLastSuccessful(true);
         return this;
