@@ -121,15 +121,9 @@ abstract class AbstractLuceneQueryTestFragment implements UnitProvider<LuceneQue
                 LOG.info("Original query was {}", expectedString);
             }
         } else {
-            LOG.debug("Original queries:");
-            LOG.debug("\texpected={}", expectedString);
-            LOG.debug("\t  actual={}", actualString);
             LOG.debug("Parsed queries:");
             LOG.debug("\texpected={}", queryExpected);
             LOG.debug("\t  actual={}", queryActual);
-            LOG.debug("Expected result: {}", docExpected);
-            LOG.debug("  Actual result: {}", docActual);
-            LOG.debug("End");
         }
         final String errorMsg = "Expected query: " + expectedString + ", but is: " + actualString;
         Assert.assertTrue(errorMsg, docExpected.equals(docActual));
