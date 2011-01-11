@@ -67,7 +67,7 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
         lastQuery = query;
     }
     
-    private Query createSingleQuery(String value, QueryModifier modifier) {
+    private Query createSingleQuery(String value) {
         return new TermQuery(new Term(currentField, value));
     }
     
@@ -105,13 +105,13 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
     private Query createQuery(Object value, QueryModifier modifier) {
         Preconditions.checkNotNull(value, "Value");
         if (value instanceof String) {
-            return createSingleQuery(value.toString(), modifier);
+            return createSingleQuery(value.toString());
         } else if (value instanceof Iterable<?>) {
             return createMultiQuery(Iterable.class.cast(value), modifier);
         } else if (value.getClass().isArray()) { 
             return createMultiQueryFromArray(value, modifier);
         } else {
-            return createSingleQuery(value.toString(), modifier);
+            return createSingleQuery(value.toString());
         }
     }
 
@@ -120,7 +120,7 @@ final class DirectApiLuceneQuery extends AbstractLuceneQuery {
         Preconditions.checkState(value != null, "Value must not be null");
         
         final Occur occur = TermModifierToOccur.INSTANCE.apply(modifier.getTermModifier());
-        final Query query = createSingleQuery(value, modifier);
+        final Query query = createSingleQuery(value);
         addQueryToTopQuery(query, occur);
         
         return this;
